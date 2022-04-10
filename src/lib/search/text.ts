@@ -91,7 +91,7 @@ export async function compileQueryAST (ast: QueryNode | undefined, lookupVectorF
       }
     }
   } else {
-    throw new Error('unknown ast node type')
+    throw new Error('unknown ast node type: ' + JSON.stringify(ast, null, 2))
   }
 }
 
@@ -155,25 +155,10 @@ const parserPasses: ParserPass[] = [
     return output
   },
 
-  function ors (tokens) {
+  function andors (tokens) {
     const output = []
     for (const token of tokens) {
-      if (output.length > 1 && output.at(-1) === 'OR') {
-        const type = output.pop().toLowerCase()
-        const left = parseTokens([output.pop()])
-        const right = parseTokens([token])
-        output.push({ type, left, right })
-      } else {
-        output.push(token)
-      }
-    }
-    return output
-  },
-
-  function ands (tokens) {
-    const output = []
-    for (const token of tokens) {
-      if (output.length > 1 && output.at(-1) === 'AND') {
+      if (output.length > 1 && ['AND', 'OR'].includes(output.at(-1))) {
         const type = output.pop().toLowerCase()
         const left = parseTokens([output.pop()])
         const right = parseTokens([token])
@@ -221,7 +206,7 @@ const parserPasses: ParserPass[] = [
       return [{
         type: 'and',
         left: tokens[0],
-        right: implicitAnd(tokens.slice(1))
+        right: implicitAnd(tokens.slice(1))[0]
       }]
     }
   }

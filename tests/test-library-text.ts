@@ -201,4 +201,28 @@ describe('/library/text compileQuery()', () => {
     expect(rankFn(entry({ tags: ['abc', 'xyz'] }))).to.equal(0)
     expect(rankFn(entry({ tags: ['jjj', 'xyz'] }))).to.equal(Infinity)
   })
+
+  it('known irritants', async () => {
+    expect(parseQuery('if a tree falls in the woods?')).to.deep.equal(
+      and(
+        word('if'),
+        and(
+          word('a'),
+          and(
+            word('tree'),
+            and(
+              word('falls'),
+              and(
+                word('in'),
+                and(
+                  word('the'),
+                  word('woods')
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  })
 })
