@@ -1,4 +1,4 @@
-<script>
+<script lang=ts>
   import Icon from '$lib/Icon.svelte'
   export let length = 1
   export let selected = 0

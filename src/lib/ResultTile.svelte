@@ -146,7 +146,7 @@
   .result:not(.expand) {
     display: grid;
     grid-template-columns: 250px 1ex auto;
-    /* grid-template-rows: min-content auto; */
+    grid-template-rows: 2.5rem auto;
     min-height: 158px;
     grid-template-areas:
       "media gap heading"
@@ -206,7 +206,7 @@
 
   /* alert notices on search results */
   .result.invented { background-color: var(--alert-bg); }
-  .result .alert :first-child {
+  .result .alert :global(svg) {
     vertical-align: -0.2ex;
   }
 
