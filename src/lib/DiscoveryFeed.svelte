@@ -1,0 +1,112 @@
+<script lang=ts>
+  import Icon from '$lib/Icon.svelte'
+  import MainBlock from '$lib/MainBlock.svelte'
+  import Spinner from '$lib/Spinner.svelte'
+  import { humane as humaneTime } from '$lib/functions/date'
+  import { onMount } from 'svelte'
+
+  let feed = undefined
+  let loading = false
+  let showSpinner = false
+
+  onMount(() => {
+		// load feed
+    loading = true
+    const showSpinnerTimeout = setTimeout(() => {
+      showSpinner = true
+    }, 250)
+
+		fetch('/feeds/discovery-widget').then(response => {
+      return response.json()
+		}).then(json => {
+      clearTimeout(showSpinnerTimeout)
+      loading = false
+      feed = json
+    })
+  })
+
+  // group entries by day, with humane headings
+  function dateGrouped (entries) {
+    const grouped = []
+    for (const entry of entries) {
+      const timestamp = Date.parse(entry.date)
+      const humane = humaneTime(timestamp)
+      if (grouped.length === 0 || grouped[0].humane !== humane) {
+        grouped.unshift({
+          humane,
+          entries: [entry]
+        })
+      } else {
+        grouped[0].entries.unshift(entry)
+      }
+    }
+    return grouped
+  }
+</script>
+
+<svelte:head>
+	<link rel=alternate title="Recently Added (JSON)" type=application/json href=/feeds/discovery.json>
+	<link rel=alternate title="Recently Added (Atom)" type=application/atom+xml href=/feeds/discovery.atom>
+	<link rel=alternate title="Recently Added (RSS)" type=application/rss+xml href=/feeds/discovery.rss>
+</svelte:head>
+
+<MainBlock>
+  {#if feed}
+    <div class="h-feed">
+      <a href={'/feeds/discovery.atom'} class=icon-feed title="Atom Feed"><Icon name=feed/></a>
+      {#each dateGrouped(feed.reverse()) as { humane, computer, entries }}
+        <h2><time datetime={computer}>{humane}</time></h2>
+        {#each entries as entry}
+          <div class="discovery-link h-entry">
+            <time datetime={entry.date} class="dt-published entry-timestamp">{humane}</time>
+            <a class="provider-link p-author h-card" href={entry.author.url}>{entry.author.name}</a>
+            {entry.verb || 'documented'}
+            <a href={entry.remoteURL} class="entry-link p-name u-url">{entry.title}</a>
+          </div>
+        {/each}
+      {/each}
+    </div>
+  {:else}
+    <div class="loading">
+      {#if showSpinner}
+        <Spinner/>
+      {/if}
+    </div>
+  {/if}
+</MainBlock>
+
+<style>
+  div.loading {
+    display: grid;
+    height: calc(300px - 1rem - 6px);
+  }
+
+  div.loading > :global(.spinner) {
+    justify-content: center;
+    align-content: center;
+    height: 100%;
+  }
+
+  a.icon-feed {
+    display: block;
+    width: 1em; height: 1em;
+    float: right;
+  }
+
+  h2, div.discovery-link {
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+  }
+
+  div.discovery-link {
+    display: list-item;
+    list-style-position: inside;
+    list-style-type: square;
+    padding-left: 0.5em;
+  }
+
+  time.entry-timestamp {
+    display: none;
+  }
+</style>
