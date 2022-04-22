@@ -5,6 +5,7 @@
   import rank from '$lib/search/search-rank'
   import { compileQuery, normalizeWord } from '$lib/search/text'
   import siteConfig from '$lib/site-config.json'
+  import uri from 'uri-tag'
 
   const resultsPerPage = 10
   const maxPages = 9
@@ -43,7 +44,6 @@
     return { props: { query, page, results, totalPages, library: searchLibrary } }
   }
 </script>
-
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
   import Paginator from '$lib/Paginator.svelte'
@@ -69,7 +69,7 @@
       {#await searchIndex.getResult(library, entry)}
         <ResultTile/>
       {:then data}
-        <ResultTile {data} permalink="/sign/{data.provider}/{data.id}"/>
+        <ResultTile {data} permalink={uri`/sign/${data.provider}/${data.id}`}/>
       {/await}
     {/each}
   </div>
@@ -78,7 +78,7 @@
 {/if}
 
 {#if totalPages > 0}
-  <Paginator selected={page} length={totalPages} toURL={(page) => `?${new URLSearchParams(Object.entries({ query, page }))}`}/>
+  <Paginator selected={page} length={totalPages} toURL={(page) => uri`?query=${query}&page=${page}`}/>
 {/if}
 
 <style>
