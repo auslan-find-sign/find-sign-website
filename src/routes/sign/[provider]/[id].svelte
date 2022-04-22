@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   import siteConfig from '$lib/site-config.json'
-  import { open, getResultByPath } from '$lib/search/search-index'
+  import { open, getResultByPath, type SearchDataItem } from '$lib/search/search-index'
 
   export async function load ({ params }) {
     const library = await open(siteConfig.searchIndex)
@@ -12,10 +12,24 @@
   import Header from '$lib/header/Header.svelte'
   import ResultTile from '$lib/ResultTile.svelte'
 
-  export let result
+  export let result: SearchDataItem
+
+  const ogVideoTypePreference = ['video/mp4', 'video/webm']
+  $: openGraphVideos = result.media.map((formats) => {
+    return formats.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
+  })
 </script>
 <svelte:head>
 	<title>{result.provider}’s “{result.title || result.keywords.join(' ')}”</title>
+  <meta property="og:title" content="Auslan: “{result.title || result.keywords.join(' ')}”">
+  <meta property="og:type" content="video">
+  <meta property="og:description" content="{result.body}">
+  {#each openGraphVideos as video}
+    <meta property="og:video" content="{video.src}">
+    <meta property="og:video:type" content="{video.type}">
+    <meta property="og:video:width" content="{video.maxWidth.toString()}">
+    <meta property="og:video:height" content="{video.maxHeight.toString()}">
+  {/each}
 </svelte:head>
 
 
