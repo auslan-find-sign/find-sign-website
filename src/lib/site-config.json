@@ -1,5 +1,5 @@
 {
-  "searchIndex": "https://beta.find.auslan.fyi/datasets/search-index",
-  "vectorIndex": "https://beta.find.auslan.fyi/datasets/cc-en-300-8bit",
-  "updateLog": "https://beta.find.auslan.fyi/datasets/update-log.cbor"
+  "searchIndex": "https://find.auslan.fyi/datasets/search-index",
+  "vectorIndex": "https://find.auslan.fyi/datasets/cc-en-300-8bit",
+  "updateLog": "https://find.auslan.fyi/datasets/update-log.cbor"
 }
