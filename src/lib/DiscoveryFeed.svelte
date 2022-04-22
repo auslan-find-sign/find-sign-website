@@ -59,9 +59,9 @@
         {#each entries as entry}
           <div class="discovery-link h-entry">
             <time datetime={entry.date} class="dt-published entry-timestamp">{humane}</time>
-            <a class="provider-link p-author h-card" href={entry.author.url}>{entry.author.name}</a>
+            <a class="provider-link p-author h-card" href={entry.author.url} sveltekit:reload rel=external>{entry.author.name}</a>
             {entry.verb || 'documented'}
-            <a href={entry.remoteURL} class="entry-link p-name u-url">{entry.title}</a>
+            <a href={entry.remoteURL} class="entry-link p-name u-url" sveltekit:reload rel=external>{entry.title}</a>
           </div>
         {/each}
       {/each}

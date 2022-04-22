@@ -22,15 +22,15 @@
 
     <div class=heading>
       <div class=datas>
-        <h2 class=words><a href={data.link} referrerpolicy=origin rel=external>{data.title || data.keywords.join(', ')}</a></h2>
+        <h2 class=words><a href={data.link} referrerpolicy=origin rel=external sveltekit:reload>{data.title || data.keywords.join(', ')}</a></h2>
 
         <cite class=link>
           {#if data.nav && data.nav.length > 0}
             {#each data.nav as [name, url]}
-              <a href={url} referrerpolicy=origin rel=external>{name}</a>
+              <a href={url} referrerpolicy=origin rel=external sveltekit:reload>{name}</a>
             {/each}
           {:else}
-            <a href={data.link}>{data.link}</a>
+            <a href={data.link} referrerpolicy=origin rel=external sveltekit:reload>{data.link}</a>
           {/if}
         </cite>
 
@@ -43,7 +43,7 @@
 
       <div class=icons>
         {#if permalink}
-          <a class="permalink" href={permalink}><Icon name="link"/></a>
+          <a class="permalink" href={permalink} sveltekit:prefetch><Icon name="link"/></a>
         {/if}
 
         {#if ['wa','nt','sa','qld','nsw','act','vic','tas'].some(x => data.tags.includes(x))}

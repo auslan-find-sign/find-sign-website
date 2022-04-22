@@ -11,7 +11,7 @@
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- these videos have no audio to caption -->
 <div class={$$props.class}>
-  <a href={link} referrerpolicy=origin rel=external>
+  <a href={link} referrerpolicy=origin rel=external sveltekit:reload>
     {#key media}
       {#if type === 'video'}
         <video muted preload="auto" autoplay loop playsinline>
