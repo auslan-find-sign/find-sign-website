@@ -30,8 +30,10 @@
   "dependencies": {
     "@fontsource/fira-mono": "^4.5.0",
     "@lukeed/uuid": "^2.0.0",
-    "cbor-codec": "^0.9.6",
+    "@sveltejs/adapter-node": "^1.0.0-next.73",
+    "cbor-codec": "^0.9.7",
     "cookie": "^0.4.1",
-    "pigeonmark-xml": "^1.0.1"
+    "pigeonmark-xml": "^1.0.1",
+    "uri-tag": "^1.4.1"
   }
 }
