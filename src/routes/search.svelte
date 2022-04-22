@@ -3,7 +3,7 @@
   import * as searchIndex from '$lib/search/search-index'
   import * as precomputedVectors from '$lib/search/precomputed-vectors'
   import rank from '$lib/search/search-rank'
-  import { compileQuery } from '$lib/search/text'
+  import { compileQuery, normalizeWord } from '$lib/search/text'
   import siteConfig from '$lib/site-config.json'
 
   const resultsPerPage = 10
@@ -23,9 +23,18 @@
 
     if (browser || serverRender) {
       searchLibrary = await searchIndex.open(siteConfig.searchIndex)
-      const vectors = await precomputedVectors.open(siteConfig.vectorIndex, (...args) => fetch(...args))
-      const queryFn = await compileQuery(query, (word) => precomputedVectors.lookup(vectors, word))
-      console.log('queryFn', queryFn)
+      const vectors = await precomputedVectors.open(siteConfig.vectorIndex)
+      const queryFn = await compileQuery(query, async (word) => {
+        const normalized = normalizeWord(word)
+        const normalizedResult = await precomputedVectors.lookup(vectors, normalized)
+        if (normalizedResult) {
+          return normalizedResult
+        } else if (normalized !== normalized.toLowerCase()) {
+          const lowerCasedResult = await precomputedVectors.lookup(vectors, normalized.toLowerCase())
+          return lowerCasedResult
+        }
+      })
+
       const ranked = rank(searchLibrary, queryFn)
       results = ranked.index.slice(page * resultsPerPage, (page * resultsPerPage) + resultsPerPage)
       totalPages = Math.min(maxPages, Math.ceil(ranked.index.length / resultsPerPage))
