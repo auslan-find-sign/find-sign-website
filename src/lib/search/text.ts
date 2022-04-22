@@ -18,7 +18,7 @@ export type QueryOrNode = {
 export type QueryWord = {
   type: 'word',
   string: string,
-  vector?: number[]
+  vector?: readonly number[]
 }
 
 export type QueryTag = {
@@ -33,7 +33,7 @@ type Token = string | QueryNode
 type ParserPass = (tokens: Token[]) => Token[]
 
 export type RankingFilterFunction = (searchEntry: LibraryEntry) => number
-export type LookupVectorFunction = (word: string) => Promise<number[]>
+export type LookupVectorFunction = (word: string) => Promise<readonly number[]>
 
 // Vector Library normalization: any words that aren't entirely uppercase (like an acronym) get downcased
 export function normalizeWord (word: string): string {
