@@ -1,8 +1,12 @@
+<script lang="ts" context="module">
+  export const prerender = true
+</script>
+
 <svelte:head>
   <title>Random Sign</title>
 </svelte:head>
 
-<script>
+<script lang="ts">
   import siteConfig from '$lib/site-config.json'
   import Header from '$lib/header/Header.svelte'
   import ResultTile from '$lib/ResultTile.svelte'
@@ -20,8 +24,6 @@
 
   let result
   let library
-
-  $: console.log(result)
 
   async function reroll () {
     // clear current result

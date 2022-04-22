@@ -76,33 +76,3 @@
     {/each}
   </ul>
 </MainBlock>
-
-<style>
-  :global(*) {
-    box-sizing: border-box; /* i just like it better ok? microsoft was right */
-  }
-
-  :global(body) {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: var(--base-bg);
-    color: var(--base-fg);
-  }
-
-  ul.hashtags > li > span {
-    opacity: 0.5;
-    font-size: 70%;
-  }
-
-  h1 {
-    font-weight: 200;
-    font-style: italic;
-    text-align: center;
-  }
-
-  h1::before { content: "—❮❬   "; }
-  h1::after { content: "   ❭❯—"; }
-  h1::before, h1::after {
-    font-style: normal;
-    opacity: 0.5;
-  }
-</style>

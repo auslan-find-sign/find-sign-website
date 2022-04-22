@@ -38,4 +38,22 @@
   main :global(a) {
     color: inherit;
   }
+
+  main :global(ul.hashtags > li > span) {
+    opacity: 0.5;
+    font-size: 70%;
+  }
+
+  main :global(h1) {
+    font-weight: 200;
+    font-style: italic;
+    text-align: center;
+  }
+
+  main :global(h1::before) { content: "—❮❬   "; }
+  main :global(h1::after) { content: "   ❭❯—"; }
+  main :global(h1::before), main :global(h1::after) {
+    font-style: normal;
+    opacity: 0.5;
+  }
 </style>
