@@ -12,7 +12,6 @@ export type Library = {
   settings: any,
   etag?: string,
   lastModified?: string
-  fetch?: (RequestInfo, RequestInit?) => Promise<Response>
   dataPaths?: object // optional dataPaths index for server side lookup by provider/id paths
 }
 
@@ -24,7 +23,37 @@ export type LibraryEntry = {
   rank?: number
 }
 
-export type EntryVector = number[]
+export type SearchDataItem = {
+  library: Library,
+  words?: EntryWord[], // wordvecs and strings, the searchable terms
+  diversity?: number, // number representing how similar the wordvecs in .words are
+  rank?: number
+
+  path: [number, number],
+  title?: string, // optional string title, if not present, generated from keywords
+  keywords: string[], // array of searchable words associated with the meaning of the sign
+  tags: string[], // hashtags, without the hash prefix
+  body: string, // body text
+  link: string, // url to original source document
+  provider: string, // provider spider, e.g. 'asphyxia'
+  id: string, // unique (within provider) identifier for this specific sign
+  nav?: NavEntry[], // breadcrumbs for navigation in that provider's site structure
+  media: MediaItem[],
+  timestamp?: number // if known, the last time this entry was changed
+}
+
+export type NavEntry = [title: string, link: string]
+export type MediaItem = MediaItemFormat[]
+export type MediaItemFormat = {
+  extension: string,
+  src: string, // url, possibly relative path
+  type: string, // mime type
+  maxWidth: number,
+  maxHeight: number
+}
+
+
+export type EntryVector = readonly number[]
 export type EntryWord = EntryVector | string
 
 export async function open (path: string): Promise<Library> {
@@ -80,7 +109,7 @@ export async function freshen (library: Library): Promise<Library> {
 }
 
 // Given a LibraryEntry, load the search index result data and return it
-export async function getResult (library: Library, entry: LibraryEntry) {
+export async function getResult (library: Library, entry: LibraryEntry): Promise<SearchDataItem> {
   // calculate url, load shard file, decode it
   const [shardNumber, item] = entry.path
   const shardURL = `${library.path}/definitions/${library.settings.buildID}/${shardNumber}.cbor`
@@ -99,12 +128,30 @@ export async function getResult (library: Library, entry: LibraryEntry) {
   }
 }
 
-// Get a search index result by provider-id/entry-id path
-export async function getResultByPath (library: Library, provider: string, id: string) {
+async function loadDataPaths (library: Library): Promise<void> {
   if (!library.dataPaths) {
     const response = await fetch(library.path + '/data-paths.cbor', { mode: 'cors', cache: 'default' })
     library.dataPaths = decodeCBOR(await response.arrayBuffer())
   }
+}
+
+// used for sitemap generation, returns a list of providers in the search results
+export async function getProviders (library: Library) {
+  await loadDataPaths(library)
+  return Object.keys(library.dataPaths)
+}
+
+// used for sitemap generation, returns a list of providers in the search results
+export async function getProviderIDs (library: Library, provider: string) {
+  await loadDataPaths(library)
+  return Object.keys(library.dataPaths[provider])
+}
+
+
+
+// Get a search index result by provider-id/entry-id path
+export async function getResultByPath (library: Library, provider: string, id: string) {
+  await loadDataPaths(library)
 
   return await getResult(library, {
     path: library.dataPaths[provider][id],
