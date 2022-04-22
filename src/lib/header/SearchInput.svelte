@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { browser } from '$app/env'
   import { goto } from '$app/navigation'
 
   import Icon from '$lib/Icon.svelte'
@@ -35,6 +36,7 @@
   <Icon name=search/>
   <input bind:this={input} autocomplete=off autocapitalize=none aria-label="Enter search query here." name=query bind:value={query}>
   <input type=hidden name=page value=0>
+  {#if !browser}<input type=hidden name=ssr value=yes>{/if}
 </form>
 
 <style>

@@ -13,7 +13,7 @@
   export async function load ({ url, fetch }) {
     const query = url.searchParams.get('query') || ''
     const page = parseInt(url.searchParams.get('page') || '0')
-    const serverRender = url.searchParams.get('ssrplz') === 'yes'
+    const serverRender = url.searchParams.get('ssr') === 'yes'
     let results = []
     let totalPages = 0
     let searchLibrary = undefined
