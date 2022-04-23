@@ -1,9 +1,9 @@
 <script lang="ts" context="module">
-  import siteConfig from '$lib/site-config.json'
-  import { open, getResultByPath, type SearchDataItem } from '$lib/search/search-index'
+  import { getSearchLibrary } from '$lib/search/search'
+  import { getResultByPath, type SearchDataItem } from '$lib/search/search-index'
 
   export async function load ({ params }) {
-    const library = await open(siteConfig.searchIndex)
+    const library = await getSearchLibrary()
     const result = await getResultByPath(library, decodeURIComponent(params.provider), decodeURIComponent(params.id))
     return { props: { result } }
   }

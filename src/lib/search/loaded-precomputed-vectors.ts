@@ -1,0 +1,23 @@
+import type { VectorLibrary, WordVector } from '$lib/search/precomputed-vectors'
+import { open as pvOpen, lookup as pvLookup } from '$lib/search/precomputed-vectors'
+import lru from '$lib/functions/lru'
+import siteConfig from '$lib/site-config.json'
+
+let vectorLibrary: VectorLibrary = undefined
+export async function preload (): Promise<VectorLibrary> {
+  if (!vectorLibrary) {
+    vectorLibrary = await pvOpen(siteConfig.vectorIndex)
+  }
+
+  return vectorLibrary
+}
+
+const cacheSize = 250
+const lookupCache = lru(cacheSize)
+// const lookupCache: {string: string, vector: WordVector}[] = []
+// proxy to precomputed-vectors.lookup, but caches the most recently used 250 queries in memory
+export async function lookup (word: string): Promise<WordVector> {
+  return await lookupCache(word, async (word) =>
+    pvLookup(vectorLibrary || await preload(), word)
+  )
+}

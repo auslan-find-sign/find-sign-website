@@ -1,0 +1,30 @@
+type CacheEntry = {
+  key: string,
+  value: any
+}
+
+/**
+ * Create a Least Recently Used cache of a given size, which returns items from it's cache when the match key
+ * or calls an async callback to get the item if it isn't in the cache
+ */
+export default function lru (size) {
+  const cacheList: CacheEntry[] = []
+
+  async function cache<Type> (key: string, getValue: (key: string) => Promise<Type>): Promise<Type> {
+    let result = cacheList.find(entry => entry.key === key)
+    if (result === undefined) {
+      const value = await getValue(key)
+      if (value !== undefined) {
+        result = { key, value }
+      }
+    }
+
+    if (result) {
+      cacheList.unshift(result)
+      if (cacheList.length > size) cacheList.pop()
+      return result.value
+    }
+  }
+
+  return cache
+}

@@ -110,8 +110,13 @@ export async function freshen (library: Library): Promise<Library> {
 
 // Given a LibraryEntry, load the search index result data and return it
 export async function getResult (library: Library, entry: LibraryEntry): Promise<SearchDataItem> {
+  return await getResultByNumericPath(library, entry.path)
+}
+
+// Given a LibraryEntry, load the search index result data and return it
+export async function getResultByNumericPath (library: Library, numericPath: [number, number]): Promise<SearchDataItem> {
   // calculate url, load shard file, decode it
-  const [shardNumber, item] = entry.path
+  const [shardNumber, item] = numericPath
   const shardURL = `${library.path}/definitions/${library.settings.buildID}/${shardNumber}.cbor`
   const response = await fetch(shardURL, { mode: 'cors', cache: 'force-cache' })
   const shard = decodeCBOR(await response.arrayBuffer())
@@ -123,7 +128,7 @@ export async function getResult (library: Library, entry: LibraryEntry): Promise
         const path = paths[mediaSet.extension]
         const src = `${library.path}/media/${path}`
         return Object.assign(Object.create(mediaSet), { path, src })
-      })
+      }).sort((a, b) => b.maxHeight - a.maxHeight)
     })
   }
 }
@@ -146,8 +151,6 @@ export async function getProviderIDs (library: Library, provider: string) {
   await loadDataPaths(library)
   return Object.keys(library.dataPaths[provider])
 }
-
-
 
 // Get a search index result by provider-id/entry-id path
 export async function getResultByPath (library: Library, provider: string, id: string) {
