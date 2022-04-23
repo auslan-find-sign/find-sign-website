@@ -1,4 +1,4 @@
-import type { Library, SearchDataItem } from './search-index'
+import { getResult, type Library, type SearchDataItem } from './search-index'
 import { open, freshen, getResultByNumericPath } from '$lib/search/search-index'
 import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
@@ -38,6 +38,10 @@ export async function getSearchLibrary (): Promise<Library> {
 export async function search (query: string, start: number, length: number): Promise<SearchResponse> {
   const library = await getSearchLibrary()
 
+  if (query !== lastQuery) {
+    cachedRankedIndex = undefined
+  }
+
   if (!cachedRankedIndex) {
     const queryFn = await compileQuery(query, async (word) => {
       const normalized = normalizeWord(word)
@@ -53,11 +57,11 @@ export async function search (query: string, start: number, length: number): Pro
     cachedRankedIndex = rank(library, queryFn)
   }
 
+  lastQuery = query
+
   const resultEntries = cachedRankedIndex.index.slice(start, start + length)
   const results = await Promise.all(resultEntries.map(entry => {
-    return resultItemCache(JSON.stringify(entry.path), (key) => {
-      return getResultByNumericPath(searchLibrary, JSON.parse(key))
-    })
+    return resultItemCache(JSON.stringify(entry.path), () => getResult(searchLibrary, entry))
   }))
 
   return {

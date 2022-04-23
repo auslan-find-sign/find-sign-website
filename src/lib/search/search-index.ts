@@ -24,7 +24,7 @@ export type LibraryEntry = {
 }
 
 export type SearchDataItem = {
-  library: Library,
+  // library: Library,
   words?: EntryWord[], // wordvecs and strings, the searchable terms
   diversity?: number, // number representing how similar the wordvecs in .words are
   rank?: number
@@ -110,7 +110,10 @@ export async function freshen (library: Library): Promise<Library> {
 
 // Given a LibraryEntry, load the search index result data and return it
 export async function getResult (library: Library, entry: LibraryEntry): Promise<SearchDataItem> {
-  return await getResultByNumericPath(library, entry.path)
+  return {
+    ...entry,
+    ...await getResultByNumericPath(library, entry.path)
+  }
 }
 
 // Given a LibraryEntry, load the search index result data and return it
@@ -121,7 +124,7 @@ export async function getResultByNumericPath (library: Library, numericPath: [nu
   const response = await fetch(shardURL, { mode: 'cors', cache: 'force-cache' })
   const shard = decodeCBOR(await response.arrayBuffer())
   return {
-    library,
+    uuid: `${shard[item].provider}:${shard[item].id}`,
     ...shard[item],
     media: shard[item].media.map(paths => {
       return library.settings.mediaSets.map(mediaSet => {
