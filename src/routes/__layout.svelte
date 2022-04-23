@@ -10,6 +10,17 @@
 	import '../app.css'
 
 	$: loading = $navigating !== null
+
+	let showSpinner = false
+	let timer = undefined
+	$: if (loading === true) {
+		if (timer) clearTimeout(timer)
+		timer = setTimeout(() => showSpinner = true, 200)
+	} else if (loading === false) {
+		clearTimeout(timer)
+		timer = undefined
+		showSpinner = false
+	}
 </script>
 
 <svelte:head>
@@ -17,7 +28,7 @@
   <meta name=viewport content="width=device-width">
 </svelte:head>
 
-{#if !loading}
+{#if !showSpinner}
 	<slot></slot>
 {:else}
 	<Header showNavigation={true} />
