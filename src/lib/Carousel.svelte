@@ -1,17 +1,40 @@
-<script>
-  export let medias = []
-  export let selected = 0
+<script lang=ts>
+  import type { MediaItem } from './search/search-index'
+  import { page } from '$app/stores'
+  import { goto } from '$app/navigation'
+
+  export let key: number|string = 0 // unique index of carousel, for search params state transmission
+  export let medias: MediaItem[] = []
+  export let selected: number = parseInt($page.url.searchParams.get(`carousel${key}`) || '0')
   export let link = undefined
+
+  $: selected = parseInt($page.url.searchParams.get(`carousel${key}`) || `${selected}`)
 
   $: media = medias[selected]
   // 'image' or 'video'
   $: type = media[0].type.split('/')[0]
+
+  function buttonHref (base, selection: number): string {
+    const params = new URLSearchParams(base)
+    params.set(`carousel${key}`, `${selection}`)
+    return `?${params}`
+  }
+
+  function buttonClick (event: MouseEvent) {
+    event.preventDefault()
+    /* @ts-ignore */
+    const link: HTMLAnchorElement = event.target
+    goto(link.href, { replaceState: true, noscroll: true })
+  }
+
+  $: prevLink = (selected > 0) && buttonHref($page.url.searchParams, selected - 1)
+  $: nextLink = (selected < medias.length - 1) && buttonHref($page.url.searchParams, selected + 1)
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- these videos have no audio to caption -->
 <div class={$$props.class}>
-  <a href={link} referrerpolicy=origin rel=external sveltekit:reload>
+  <a href={link} referrerpolicy="origin" rel="external">
     {#key media}
       {#if type === 'video'}
         <video muted preload="auto" autoplay loop playsinline>
@@ -25,11 +48,11 @@
     {/key}
   </a>
 
-  {#if selected > 0}
-    <button class=prev aria-label="Previous Video" on:click={() => selected -= 1}>❮</button>
+  {#if prevLink}
+    <a role="button" href={prevLink} class="prev" aria-label="Previous Video" on:click={buttonClick}>❮</a>
   {/if}
-  {#if selected < medias.length - 1}
-    <button class=next aria-label="Next Video" on:click={() => selected += 1}>❯</button>
+  {#if nextLink}
+    <a role="button" href={nextLink} class="next" aria-label="Next Video" on:click={buttonClick}>❯</a>
   {/if}
 </div>
 
@@ -75,26 +98,31 @@
     aspect-ratio: 16 / 9;
   }
 
-  button, button {
+  a[role=button] {
+    display: block;
     grid-row: 1;
     z-index: 10;
     border: 0 none;
     padding: 0;
-    font-size: inherit;
+    font-size: 1em;
     font-weight: inherit;
     font-family: inherit;
     color: inherit;
     background-color: hsla(var(--hue), var(--module-bg-sat), var(--module-bg-lum), 40%);
     /* backdrop-filter: blur(2px); */
+    /* center the label */
+    padding-top: calc((140px - 1em) / 2);
+    text-align: center;
+    text-decoration: none;
   }
 
-  button.prev {
+  a[role=button].prev {
     grid-column: 1;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
   }
 
-  button.next {
+  a[role=button].next {
     grid-column: 3;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;

@@ -11,13 +11,16 @@
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
   import ResultTile from '$lib/ResultTile.svelte'
+  import { page } from '$app/stores'
 
   export let result: SearchDataItem
+
+  $: selectedVideoOffset = parseInt($page.url.searchParams.get('carousel0') || '0')
 
   const ogVideoTypePreference = ['video/mp4', 'video/webm']
   $: openGraphVideos = result.media.map((formats) => {
     return formats.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
-  })
+  }).slice(selectedVideoOffset, selectedVideoOffset + 1)
 </script>
 <svelte:head>
 	<title>{result.provider}’s “{result.title || result.keywords.join(' ')}”</title>
@@ -36,7 +39,7 @@
 <Header />
 
 <div>
-  <ResultTile data={result} expand />
+  <ResultTile key={0} data={result} expand />
 </div>
 
 <style>

@@ -50,11 +50,11 @@
   import ResultTile from '$lib/ResultTile.svelte'
   import Spinner from '$lib/Spinner.svelte'
 
-  export let library
-	export let query = ''
-  export let page = 0
-  export let totalPages = 0
-  export let results = []
+  export let library: searchIndex.Library
+	export let query: string = ''
+  export let page: number = 0
+  export let totalPages: number = 0
+  export let results: searchIndex.LibraryEntry[] = []
 </script>
 
 <svelte:head>
@@ -65,11 +65,11 @@
 
 {#if results}
   <div class="results">
-    {#each results as entry}
+    {#each results as entry, idx}
       {#await searchIndex.getResult(library, entry)}
-        <ResultTile/>
+        <ResultTile key={idx} />
       {:then data}
-        <ResultTile {data} permalink={uri`/sign/${data.provider}/${data.id}`}/>
+        <ResultTile {data} key={idx} permalink={uri`/sign/${data.provider}/${data.id}`} />
       {/await}
     {/each}
   </div>

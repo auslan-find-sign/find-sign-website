@@ -1,24 +1,25 @@
-<script>
-  import Carousel from '$lib/TinyMediaCarousel.svelte'
+<script lang="ts">
+  import Carousel from '$lib/Carousel.svelte'
   import RegionMap from '$lib/RegionMap.svelte'
   import Icon from '$lib/Icon.svelte'
 
   export let data = undefined
   export let expand = false
   export let permalink = undefined
+  export let carouselSelected = undefined
+  export let key: number = 0
 
   $: warnings = data ? [...getWarnings(data.tags)] : []
 
   function * getWarnings (tags) {
     if (tags.includes('invented'))
-      yield { text: 'Informal, colloqual sign. Professionals should not use.' }
+      yield { text: 'Informal, colloqual sign. Professionals should not use.', type: '', icon: 'alert' }
   }
 </script>
 
-
 <div class={$$props.class} class:result={true} class:placeholder={!data} class:expand={expand}>
   {#if data}
-    <Carousel medias={data.media} link={data.link} class=carousel></Carousel>
+    <Carousel bind:selected={carouselSelected} medias={data.media} {key} link={data.link} class="carousel"></Carousel>
 
     <div class=heading>
       <div class=datas>
