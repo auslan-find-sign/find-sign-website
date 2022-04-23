@@ -10,7 +10,7 @@
 
   $: selected = parseInt($page.url.searchParams.get(`carousel${key}`) || `${selected}`)
 
-  $: media = medias[selected]
+  $: media = medias[selected].sort((a, b) => b.maxHeight - a.maxHeight)
   // 'image' or 'video'
   $: type = media[0].type.split('/')[0]
 
@@ -38,7 +38,7 @@
     {#key media}
       {#if type === 'video'}
         <video muted preload="auto" autoplay loop playsinline>
-          {#each media as source}<source src={source.src} type={source.type}>{/each}
+          {#each media as source}<source src={source.src} type={source.type} data-max-width={`${source.maxWidth}`} data-max-height={`${source.maxHeight}`}>{/each}
         </video>
       {:else if type === 'image'}
         <picture>
