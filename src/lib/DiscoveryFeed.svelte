@@ -45,23 +45,23 @@
 </script>
 
 <svelte:head>
-	<link rel=alternate title="Recently Added (JSON)" type=application/json href=/feeds/discovery.json>
-	<link rel=alternate title="Recently Added (Atom)" type=application/atom+xml href=/feeds/discovery.atom>
-	<link rel=alternate title="Recently Added (RSS)" type=application/rss+xml href=/feeds/discovery.rss>
+	<link rel=alternate title="Recently Added (JSON)" type="application/json" href="/feeds/discovery.json">
+	<link rel=alternate title="Recently Added (Atom)" type="application/atom+xml" href="/feeds/discovery.atom">
+	<link rel=alternate title="Recently Added (RSS)" type="application/rss+xml" href="/feeds/discovery.rss">
 </svelte:head>
 
 <MainBlock>
   {#if feed}
     <div class="h-feed">
-      <a href={'/feeds/discovery.atom'} class=icon-feed title="Atom Feed"><Icon name=feed/></a>
+      <a href={'/feeds/discovery.atom'} class="icon-feed" title="Atom Feed"><Icon name=feed/></a>
       {#each dateGrouped(feed.reverse()) as { humane, computer, entries }}
         <h2><time datetime={computer}>{humane}</time></h2>
         {#each entries as entry}
           <div class="discovery-link h-entry">
             <time datetime={entry.date} class="dt-published entry-timestamp">{humane}</time>
-            <a class="provider-link p-author h-card" href={entry.author.url} sveltekit:reload rel=external>{entry.author.name}</a>
+            <a class="provider-link p-author h-card" href={entry.author.url} rel="external">{entry.author.name}</a>
             {entry.verb || 'documented'}
-            <a href={entry.remoteURL} class="entry-link p-name u-url" sveltekit:reload rel=external>{entry.title}</a>
+            <a href={entry.remoteURL} class="entry-link p-name u-url" rel="external">{entry.title}</a>
           </div>
         {/each}
       {/each}
