@@ -76,3 +76,13 @@
     {/each}
   </ul>
 </MainBlock>
+<style>
+  ul.hashtags {
+    display: grid;
+    grid-template-columns: repeat(3, 33%);
+  }
+
+  ul.hashtags li {
+    list-style: none;
+  }
+</style>
