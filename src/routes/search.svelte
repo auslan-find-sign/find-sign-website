@@ -1,10 +1,11 @@
 <script lang="ts" context="module">
   import type { SearchDataItem } from '$lib/search/search-index'
   import { search } from '$lib/search/search'
-  import uri from 'uri-tag'
 
   const resultsPerPage = 10
   const maxPages = 9
+
+  const uri = encodeURIComponent
 
 	/** @type {import('./search').Load} */
   export async function load ({ url }) {
@@ -41,7 +42,7 @@
 {#if results && results.length > 0}
   <div class="results">
     {#each results as entry, idx (`${entry.provider}/${entry.id}`)}
-      <ResultTile data={entry} key={idx} permalink={uri`/sign/${entry.provider}/${entry.id}`} />
+      <ResultTile data={entry} key={idx} permalink="/sign/{uri(entry.provider)}/{uri(entry.id)}" />
     {/each}
   </div>
 {:else}
@@ -51,7 +52,7 @@
 {/if}
 
 {#if totalPages > 0}
-  <Paginator selected={page} length={totalPages} toURL={(page) => uri`?query=${query}&page=${page}`}/>
+  <Paginator selected={page} length={totalPages} toURL={(page) => `?query=${uri(query)}&page=${uri(page)}`}/>
 {/if}
 
 <style>
