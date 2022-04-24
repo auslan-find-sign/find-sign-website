@@ -53,19 +53,16 @@
       </div>
     </div>
 
-    <div class=body>
-      {#if warnings.length > 0}
-        <div class=alerts>
-          {#each warnings as warning}
-            <div class="alert {warning.type}">
-              <Icon name={warning.icon || 'alert'}/>
-              {warning.text}
-            </div>
-          {/each}
-        </div>
-      {/if}
-      {data.body || ''}
-    </div>
+    <div class=body>{
+      #if warnings.length > 0
+        }<div class=alerts>{
+          #each warnings as warning
+            }<div class="alert {warning.type}"><Icon name={warning.icon || 'alert'}/> {warning.text}</div>{
+          /each
+        }</div>{
+      /if
+      }{data.body || ''
+    }</div>
   {/if}
 </div>
 
@@ -104,7 +101,7 @@
     text-transform: capitalize;
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: hidden;
+    /* overflow-x: hidden; */
   }
 
   .words a {
