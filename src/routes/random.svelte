@@ -1,8 +1,7 @@
 <script lang="ts" context="module">
   import type { SearchDataItem } from '$lib/search/search-index'
   import { getSearchLibrary } from '$lib/search/search'
-  import { getResult } from '$lib/search/search-index'
-  import { browser } from '$app/env'
+  import { getResultByPath, getProviderIDForLibraryEntry } from '$lib/search/search-index'
 
   const blockedTags = [
     'signpedia', // block signpedia-like entries, not established signs
@@ -11,90 +10,67 @@
     'semantic.sexuality' // block formal register sexual body parts type of words
   ]
 
-  import type { Load } from './random'
-  export const load: Load = async function load ({ stuff }) {
-    if (browser) {
-      const library = await getSearchLibrary()
-      for (let i = 0; i < 100; i++) {
-        const random = library.index[Math.round(Math.random() * (library.index.length - 1))]
-        const tagMatch = blockedTags.some(x => random.tags.includes(x))
-        if (!tagMatch) {
-          // load the result and set it up as the answer
-          return {
-            props: {
-              loading: false,
-              result: await getResult(library, random),
-              error: undefined
-            }
-          }
-        }
+  async function getRandomSigns (count: number): Promise<[provider: string, entry: string][]> {
+    const library = await getSearchLibrary()
+    const signs = []
+
+    for (let i = 0; i < 100 * count; i++) {
+      const random = library.index[Math.round(Math.random() * (library.index.length - 1))]
+      const tagMatch = blockedTags.some(x => random.tags.includes(x))
+      if (!tagMatch) {
+        // load the result and set it up as the answer
+        signs.push(await getProviderIDForLibraryEntry(library, random))
+        if (signs.length >= count) return signs
       }
-      return { props: { loading: false, result: undefined, error: 'failed to find a suitable result' } }
+    }
+  }
+
+  import type { Load } from './random'
+  export const load: Load = async function load ({ url }) {
+    const sign = url.searchParams.get('sign')
+    if (sign) {
+      const [provider, entry] = sign.split('*')
+      const library = await getSearchLibrary()
+      const result = await getResultByPath(library, provider, entry)
+      const [random] = await getRandomSigns(1)
+      const next = `/random?${new URLSearchParams([['sign', random.join('*')]])}`
+      return { props: { result, next } }
     } else {
-      return { props: { loading: true, result: undefined, error: undefined } }
+      const library = await getSearchLibrary()
+      const [random1, random2] = await getRandomSigns(2)
+      const result = await getResultByPath(library, ...random1)
+      const next = `/random?${new URLSearchParams([['sign', random2.join('*')]])}`
+      return { props: { result, next } }
     }
   }
 </script>
+<script lang="ts">
+  import Header from '$lib/header/Header.svelte'
+  import ResultTile from '$lib/ResultTile.svelte'
+  import { onMount } from 'svelte'
+import { prefetch } from '$app/navigation'
+
+  export let result: SearchDataItem | undefined
+  export let next: string // next url
+
+  onMount(() => {
+    prefetch(next)
+  })
+</script>
+
 <svelte:head>
   <title>Random Sign</title>
 </svelte:head>
-<script lang="ts">
-  // import siteConfig from '$lib/site-config.json'
-  import Header from '$lib/header/Header.svelte'
-  import ResultTile from '$lib/ResultTile.svelte'
-  import Spinner from '$lib/Spinner.svelte'
-  // import { onMount } from 'svelte'
-  // import { open, freshen, getResult } from '$lib/search/search-index'
-  import { fade } from 'svelte/transition'
-import { invalidate } from '$app/navigation';
-
-  export let result: SearchDataItem | undefined
-  export let loading: boolean
-  export let error: string | undefined
-
-  // async function reroll () {
-  //   // clear current result
-  //   result = undefined
-  //   library = await freshen(library)
-  //   const random = Object.create(library.index[Math.round(Math.random() * (library.index.length - 1))])
-  //   const tagMatch = blockedTags.some(x => random.tags.includes(x))
-  //   if (!tagMatch) {
-  //     // load the result and set it up as the answer
-  //     result = await getResult(library, random)
-  //   } else {
-  //     reroll()
-  //   }
-  // }
-
-  function reroll () {
-    invalidate('/random')
-  }
-
-  // onMount(async () => {
-  //   library = await open(siteConfig.searchIndex)
-  //   reroll()
-  // })
-</script>
 
 <Header/>
 
 <main>
   <h1>Random Sign Generator</h1>
 
-  <h2><button disabled={loading} on:click={reroll}>🎲 Reroll</button></h2>
-
-  {#if result}
-    <div class="result-box" transition:fade={{ duration: 100 }}>
-      <ResultTile bind:data={result} expand/>
-    </div>
-  {:else if loading}
-    <div class=spacer>
-      <Spinner/>
-    </div>
-  {:else if error}
-    <h1>{error}</h1>
-  {/if}
-
+  <h2><a href={next} role="button" class="button" sveltekit:noscroll>🎲 Reroll</a></h2>
+  <div class="result-box">
+    <ResultTile data={result} expand/>
+  </div>
   <div style="height: 20em"></div>
 </main>
 
@@ -112,7 +88,7 @@ import { invalidate } from '$app/navigation';
     color: var(--base-fg);
   }
 
-  h2 button {
+  h2 .button {
     --button-hue: calc(var(--hue) - 45deg);
     width: 100%;
     display: block;
@@ -127,12 +103,12 @@ import { invalidate } from '$app/navigation';
     font-weight: inherit;
   }
 
-  h2 button:enabled:hover {
+  h2 .button:hover {
     background-color: hsl(var(--button-hue), var(--submodule-bg-sat), var(--submodule-bg-lum));
     cursor: pointer;
   }
 
-  .spacer {
+  /* .spacer {
     height: 200vh;
-  }
+  } */
 </style>

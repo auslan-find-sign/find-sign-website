@@ -136,33 +136,50 @@ export async function getResultByNumericPath (library: Library, numericPath: [nu
   }
 }
 
-async function loadDataPaths (library: Library): Promise<void> {
-  if (!library.dataPaths) {
+const dataPathsMap = new WeakMap()
+async function getDataPaths (library: Library): Promise<object> {
+  if (dataPathsMap.has(library.index)) {
+    return dataPathsMap.get(library.index)
+  } else {
     const response = await fetch(library.path + '/data-paths.cbor', { mode: 'cors', cache: 'default' })
-    library.dataPaths = decodeCBOR(await response.arrayBuffer())
+    const list = decodeCBOR(await response.arrayBuffer())
+    dataPathsMap.set(library.index, list)
+    return list
   }
 }
 
 // used for sitemap generation, returns a list of providers in the search results
 export async function getProviders (library: Library) {
-  await loadDataPaths(library)
-  return Object.keys(library.dataPaths)
+  return Object.keys(await getDataPaths(library))
 }
 
 // used for sitemap generation, returns a list of providers in the search results
 export async function getProviderIDs (library: Library, provider: string) {
-  await loadDataPaths(library)
-  return Object.keys(library.dataPaths[provider])
+  const dataPaths = await getDataPaths(library)
+  return Object.keys(dataPaths[provider])
 }
 
 // Get a search index result by provider-id/entry-id path
 export async function getResultByPath (library: Library, provider: string, id: string) {
-  await loadDataPaths(library)
+  const dataPaths = await getDataPaths(library)
 
   return await getResult(library, {
-    path: library.dataPaths[provider][id],
+    path: dataPaths[provider][id],
     words: [],
     tags: [],
     diversity: 0,
   })
+}
+
+// reverse lookup entry to provider-id and entry-id values
+export async function getProviderIDForLibraryEntry (library: Library, entry: LibraryEntry): Promise<[provider: string, id: string]> {
+  const dataPaths = await getDataPaths(library)
+  for (const provider in dataPaths) {
+    for (const id in dataPaths[provider]) {
+      const [shardID, shardItemID] = dataPaths[provider][id]
+      if (shardID === entry.path[0] && shardItemID === entry.path[1]) {
+        return [provider, id]
+      }
+    }
+  }
 }
