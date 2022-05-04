@@ -1,6 +1,4 @@
-/* eslint-env mocha */
-/* eslint-disable no-unused-expressions */
-import { expect } from 'chai'
+import { expect, describe, it } from 'vitest'
 import { tokenize, parseQuery, compileQuery } from '../src/lib/search/text'
 import type { QueryTag, QueryWord, QueryOrNode, QueryAndNode } from '../src/lib/search/text'
 import type { LibraryEntry } from '../src/lib/search/search-index'
