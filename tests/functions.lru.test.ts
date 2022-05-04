@@ -1,5 +1,4 @@
 import { expect, describe, it } from 'vitest'
-import { delay } from '../src/lib/functions/delay.js'
 import lru from '../src/lib/functions/lru.js'
 
 describe('/src/lib/functions/lru.ts', () => {
