@@ -8,7 +8,7 @@ export default function cache (durationSecs = 60) {
     set: (value) => {
       if (timeout) clearTimeout(timeout)
       stored = value
-      timeout = setTimeout(() => stored = undefined, (durationSecs * 60))
+      timeout = setTimeout(() => stored = undefined, (durationSecs * 1000))
       return value
     }
   }
