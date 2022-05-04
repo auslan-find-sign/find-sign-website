@@ -1,6 +1,6 @@
 import { getUpdatesFeed } from './_read-discovery-feed'
 import cache from '$lib/functions/cache'
-import type { RequestHandler } from './discovery.json.d'
+import type { RequestHandler } from './discovery-widget.d'
 
 // stores old feed output for homepage feed
 const cachedFeed = cache(60 * 5)
