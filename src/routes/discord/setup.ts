@@ -42,4 +42,5 @@ export async function get () {
   for (const command of commands) {
     await hasCommand(command)
   }
+  return { body: 'success!' }
 }

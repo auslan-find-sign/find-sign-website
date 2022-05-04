@@ -1,4 +1,5 @@
-import { DiscordBotToken } from './_setup'
+import { DiscordBotToken, DiscordPublicKey } from './_setup'
+import { verifyKey } from 'discord-interactions'
 
 export async function discordRequest(endpoint, options) {
   // append endpoint to root API URL
@@ -21,4 +22,10 @@ export async function discordRequest(endpoint, options) {
   }
   // return original response
   return res;
+}
+
+export function isValidReq (req: Request, bodyText: string): boolean {
+  const signature = req.headers.get('X-Signature-Ed25519')
+  const timestamp = req.headers.get('X-Signature-Timestamp')
+  return verifyKey(bodyText, signature, timestamp, DiscordPublicKey)
 }
