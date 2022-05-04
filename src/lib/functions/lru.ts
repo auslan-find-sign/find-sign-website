@@ -3,6 +3,8 @@ type CacheEntry = {
   value: any
 }
 
+type MaybePromise<Type> = Promise<Type> | Type
+
 /**
  * Create a Least Recently Used cache of a given size, which returns items from it's cache when the match key
  * or calls an async callback to get the item if it isn't in the cache
@@ -10,7 +12,7 @@ type CacheEntry = {
 export default function lru (size) {
   const cacheList: CacheEntry[] = []
 
-  async function cache<Type> (key: string, getValue: (key: string) => Promise<Type>): Promise<Type> {
+  async function cache<Type> (key: string, getValue: (key: string) => MaybePromise<Type>): Promise<Type> {
     let result = cacheList.find(entry => entry.key === key)
     if (result === undefined) {
       const value = await getValue(key)
