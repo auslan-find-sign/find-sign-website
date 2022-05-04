@@ -1,29 +1,8 @@
 <script lang="ts" context="module">
   import type { SearchDataItem } from '$lib/search/search-index'
   import { getSearchLibrary } from '$lib/search/search'
-  import { getResultByPath, getProviderIDForLibraryEntry } from '$lib/search/search-index'
-
-  const blockedTags = [
-    'signpedia', // block signpedia-like entries, not established signs
-    'invented', // block toddslan-like entries
-    'lexis.crude', // block rude signbank stuff, want relatively unshocking kid friendly results
-    'semantic.sexuality' // block formal register sexual body parts type of words
-  ]
-
-  async function getRandomSigns (count: number): Promise<[provider: string, entry: string][]> {
-    const library = await getSearchLibrary()
-    const signs = []
-
-    for (let i = 0; i < 100 * count; i++) {
-      const random = library.index[Math.round(Math.random() * (library.index.length - 1))]
-      const tagMatch = blockedTags.some(x => random.tags.includes(x))
-      if (!tagMatch) {
-        // load the result and set it up as the answer
-        signs.push(await getProviderIDForLibraryEntry(library, random))
-        if (signs.length >= count) return signs
-      }
-    }
-  }
+  import { getResultByPath } from '$lib/search/search-index'
+  import { getRandomSigns } from '$lib/search/random'
 
   import type { Load } from './random'
   export const load: Load = async function load ({ url }) {
@@ -48,7 +27,7 @@
   import Header from '$lib/header/Header.svelte'
   import ResultTile from '$lib/ResultTile.svelte'
   import { onMount } from 'svelte'
-import { prefetch } from '$app/navigation'
+  import { prefetch } from '$app/navigation'
 
   export let result: SearchDataItem | undefined
   export let next: string // next url
@@ -107,8 +86,4 @@ import { prefetch } from '$app/navigation'
     background-color: hsl(var(--button-hue), var(--submodule-bg-sat), var(--submodule-bg-lum));
     cursor: pointer;
   }
-
-  /* .spacer {
-    height: 200vh;
-  } */
 </style>
