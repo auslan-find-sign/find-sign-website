@@ -186,7 +186,7 @@ const parserPasses: ParserPass[] = [
   function words (tokens) {
     return tokens.map(token => {
       if (typeof token === 'string') {
-        return { type: 'word', string: token }
+        return { type: 'word', string: token.replace(/[?!.,"'“”‘’]/g, '') }
       } else {
         return token
       }
