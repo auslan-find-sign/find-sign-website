@@ -5,7 +5,8 @@ export const blockedTags = [
   'signpedia', // block signpedia-like entries, not established signs
   'invented', // block toddslan-like entries
   'lexis.crude', // block rude signbank stuff, want relatively unshocking kid friendly results
-  'semantic.sexuality' // block formal register sexual body parts type of words
+  'semantic.sexuality', // block formal register sexual body parts type of words
+  'lexis.fingerspell' // fingerspelling entries are too boring
 ]
 
 export async function getRandomSigns (count: number): Promise<[provider: string, entry: string][]> {
