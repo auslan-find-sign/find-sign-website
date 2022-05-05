@@ -1,0 +1,8 @@
+{
+  "editor.default_syntax" : "typescript",
+  "workspace.art_style" : 0,
+  "workspace.color" : 11,
+  "workspace.preview_root" : "src\/routes",
+  "workspace.preview_type" : "custom",
+  "workspace.preview_url" : "http:\/\/localhost:3000\/"
+}

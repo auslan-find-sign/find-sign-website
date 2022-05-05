@@ -1,0 +1,14 @@
+{
+  "actions" : {
+    "build" : {
+      "enabled" : true,
+      "script" : "cd ~\/find-sign-website\nnpm run build"
+    },
+    "run" : {
+      "enabled" : true,
+      "script" : "cd ~\/find-sign-website\npm2 restart find-sign-website\npm2 log find-sign-website"
+    }
+  },
+  "openLogOnRun" : "start",
+  "serverName" : "find-sign-website"
+}
