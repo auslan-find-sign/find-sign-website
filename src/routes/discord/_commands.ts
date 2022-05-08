@@ -1,5 +1,3 @@
-import {  } from 'discord-interactions'
-
 export const AuslanCommand = {
   name: 'auslan',
   description: 'Lookup an Auslan sign using find.auslan.fyi search',
