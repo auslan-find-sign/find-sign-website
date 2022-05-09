@@ -1,10 +1,11 @@
 // lookup word vectors in precomputed index
-import { iter_decode as iterateCBOR } from 'cbor-codec/esm/index.mjs'
 import { sha256 } from './hash'
 import { bytesToPrefixBits } from './bits'
 import { chunkIterable } from './times'
 import { unpack } from './packed-vector'
 import { build, multiply } from './vector-utilities'
+import { iterateLengthPrefixed } from '$lib/functions/iters'
+import { bytesToString } from '$lib/functions/string-encode'
 
 export type VectorLibrary = {
   path: string, // path to folder containing settings.json and shards
@@ -12,12 +13,12 @@ export type VectorLibrary = {
 }
 
 export type VectorLibrarySettings = {
-  hashFunction: string,   // currently always sha256 - for good WebAPI compatibility
-  vectorSize: number,     // how many dimensions do the vectors have - usually 300
-  vectorBits: number,     // how many bits represent each dimension of each vector's numeric value
-  buildTimestamp: number, // epoch milliseconds when library was computed
-  prefixBits: number,     // how many bits of the hash are used for a shard prefix folder name
-  shardBits: number,      // how many bits are overall used for the combo of prefix folder and shard filename
+  version: 5,
+  shardBits: number, // normally around 13-14
+  entries: number, // normally 500k
+  vectorSize: number, // usually 300 with fasttext
+  source: string, // url to fasttext vec text format dataset this derives from
+  built: string, // iso timestamp string for when build was done
 }
 
 export type WordVector = readonly number[]
@@ -26,7 +27,7 @@ export type WordVector = readonly number[]
  * Open precomputed vectors library
  */
 export async function open (path: string): Promise<VectorLibrary> {
-  const request = await fetch(`${path}/settings.json`, { mode: 'cors', cache: 'force-cache' })
+  const request = await fetch(`${path}/info.json`, { mode: 'cors', cache: 'force-cache' })
   const settings = await request.json()
   return { path, settings }
 }
@@ -36,15 +37,18 @@ export async function open (path: string): Promise<VectorLibrary> {
  */
 export async function lookup (library: VectorLibrary, word: string): Promise<WordVector | undefined> {
   const hash = await sha256(word)
-  const folder = parseInt(bytesToPrefixBits(hash, library.settings.prefixBits), 2)
-  const file = parseInt(bytesToPrefixBits(hash, library.settings.shardBits), 2)
-  // const shard = await readAllCBOR(`${library.path}/shards/${folder}/${file}.cbor`)
-  const response = await fetch(`${library.path}/shards/${folder}/${file}.cbor`, { mode: 'cors', cache: 'force-cache' })
-  const shard = iterateCBOR(await response.arrayBuffer())
-  for (const [entryWord, entryScale, entryPackedVector] of chunkIterable(shard, 3)) {
+  const bucket = parseInt(bytesToPrefixBits(hash, library.settings.shardBits), 2)
+  const response = await fetch(`${library.path}/${bucket}.lps`, { mode: 'cors', cache: 'force-cache' })
+  const buffer = new Uint8Array(await response.arrayBuffer())
+  const entries = chunkIterable(iterateLengthPrefixed(buffer), 3)
+  for await (const [wordBuffer, scaleBuffer, entryPackedVector] of entries) {
+    const entryWord = bytesToString(wordBuffer)
     if (entryWord === word) {
-      const unscaledVector = unpack(entryPackedVector, library.settings.vectorBits, library.settings.vectorSize)
-      const scaledVector: WordVector = multiply([unscaledVector], build(entryScale, unscaledVector.length))[0]
+      const scaleDataView = new DataView(scaleBuffer.buffer, scaleBuffer.byteOffset, scaleBuffer.byteLength)
+      const entryScale = scaleDataView.getFloat32(0)
+      const scaledVector = [...entryPackedVector].map(x =>
+        (((x / 255) * 2.0) - 1.0) * entryScale
+      )
       return scaledVector
     }
   }

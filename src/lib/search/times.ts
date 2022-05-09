@@ -47,6 +47,24 @@ export function * chunkIterable<Type> (sliceable: Iterable<Type>, chunkSize: num
   }
 }
 
+export async function * chunkIterableAsync<Type> (sliceable: AsyncIterable<Type>, chunkSize: number, maxChunks: number = Infinity): AsyncGenerator<Type[]> {
+  const input = sliceable[Symbol.asyncIterator]()
+  while (maxChunks > 0) {
+    const chunk = []
+    while (chunk.length < chunkSize) {
+      const output = await input.next()
+      if (output.done) {
+        if (chunk.length > 0) yield chunk
+        return
+      } else {
+        chunk.push(output.value)
+      }
+    }
+    yield chunk
+    maxChunks -= 1
+  }
+}
+
 // Chunks a iterable of stringifiable values, yielding concatinated strings
 export function * chunkStringIterable (string: string, chunkSize: number, maxChunks: number = Infinity) {
   for (const array of chunkIterable(string, chunkSize, maxChunks)) {
