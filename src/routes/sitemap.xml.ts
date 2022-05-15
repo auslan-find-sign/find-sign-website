@@ -1,4 +1,3 @@
-import siteConfig from '$lib/site-config.json'
 import { open, getProviders, getProviderIDs } from '$lib/search/search-index'
 import uri from 'uri-tag'
 
@@ -24,7 +23,7 @@ export async function get({ url }) {
     data.push('</url>')
   }
 
-  const library = await open(siteConfig.searchIndex)
+  const library = await open(import.meta.env.VITE_SEARCH_INDEX)
   for (const provider of await getProviders(library)) {
     for (const id of await getProviderIDs(library, provider)) {
       // TODO: proper url encoding

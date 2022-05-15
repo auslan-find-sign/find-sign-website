@@ -1,5 +1,0 @@
-{
-  "searchIndex": "https://find.auslan.fyi/datasets/search-index",
-  "vectorIndex": "https://data.auslan.fyi/collections/wordvec/raw/commoncrawl-english-300",
-  "updateLog": "https://find.auslan.fyi/datasets/update-log.cbor"
-}

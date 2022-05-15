@@ -1,9 +1,8 @@
 import { base } from '$app/paths'
 import { iter_decode } from 'cbor-codec/esm/index.mjs'
-import siteConfig from '$lib/site-config.json'
 
 export async function * readUpdateLog (fetch) {
-  const response = await fetch(siteConfig.updateLog)
+  const response = await fetch(import.meta.env.VITE_UPDATE_LOG)
   yield * iter_decode(await response.arrayBuffer())
 }
 

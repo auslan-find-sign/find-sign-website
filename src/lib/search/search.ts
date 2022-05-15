@@ -4,7 +4,6 @@ import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
 import { compileQuery, normalizeWord } from '$lib/search/text'
 import lru from '$lib/functions/lru'
-import siteConfig from '$lib/site-config.json'
 
 const freshenInterval = 1000 * 60 // 1 minute
 
@@ -21,7 +20,7 @@ type SearchResponse = {
 
 export async function getSearchLibrary (): Promise<Library> {
   if (!searchLibrary) {
-    searchLibrary = await open(siteConfig.searchIndex)
+    searchLibrary = await open(import.meta.env.VITE_SEARCH_INDEX)
     cachedRankedIndex = undefined
     lastFreshenTimestamp = Date.now()
   }

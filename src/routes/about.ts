@@ -1,5 +1,4 @@
 import { open } from '$lib/search/search-index'
-import siteConfig from '$lib/site-config.json'
 import cache from '$lib/functions/cache'
 
 const cached = cache(60 * 60)
@@ -9,7 +8,7 @@ export async function get () {
     return cached.get()
   } else {
     const tagAccumulator = {}
-    const library = await open(siteConfig.searchIndex)
+    const library = await open(import.meta.env.VITE_SEARCH_INDEX)
 
     for (const entry of library.index) {
       for (const tagName of entry.tags) {

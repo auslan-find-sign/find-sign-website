@@ -1,10 +1,9 @@
 <script lang="ts" context="module">
-  import siteConfig from '$lib/site-config.json'
   import { open, getProviderIDs } from '$lib/search/search-index'
 
   export async function load ({ params }) {
     const { provider } = params
-    const library = await open(siteConfig.searchIndex)
+    const library = await open(import.meta.env.VITE_SEARCH_INDEX)
     const ids = await getProviderIDs(library, provider)
     return { props: { provider, ids } }
   }
