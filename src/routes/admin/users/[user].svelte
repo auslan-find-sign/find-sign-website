@@ -1,6 +1,4 @@
 <script lang=ts>
-  import Icon from '$lib/Icon.svelte'
-
   export let id: string
   export let username: string
   export let powers: string[]
