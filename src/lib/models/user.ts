@@ -52,23 +52,32 @@ export async function getUser (id: UserID): Promise<UserAccount> {
   const filename = `users/${idString}.json`
   const fileData = await readFile(filename)
   if (fileData === undefined) return undefined
-  const obj = JSON.parse(bytesToString(fileData))
-  if (obj.authenticator) {
-    obj.authenticator.credentialPublicKey = decode(obj.authenticator.credentialPublicKey)
-    obj.authenticator.credentialID = decode(obj.authenticator.credentialID)
-  }
+  const obj = JSON.parse(bytesToString(fileData), (_, value) => {
+    if (typeof value === 'string') {
+      if (value.startsWith('base64-buffer:')) {
+        return decode(value.slice('base64-buffer:'.length))
+      } else if (value.startsWith('string:')) {
+        return value.slice('string:'.length)
+      }
+    }
+    return value
+  })
   return obj
 }
 
 export async function setUser (id: UserID, data: UserAccount) {
   const idString = typeof id === 'string' ? id : encode(id)
   const filename = `users/${idString}.json`
-  const obj = JSON.parse(JSON.stringify(data))
-  if (obj.authenticator) {
-    obj.authenticator.credentialPublicKey = encode(obj.authenticator.credentialPublicKey)
-    obj.authenticator.credentialID = encode(obj.authenticator.credentialID)
-  }
-  await writeFile(filename, JSON.stringify(obj))
+  const encoded = JSON.stringify(data, (_, value) => {
+    if (value && typeof value === 'object' && value instanceof Uint8Array) {
+      return `base64-buffer:${encode(value)}`
+    } else if (typeof value === 'string') {
+      return `string:${value}`
+    } else {
+      return value
+    }
+  })
+  await writeFile(filename, encoded)
 }
 
 export async function grantPower (id: UserID, power: string) {
