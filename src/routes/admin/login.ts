@@ -5,7 +5,7 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server'
-import { createUser, getUser } from '$lib/models/user'
+import { createUser, getUser, setUser } from '$lib/models/user'
 import { stringToBytes, bytesToString } from '$lib/functions/string-encode'
 import { sign, sign_keyPair, sign_keyPair_fromSecretKey, sign_open } from 'tweetnacl-ts'
 import { hexToByteArray } from '$lib/functions/hex-encode'
@@ -73,6 +73,7 @@ export const post = async function post ({ request }: { request: Request }) {
         expectedRPID: url.hostname,
       })
       if (verified === true) {
+        console.log('registrationInfo', registrationInfo)
         await createUser(registrationInfo)
         const cookieExpiry = Date.now() + LoginDuration
         const loginToken = generateToken(encode(registrationInfo.credentialID), cookieExpiry)
@@ -120,6 +121,17 @@ export const post = async function post ({ request }: { request: Request }) {
       })
 
       if (verified) {
+        console.log('authenticationInfo', authenticationInfo)
+
+        // update user's authentication counter - some keyfobs require this for security
+        await setUser(req.credential.rawId, {
+          ...user,
+          authenticator: {
+            ...user.authenticator,
+            counter: authenticationInfo.newCounter
+          }
+        })
+
         // set a cookie so the user can stay logged in
         const cookieExpiry = Date.now() + LoginDuration
         const loginToken = generateToken(user.id, cookieExpiry)

@@ -35,6 +35,6 @@ Hey there “{
   }<input bind:this={usernameEditor} bind:value={username} on:blur={doneEditingUsername} on:keyup={editorKeyup}>{
 :else
   }<a href="#edit-username" on:click={editUsername}>{username}</a>{
-/if}” ({id}). You have rights to {powers.join(', ')}.
+/if}” ({id}). You have rights to {powers.length === 0 ? 'do nothing' : powers.join(', ')}.
 
 <a href="/admin/logout">Logout</a>
