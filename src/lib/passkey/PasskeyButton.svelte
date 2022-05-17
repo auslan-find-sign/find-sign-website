@@ -30,5 +30,6 @@
     padding-bottom: 5px;
     display: inline-block;
     width: 13rem;
+    cursor: pointer;
   }
 </style>
