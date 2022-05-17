@@ -31,6 +31,7 @@
   export let page: number = 0
   export let totalPages: number = 0
   export let results: SearchDataItem[] = []
+  console.log(results)
 </script>
 
 <svelte:head>
@@ -38,6 +39,10 @@
 </svelte:head>
 
 <Header {query} showNavigation={false} />
+
+{#if query === 'admin'}
+  <div class="hint">Would you like to <a href="/admin">Login to Site Admin</a> area?</div>
+{/if}
 
 {#if results && results.length > 0}
   <div class="results">
@@ -65,5 +70,13 @@
   :global(.spinner) {
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .hint {
+    margin-top: 1em;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-style: italic;
   }
 </style>
