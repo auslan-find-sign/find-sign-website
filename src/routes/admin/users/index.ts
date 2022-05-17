@@ -1,8 +1,12 @@
-import { listUsers } from '$lib/models/user'
+import { getUser, listUsers } from '$lib/models/user'
 import { LoginRedirect } from '../login'
 
 export async function get ({ locals }) {
   if (!locals.userID) return LoginRedirect
-  const users = await listUsers()
+  const userIDs = await listUsers()
+  const users = await Promise.all(userIDs.map(async userID => {
+    const user = await getUser(userID)
+    return { id: userID, username: user.username }
+  }))
   return { body: { users } }
 }
