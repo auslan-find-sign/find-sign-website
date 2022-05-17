@@ -28,5 +28,7 @@
     padding-right: 30px;
     padding-top: 5px;
     padding-bottom: 5px;
+    display: inline-block;
+    width: 13rem;
   }
 </style>
