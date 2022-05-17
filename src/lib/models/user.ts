@@ -1,4 +1,4 @@
-import { exists, readFile, writeFile, deletePath, listFilenames } from '$lib/data-io/data-io'
+import { readFile, writeFile, deletePath, listFilenames } from '$lib/data-io/data-io'
 import { decode, encodeUrl as encode } from '@borderless/base64'
 import { bytesToString } from '$lib/functions/string-encode'
 
@@ -71,6 +71,8 @@ export async function setUser (id: UserID, data: UserAccount) {
   const encoded = JSON.stringify(data, (_, value) => {
     if (value && typeof value === 'object' && value instanceof Uint8Array) {
       return `base64-buffer:${encode(value)}`
+    } else if (value && typeof value === 'object' && (value.type === 'Buffer' || value.type === 'string:Buffer')) {
+      return `base64-buffer:${encode(Uint8Array.from(value.data))}`
     } else if (typeof value === 'string') {
       return `string:${value}`
     } else {
