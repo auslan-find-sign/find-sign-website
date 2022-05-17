@@ -1,15 +1,9 @@
-import { getUser } from "$lib/models/user"
+import { getUser } from '$lib/models/user'
+import { LoginRedirect } from './login'
 
-export async function get ({ locals, request }) {
-  if (!locals.userID) {
-    return {
-      status: 307,
-      headers: {
-        location: '/admin/login'
-      }
-    }
-  }
-
+export async function get ({ locals }) {
+  if (!locals.userID) return LoginRedirect
   const user = await getUser(locals.userID)
-  return { body: { user }}
+  delete user.authenticator
+  return { body: user}
 }

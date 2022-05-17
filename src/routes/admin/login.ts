@@ -42,6 +42,13 @@ export function verifyToken (token) {
   return obj[0]
 }
 
+export const LoginRedirect = {
+  status: 307,
+  headers: {
+    location: '/admin/login'
+  }
+}
+
 // webauthn endpoint
 export const post = async function post ({ request }: { request: Request }) {
   const req = await request.json()
@@ -51,8 +58,8 @@ export const post = async function post ({ request }: { request: Request }) {
     const opts = generateRegistrationOptions({
       rpName,
       rpID: url.hostname,
-      userID: 'foo',
-      userName: 'foo',
+      userID: 'user account',
+      userName: 'user account',
       ...req.opts
     })
     return { body: opts }
@@ -71,7 +78,7 @@ export const post = async function post ({ request }: { request: Request }) {
         const loginToken = generateToken(encode(registrationInfo.credentialID), cookieExpiry)
         return {
           headers: {
-            'set-cookie': cookie.serialize('userID', loginToken, {
+            'set-cookie': cookie.serialize('token', loginToken, {
               path: '/',
               expires: new Date(cookieExpiry),
               httpOnly: true
@@ -118,7 +125,7 @@ export const post = async function post ({ request }: { request: Request }) {
         const loginToken = generateToken(user.id, cookieExpiry)
         return {
           headers: {
-            'set-cookie': cookie.serialize('userID', loginToken, {
+            'set-cookie': cookie.serialize('token', loginToken, {
               path: '/',
               expires: new Date(cookieExpiry),
               httpOnly: true

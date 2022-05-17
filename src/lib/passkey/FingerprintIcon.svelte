@@ -1,4 +1,4 @@
-<svg viewBox="0 0 203 228" version="1.1" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+<svg viewBox="0 0 203 228" version="1.1">
   <path d="M165.899,196.253c-44.958,3.717 -64.718,-25.417 -64.559,-50.92"/>
   <path d="M74.751,216.31c-98.29,-128.052 73.88,-172.15 84.463,-74.606"/>
   <path d="M37.594,23.482c42.479,-20.823 85.226,-22.169 128.305,0.734"/>
@@ -12,5 +12,10 @@
     stroke: currentColor;
     stroke-width: 8px;
     vertical-align: middle;
+    fill-rule: evenodd;
+    clip-rule: evenodd;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-miterlimit: 1.5;
   }
 </style>

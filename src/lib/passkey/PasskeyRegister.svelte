@@ -65,7 +65,7 @@
     })
     const result = await storeResponse.json()
     console.log(result)
-    fireEvent('registered', result)
+    fireEvent('authenticated', result)
   }
 </script>
 <PasskeyButton on:click={registerCredential} {label}/>

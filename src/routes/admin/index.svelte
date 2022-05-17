@@ -1,6 +1,6 @@
 <script lang=ts>
-  import type { UserAccountJSON } from '$lib/models/user'
-
-  export let user: UserAccountJSON
+  export let id: string
+  export let username: string
+  export let powers: string[]
 </script>
-Hey there {user.id}
+Hey there “{username}” ({id}). You have rights to {powers.join(', ')}.

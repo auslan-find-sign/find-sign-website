@@ -49,7 +49,7 @@
     })
     const result = await completeLoginResponse.json()
     console.log(result)
-    fireEvent('registered', result)
+    fireEvent('authenticated', result)
   }
 </script>
 <PasskeyButton on:click={loginCredential} {label}/>

@@ -41,8 +41,16 @@ export async function writeFile (path: string, data: Uint8Array | string): Promi
 }
 
 export async function readFile (path: string): Promise<Uint8Array> {
-  const response = await request(path, {})
-  return new Uint8Array(await response.arrayBuffer())
+  try {
+    const response = await request(path, {})
+    return new Uint8Array(await response.arrayBuffer())
+  } catch (err) {
+    if (err.message.startsWith('404:')) {
+      return undefined
+    } else {
+      throw err
+    }
+  }
 }
 
 export async function exists (path: string): Promise<boolean> {
