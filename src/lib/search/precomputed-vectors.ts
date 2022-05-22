@@ -65,7 +65,7 @@ export function * parse (buffer: Uint8Array) {
 // builds a shard, returns a Uint8Array containing all the words packed in to an lps file's contents
 // used by orthagonal index to build a word cache
 export function build (entries: { [word: string]: number[] }) {
-  const pieces = []
+  const pieces: Uint8Array[] = []
   const textEncoder = new TextEncoder()
 
   for (const word in entries) {
@@ -83,10 +83,10 @@ export function build (entries: { [word: string]: number[] }) {
     })
 
     // push the scaling value
-    const scaleBuffer = new Uint8Array(4)
+    const scaleBuffer = new ArrayBuffer(4)
     const scaleDataView = new DataView(scaleBuffer, 0, 4)
     scaleDataView.setFloat32(0, scaling)
-    pieces.push(lpsEncode(scaleBuffer))
+    pieces.push(lpsEncode(new Uint8Array(scaleBuffer)))
 
     // push the encoded vector
     pieces.push(lpsEncode(discretizedVector))
@@ -106,7 +106,8 @@ export function build (entries: { [word: string]: number[] }) {
 }
 
 // convert a buffer to a length prefixed buffer - creates a copy
-export function lpsEncode (buffer: Uint8Array | number[]) {
+function lpsEncode (buffer: Uint8Array | number[]) {
   const prefix: number[] = varint.encode(buffer.length)
   const output = Uint8Array.from([...prefix, ...buffer])
+  return output
 }
