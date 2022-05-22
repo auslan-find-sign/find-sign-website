@@ -3,7 +3,7 @@ import { tokenize, parseQuery, compileQuery } from '../src/lib/search/text'
 import type { QueryTag, QueryWord, QueryOrNode, QueryAndNode } from '../src/lib/search/text'
 import type { LibraryEntry } from '../src/lib/search/search-index'
 
-describe('/library/text tokenize()', () => {
+describe('/src/lib/search/text tokenize()', () => {
   it('handles simple space seperated phrases', () => {
     expect(tokenize('hello world')).to.deep.equal(['hello', 'world'])
     expect(tokenize('how are you today')).to.deep.equal(['how', 'are', 'you', 'today'])
@@ -49,7 +49,7 @@ function entry (obj): LibraryEntry {
   }
 }
 
-describe('/library/text parseQuery()', () => {
+describe('/src/lib/search/text parseQuery()', () => {
   it('returns undefined for an empty or whitespace string', () => {
     expect(parseQuery('')).to.be.undefined
     expect(parseQuery('     ')).to.be.undefined
@@ -162,7 +162,7 @@ describe('/library/text parseQuery()', () => {
   })
 })
 
-describe('/library/text compileQuery()', () => {
+describe('/src/lib/search/text compileQuery()', () => {
   it('tag inclusion', async () => {
     const rankFn = await compileQuery('#abc')
     expect(rankFn).to.be.a('function')
