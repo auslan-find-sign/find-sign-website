@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { tokenize, parseQuery, compileQuery, QueryAuthor } from '../src/lib/search/text'
+import { tokenize, parseQuery, compileQuery, QueryAuthor, getQueryRequirements } from '../src/lib/search/text'
 import type { QueryTag, QueryWord, QueryOrNode, QueryAndNode } from '../src/lib/search/text'
 import type { LibraryEntry } from '../src/lib/search/search-index'
 
@@ -241,5 +241,25 @@ describe('/src/lib/search/text compileQuery()', () => {
         )
       )
     )
+  })
+})
+
+describe('/src/lib/search/text getQueryRequirements()', () => {
+  it('notices words', () => {
+    expect(getQueryRequirements(parseQuery('foo bar'))).to.deep.equal(['words'])
+    expect(getQueryRequirements(parseQuery('(foo bar)'))).to.deep.equal(['words'])
+    expect(getQueryRequirements(parseQuery('foo OR bar'))).to.deep.equal(['words'])
+  })
+
+  it('notices tags', () => {
+    expect(getQueryRequirements(parseQuery('#tag'))).to.deep.equal(['tags'])
+    expect(getQueryRequirements(parseQuery('-#tag'))).to.deep.equal(['tags'])
+    expect(getQueryRequirements(parseQuery('#a OR #b'))).to.deep.equal(['tags'])
+  })
+
+  it('notices authors', () => {
+    expect(getQueryRequirements(parseQuery('@someone'))).to.deep.equal(['author'])
+    expect(getQueryRequirements(parseQuery('-@user'))).to.deep.equal(['author'])
+    expect(getQueryRequirements(parseQuery('@a OR @b'))).to.deep.equal(['author'])
   })
 })

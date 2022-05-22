@@ -252,3 +252,28 @@ export function parseTokens (tokens: Token[]): QueryNode | undefined {
     return tokens[0]
   }
 }
+
+export type QueryColumnName = 'vectors' | 'words' | 'tags' | 'author'
+
+/** find out which columns need to be loaded to run this query */
+export function getQueryRequirements (ast: QueryNode | undefined): QueryColumnName[] {
+  if (!ast) {
+    return []
+  } else if (ast.type === 'and' || ast.type === 'or') {
+    return [...new Set([
+      ...getQueryRequirements(ast.left),
+      ...getQueryRequirements(ast.right)
+    ])]
+  } else if (ast.type === 'tag') {
+    return ['tags']
+  } else if (ast.type === 'word') {
+    if (ast.vector) {
+      return ['words', 'vectors']
+    } else {
+      return ['words']
+    }
+  } else if (ast.type === 'author') {
+    return ['author']
+  }
+  return []
+}
