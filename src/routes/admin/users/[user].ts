@@ -10,7 +10,7 @@ export async function get ({ locals, params }) {
 
 export async function put ({ locals, request, params }) {
   if (!locals.userID) return LoginRedirect
-  if (!await userHasPower(locals.userID, 'edit-users')) throw new Error('You don\'t have the right to edit users')
+  if (!await userHasPower(locals.userID, 'edit-users')) throw new Error('You don’t have the right to edit users')
   const user = await getUser(params.user)
   const body = await request.json()
   const updated = { ...user, ...body }
@@ -21,7 +21,7 @@ export async function put ({ locals, request, params }) {
 
 export async function del ({ locals, params }) {
   if (!locals.userID) return LoginRedirect
-  if (!await userHasPower(locals.userID, 'edit-users')) throw new Error('You don\'t have the right to edit users')
+  if (!await userHasPower(locals.userID, 'edit-users')) throw new Error('You don’t have the right to edit users')
   await deleteUser(params.user)
   return { body: { success: true } }
 }
