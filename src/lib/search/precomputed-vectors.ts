@@ -2,10 +2,9 @@
 import { sha256 } from './hash'
 import { bytesToPrefixBits } from './bits'
 import { chunkIterable } from './times'
-import { unpack } from './packed-vector'
-import { build, multiply } from './vector-utilities'
 import { iterateLengthPrefixed } from '$lib/functions/iters'
 import { bytesToString } from '$lib/functions/string-encode'
+import varint from 'varint'
 
 export type VectorLibrary = {
   path: string, // path to folder containing settings.json and shards
@@ -40,16 +39,74 @@ export async function lookup (library: VectorLibrary, word: string): Promise<Wor
   const bucket = parseInt(bytesToPrefixBits(hash, library.settings.shardBits), 2)
   const response = await fetch(`${library.path}/${bucket}.lps`, { mode: 'cors', cache: 'force-cache' })
   const buffer = new Uint8Array(await response.arrayBuffer())
+  for (const { word: entryWord, getVector } of parse(buffer)) {
+    if (word === entryWord) return getVector()
+  }
+}
+
+export function * parse (buffer: Uint8Array) {
   const entries = chunkIterable(iterateLengthPrefixed(buffer), 3)
-  for await (const [wordBuffer, scaleBuffer, entryPackedVector] of entries) {
-    const entryWord = bytesToString(wordBuffer)
-    if (entryWord === word) {
-      const scaleDataView = new DataView(scaleBuffer.buffer, scaleBuffer.byteOffset, scaleBuffer.byteLength)
-      const entryScale = scaleDataView.getFloat32(0)
-      const scaledVector = [...entryPackedVector].map(x =>
-        (((x / 255) * 2.0) - 1.0) * entryScale
-      )
-      return scaledVector
+  for (const [wordBuffer, scaleBuffer, entryPackedVector] of entries) {
+    const word = bytesToString(wordBuffer)
+    yield {
+      word,
+      getVector: () => {
+        const scaleDataView = new DataView(scaleBuffer.buffer, scaleBuffer.byteOffset, scaleBuffer.byteLength)
+        const entryScale = scaleDataView.getFloat32(0)
+        const scaledVector = [...entryPackedVector].map(x =>
+          (((x / 255) * 2.0) - 1.0) * entryScale
+        )
+        return scaledVector
+      }
     }
   }
+}
+
+// builds a shard, returns a Uint8Array containing all the words packed in to an lps file's contents
+// used by orthagonal index to build a word cache
+export function build (entries: { [word: string]: number[] }) {
+  const pieces = []
+  const textEncoder = new TextEncoder()
+
+  for (const word in entries) {
+    // push the word
+    const encodedWord = textEncoder.encode(word)
+    pieces.push(lpsEncode(encodedWord))
+
+    // compute the compressed vector
+    const vector = entries[word]
+    const scaling = Math.max(...vector.map(x => Math.abs(x)))
+    const scaledVector = vector.map(x => x / scaling)
+    const discretizedVector = scaledVector.map(x => {
+      const value = ((x + 1.0) / 2.0) * 255
+      return Math.round(value)
+    })
+
+    // push the scaling value
+    const scaleBuffer = new Uint8Array(4)
+    const scaleDataView = new DataView(scaleBuffer, 0, 4)
+    scaleDataView.setFloat32(0, scaling)
+    pieces.push(lpsEncode(scaleBuffer))
+
+    // push the encoded vector
+    pieces.push(lpsEncode(discretizedVector))
+  }
+
+  let byteLength = 0
+  for (const buffer of pieces) byteLength += buffer.length
+
+  const outputBuffer = new Uint8Array(byteLength)
+  let offset = 0
+  for (const buffer of pieces) {
+    outputBuffer.set(buffer, offset)
+    offset += buffer.length
+  }
+
+  return outputBuffer
+}
+
+// convert a buffer to a length prefixed buffer - creates a copy
+export function lpsEncode (buffer: Uint8Array | number[]) {
+  const prefix: number[] = varint.encode(buffer.length)
+  const output = Uint8Array.from([...prefix, ...buffer])
 }
