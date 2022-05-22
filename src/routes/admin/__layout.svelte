@@ -8,6 +8,7 @@
     <a href="/admin/login">Login</a>
     <a href="/admin/logout">Logout</a>
     {#if $session.userID}
+      <a href="/admin">Admin Home</a>
       <a href="/admin/users">User Management</a>
     {/if}
   </nav>

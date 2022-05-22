@@ -31,7 +31,6 @@
   export let page: number = 0
   export let totalPages: number = 0
   export let results: SearchDataItem[] = []
-  console.log(results)
 </script>
 
 <svelte:head>
