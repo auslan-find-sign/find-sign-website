@@ -27,7 +27,13 @@ export type QueryTag = {
   positive: boolean
 }
 
-export type QueryNode = QueryAndNode | QueryOrNode | QueryWord | QueryTag
+export type QueryAuthor = {
+  type: 'author',
+  id: string,
+  positive: boolean
+}
+
+export type QueryNode = QueryAndNode | QueryOrNode | QueryWord | QueryTag | QueryAuthor
 
 type Token = string | QueryNode
 type ParserPass = (tokens: Token[]) => Token[]
@@ -89,6 +95,13 @@ export async function compileQueryAST (ast: QueryNode | undefined, lookupVectorF
       return ({ words }) => {
         return words.some(entryString => typeof entryString === 'string' && entryString.toLowerCase() === searchWord) ? 0 : Infinity
       }
+    }
+  } else if (ast.type === 'author') {
+    const { id, positive } = ast
+    if (positive) {
+      return ({ author }) => (author && author.id === id) ? 0 : Infinity
+    } else {
+      return ({ author }) => (!author || author.id !== id) ? 0 : Infinity
     }
   } else {
     throw new Error('unknown ast node type: ' + JSON.stringify(ast, null, 2))
@@ -177,6 +190,19 @@ const parserPasses: ParserPass[] = [
           return { type: 'tag', string: token.slice(1), positive: true }
         } else if (token.startsWith('-#')) {
           return { type: 'tag', string: token.slice(2), positive: false }
+        }
+      }
+      return token
+    })
+  },
+
+  function authors (tokens) {
+    return tokens.map(token => {
+      if (typeof token === 'string') {
+        if (token.startsWith('@')) {
+          return { type: 'author', positive: true, id: token.slice(1) }
+        } else if (token.startsWith('-@')) {
+          return { type: 'author', positive: false, id: token.slice(2) }
         }
       }
       return token

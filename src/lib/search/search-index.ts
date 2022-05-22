@@ -18,6 +18,7 @@ export type Library = {
 export type LibraryEntry = {
   words: EntryWord[], // wordvecs and strings, the searchable terms
   tags: string[], // hashtags, without the hash prefix
+  author?: { id: string, name?: string, avatar?: string }
   diversity: number, // number representing how similar the wordvecs in .words are
   path: [number, number],
   rank?: number

@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest'
-import { tokenize, parseQuery, compileQuery } from '../src/lib/search/text'
+import { tokenize, parseQuery, compileQuery, QueryAuthor } from '../src/lib/search/text'
 import type { QueryTag, QueryWord, QueryOrNode, QueryAndNode } from '../src/lib/search/text'
 import type { LibraryEntry } from '../src/lib/search/search-index'
 
@@ -7,6 +7,7 @@ describe('/src/lib/search/text tokenize()', () => {
   it('handles simple space seperated phrases', () => {
     expect(tokenize('hello world')).to.deep.equal(['hello', 'world'])
     expect(tokenize('how are you today')).to.deep.equal(['how', 'are', 'you', 'today'])
+    expect(tokenize('#hashtag -#negative @author -@negative')).to.deep.equal(['#hashtag', '-#negative', '@author', '-@negative'])
   })
 
   it('doesn\'t include weird whitespace', () => {
@@ -37,6 +38,9 @@ function word (string): QueryWord {
 }
 function tag (string, positive = true): QueryTag {
   return { type: 'tag', string, positive }
+}
+function author (id, positive = true): QueryAuthor {
+  return { type: 'author', id, positive }
 }
 
 function entry (obj): LibraryEntry {
@@ -76,6 +80,14 @@ describe('/src/lib/search/text parseQuery()', () => {
 
   it('parses two hashtags', () => {
     expect(parseQuery('#left -#right')).to.deep.equal(and(tag('left'), tag('right', false)))
+  })
+
+  it('parses positive authors', () => {
+    expect(parseQuery('@phoenix')).to.deep.equal(author('phoenix'))
+  })
+
+  it('parses negative authors', () => {
+    expect(parseQuery('-@phoenix')).to.deep.equal(author('phoenix', false))
   })
 
   it('parses words in to ands', () => {
@@ -198,6 +210,13 @@ describe('/src/lib/search/text compileQuery()', () => {
     expect(rankFn(entry({ tags: ['abc'] }))).to.equal(0)
     expect(rankFn(entry({ tags: ['abc', 'xyz'] }))).to.equal(0)
     expect(rankFn(entry({ tags: ['jjj', 'xyz'] }))).to.equal(Infinity)
+  })
+
+  it('authors', async () => {
+    const onlyPhoenix = await compileQuery('@phoenix')
+    const noPhoenix = await compileQuery('-@phoenix')
+    expect(onlyPhoenix(entry({ author: { id: 'phoenix' }}))).to.equal(0)
+    expect(noPhoenix(entry({ author: { id: 'phoenix' }}))).to.equal(Infinity)
   })
 
   it('known irritants', async () => {
