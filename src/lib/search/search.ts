@@ -2,7 +2,8 @@ import { getResult, type Library, type SearchDataItem } from './search-index'
 import { open, freshen, getResultByNumericPath } from '$lib/search/search-index'
 import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
-import { compileQuery, normalizeWord } from '$lib/search/text'
+import { compileQuery } from '$lib/search/text'
+import normalizeWord from '$lib/orthagonal/normalize-word'
 import lru from '$lib/functions/lru'
 
 const freshenInterval = 1000 * 60 // 1 minute
@@ -42,7 +43,7 @@ export async function search (query: string, start: number, length: number): Pro
   }
 
   if (!cachedRankedIndex) {
-    const queryFn = await compileQuery(query, async (word) => {
+    const { rank: queryFn } = await compileQuery(query, async (word) => {
       const normalized = normalizeWord(word)
       const normalizedResult = await lookup(normalized)
       if (normalizedResult) {

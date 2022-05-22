@@ -58,9 +58,12 @@ export function normalizeWord (word: string): string {
  *   - -#hashtags - results must not include these
  *   - "OR", "AND" (default) boolean combiners
  */
-export async function compileQuery (query: string, lookupVectorFn?: LookupVectorFunction): Promise<RankingFilterFunction> {
+export async function compileQuery (query: string, lookupVectorFn?: LookupVectorFunction): Promise<{ rank: RankingFilterFunction, requirements: QueryColumnName[] }> {
   const ast = parseQuery(query)
-  return await compileQueryAST(ast, lookupVectorFn)
+  return {
+    rank: await compileQueryAST(ast, lookupVectorFn),
+    requirements: getQueryRequirements(ast)
+  }
 }
 
 // Given a query AST, builds a closure function to check an entry and return a rank number
