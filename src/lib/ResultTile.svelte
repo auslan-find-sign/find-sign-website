@@ -57,9 +57,10 @@
           {/if}
         </cite>
 
-        {#if data.tags && data.tags.length > 0}
+        {#if data.tags || data.author}
           <div class=tags>
-            {#each data.tags as tag}{`#${tag} `}{/each}
+            {#if data.author && data.author.id}@{data.author.id} {/if}
+            {#if data.tags}{#each data.tags as tag}#{tag} {/each}{/if}
           </div>
         {/if}
       </div>
@@ -166,8 +167,8 @@
   .result:not(.expand) {
     display: grid;
     grid-template-columns: 250px 1ex auto;
-    grid-template-rows: 2.5rem auto;
-    min-height: 158px;
+    grid-template-rows: auto 1fr;
+    height: 158px;
     grid-template-areas:
       "media gap heading"
       "media gap body";

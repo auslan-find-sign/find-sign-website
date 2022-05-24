@@ -7,20 +7,17 @@
   import type { Load } from './random'
   export const load: Load = async function load ({ url }) {
     const sign = url.searchParams.get('sign')
+    let randoms = await getRandomSigns(2)
+
     if (sign) {
-      const [provider, entry] = sign.split('*')
-      const library = await getSearchLibrary([provider], ['id'])
-      const result = await library[provider].entries.find(x => x.id === entry).load()
-      const [random] = await getRandomSigns(1)
-      const next = `/random?${new URLSearchParams([['sign', `${random.provider}*${random.id}`]])}`
-      return { props: { result, next } }
-    } else {
-      const [random1, random2] = await getRandomSigns(2)
-      const library = await getSearchLibrary([random1.provider], ['id'])
-      const result = await library[random1.provider].entries.find(x => x.id === random1.id).load()
-      const next = `/random?${new URLSearchParams([['sign', `${random2.provider}*${random2.id}`]])}`
-      return { props: { result, next } }
+      const [provider, id] = sign.split('*')
+      randoms[0] = { provider, id }
     }
+    const library = await getSearchLibrary([randoms[0].provider], ['id'])
+    const result = await library[randoms[0].provider].entries.find(x => x.id === randoms[0].id).load()
+    const next = `/random?${new URLSearchParams([['sign', `${randoms[1].provider}*${randoms[1].id}`]])}`
+    const permalink = `/sign/${encodeURIComponent(randoms[0].provider)}/${encodeURIComponent(randoms[0].id)}`
+    return { props: { result, permalink, next } }
   }
 </script>
 <script lang="ts">
@@ -31,6 +28,7 @@
   import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
 
   export let result: EncodedSearchDataEntry
+  export let permalink: string
   export let next: string // next url
 
   onMount(() => {
@@ -49,7 +47,9 @@
 
   <h2><a href={next} role="button" class="button" sveltekit:noscroll>🎲 Reroll</a></h2>
   <div class="result-box">
-    <ResultTile data={result} expand prefer="quality" />
+    {#key permalink}
+      <ResultTile data={result} {permalink} expand prefer="quality" carouselSelected={0} />
+    {/key}
   </div>
   <div style="height: 20em"></div>
 </main>
