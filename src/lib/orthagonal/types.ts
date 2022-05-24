@@ -25,6 +25,7 @@ export type OrthagonalColumnData = {
 export type EncodedSearchData = { [key: string]: EncodedSearchDataEntry }
 
 export type EncodedSearchDataEntry = {
+  id?: string, // id of entry, used when in array form instead of object form
   title: string, // human friendly entry title
   words: string[], // human friendly list of searchable words
   link?: string, // url to page about this sign
@@ -35,13 +36,16 @@ export type EncodedSearchDataEntry = {
   provider: {
     id: string, // url component sort of label like auslan-signbank
     name: string, // friendly name for site
+    verb?: string, // discovery verb, e.g. 'shared' or 'documented'
     link?: string, // link to provider
   },
   author?: {
-    name: string, // name of author
-    link: string, // link to author's profile
+    id?: string, // like a username on social media etc, string with tag-like character rules
+    name?: string, // name of author
+    link?: string, // link to author's profile
     avatar?: string, // link to a square avatar image
-  }
+  },
+  timestamp?: number, // epochMs
 }
 
 export type SearchDataNavEntry = [title: string, url: string]

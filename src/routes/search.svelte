@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
-  import type { SearchDataItem } from '$lib/search/search-index'
-  import { search } from '$lib/search/search'
+  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
+  import { getSearchLibrary, search } from '$lib/search/search'
 
   const resultsPerPage = 10
   const maxPages = 9
@@ -18,6 +18,8 @@
     const { results, totalResults } = await search(query, page * resultsPerPage, resultsPerPage)
     const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
 
+    console.log(results)
+
     return { props: { query, page, results, totalPages } }
   }
 </script>
@@ -26,15 +28,62 @@
   import MainBlock from '$lib/MainBlock.svelte'
   import Paginator from '$lib/Paginator.svelte'
   import ResultTile from '$lib/ResultTile.svelte'
+  import watchMedia from 'svelte-media'
+  import { closest } from 'fastest-levenshtein'
+  import { tokenize } from '$lib/search/text';
 
 	export let query: string = ''
   export let page: number = 0
   export let totalPages: number = 0
-  export let results: SearchDataItem[] = []
+  export let results: EncodedSearchDataEntry[] = []
+
+  let didYouMean = undefined
+  $: (results.length === 0) && autocorrect(query)
+
+  const media = watchMedia({ phone: '(max-width: 600px)' })
+  $: isWide = !$media.phone
+
+  export let preconnectOrigin = [...new Set([
+    import.meta.env.VITE_VECTOR_INDEX,
+    import.meta.env.VITE_SEARCH_INDEX_PATH
+  ].map(x => (new URL(x)).origin))]
+
+  // attempt to offer autocorrection
+  async function autocorrect(query) {
+    didYouMean = undefined
+    const lib = await getSearchLibrary(false, ['words'])
+    const words: Set<string> = new Set()
+    for (const provider of Object.values(lib)) {
+      for (const entry of provider.entries) {
+        if (entry.words) entry.words.forEach(word => words.add(word.toLowerCase()))
+      }
+    }
+
+    const knownWords = [...words]
+
+    const terms = tokenize(query)
+    const suggestion = []
+    for (const term of terms) {
+      if (term.match(/^[a-z0-9_-]+$/)) {
+        const nearest = closest(term, knownWords)
+        suggestion.push(nearest)
+      } else {
+        suggestion.push(term)
+      }
+    }
+
+    if (suggestion.join(' ') !== terms.join(' ')) {
+      didYouMean = suggestion.join(' ')
+      console.log(didYouMean)
+    }
+  }
 </script>
 
 <svelte:head>
 	<title>“{query}” - Find Sign</title>
+  {#each preconnectOrigin as origin}
+  <link rel="preconnect" href={origin}>
+  {/each}
 </svelte:head>
 
 <Header {query} showNavigation={false} />
@@ -45,13 +94,22 @@
 
 {#if results && results.length > 0}
   <div class="results">
-    {#each results as entry, idx (`${entry.provider}/${entry.id}`)}
-      <ResultTile data={entry} key={idx} permalink="/sign/{uri(entry.provider)}/{uri(entry.id)}" />
+    {#each results as entry, idx (`${entry.provider.id}/${entry.id}`)}
+      <ResultTile
+        data={entry}
+        key={idx}
+        permalink="/sign/{uri(entry.provider.id)}/{uri(entry.id)}"
+        prefer={isWide ? 'performance' : 'quality'} />
     {/each}
   </div>
 {:else}
   <MainBlock>
     <h1>No results found</h1>
+    {#if didYouMean}
+      <p>Did you mean: <a href="?query={encodeURIComponent(didYouMean)}&page=0">{didYouMean}</a>?</p>
+    {:else}
+      <p>This could be because of a misspelled word</p>
+    {/if}
   </MainBlock>
 {/if}
 
@@ -72,7 +130,6 @@
   }
 
   .hint {
-    margin-top: 1em;
     margin-left: auto;
     margin-right: auto;
     text-align: center;

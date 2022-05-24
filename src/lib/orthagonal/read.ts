@@ -1,42 +1,62 @@
 import { parse as parseVectorPack, type WordVector } from '$lib/search/precomputed-vectors'
 import { timesMap } from '$lib/search/times'
-import type { OrthagonalColumnData, OrthagonalColumns, OrthagonalIndex } from './types'
+import type { EncodedSearchDataEntry, OrthagonalColumnData, OrthagonalColumns, OrthagonalIndex } from './types'
 
 // const SearchDataPath = import.meta.env.VITE_SEARCH_DATA
 
 export type LoadedOrthagonalIndex = {
   url: string,
   meta: OrthagonalIndex,
-  entries: {
-    id?: string, // entry name
-    title?: string, // entry string title
-    words?: string[], // normalized searchable words
-    vectors?: WordVector[], // searchable word vectors
-    link?: string, // link this entry points to
-    tags?: string[], // list of hashtags
-    author?: {
-      name: string, // human friendly name
-      link?: string, // url to author's site/profile
-      avatar?: string, // url to author's avatar image
-    }
-  }[]
+  entries: LoadedOrthagonalEntry[]
 }
 
-export class OutdatedError extends Error {}
+export type LoadedOrthagonalEntry = {
+  id?: string, // entry name
+  title?: string, // entry string title
+  words?: string[], // normalized searchable words
+  vectors?: WordVector[], // searchable word vectors
+  link?: string, // link this entry points to
+  tags?: string[], // list of hashtags
+  author?: {
+    id?: string, // author username with tag-like character rules
+    name?: string, // human friendly name e.g. display name or real name
+    link?: string, // url to author's site/profile
+    avatar?: string, // url to author's avatar image
+  },
+  provider?: {
+    id?: string,
+    name?: string, // friendly name
+    link?: string, // url link to provider website
+    verb?: string, // discovery verb like 'shared' or 'invented'
+  }
+  timestamp?: number, // epochMs timestamp
+  load: () => Promise<EncodedSearchDataEntry>
+}
+
+export class OutdatedError extends Error {
+  indexURL: string
+
+  constructor (message, indexURL) {
+    super(`${message}: ${indexURL}`)
+    this.indexURL = indexURL
+  }
+}
 
 /** load the search index */
 export async function loadIndex (url: string, columns = []): Promise<LoadedOrthagonalIndex> {
   const columnData = {}
   const [meta, vectors] = await Promise.all([
     fetch(`${url}/meta.json`).then(x => x.json()),
-    fetch(`${url}/vectors.lps`).then(x => x.arrayBuffer()).then(arrayBuffer => {
-      const output = {}
-      for (const { word, getVector } of parseVectorPack(new Uint8Array(arrayBuffer))) {
-        output[word] = getVector()
-      }
-      return output
-    }),
-    ...columns.map(async (name: string) => {
+    columns.includes('vectors') ? fetch(`${url}/vectors.lps`)
+      .then(x => x.arrayBuffer())
+      .then(arrayBuffer => {
+        const output = {}
+        for (const { word, getVector } of parseVectorPack(new Uint8Array(arrayBuffer))) {
+          output[word] = getVector()
+        }
+        return output
+      }) : Promise.resolve({}),
+    ...columns.filter(x => x !== 'vectors').map(async (name: string) => {
       const response = await fetch(`${url}/${name}.json`)
       const data: OrthagonalColumnData = await response.json()
       columnData[name] = data
@@ -53,17 +73,30 @@ export async function loadIndex (url: string, columns = []): Promise<LoadedOrtha
         /** load this entry's full definition file */
         load: async () => loadEntry(index, idx)
       }
-      for (const columnName in meta.columns) {
-        const { isVectorIndexed } = meta.columns[columnName]
+      for (const columnName of columns) {
+        if (columnName === 'vectors') continue
+        const { isVectorIndexed, type: columnType } = meta.columns[columnName]
         const data = columnData[columnName]
-        if (data.buildID !== meta.buildID) throw new OutdatedError('Column buildID doesn’t match meta buildID')
-        if (data[idx] !== null) obj[columnName] = data[idx]
-        if (isVectorIndexed) {
-          for (const word of data[idx]) {
-            if (vectors[word]) obj.vectors.push(vectors[word])
+        if (data.buildID !== meta.buildID) throw new OutdatedError('Column buildID doesn’t match meta buildID', url)
+        if (data.entries[idx] !== null) {
+          obj[columnName] = data.entries[idx]
+        } else {
+          obj[columnName] = {
+            'string': '',
+            'string[]': [],
+            'number': 0,
+            'number[]': [],
+            'object': {}
+          }[columnType]
+        }
+        if (isVectorIndexed && columns.includes('vectors')) {
+          for (const word of data.entries[idx]) {
+            const vector = vectors[word] || vectors[word.toLowerCase()]
+            if (vector) obj.vectors.push(vector)
           }
         }
       }
+      return obj
     })
   }
 
@@ -71,11 +104,11 @@ export async function loadIndex (url: string, columns = []): Promise<LoadedOrtha
 }
 
 /** load an entry from an index using it's entry number */
-export async function loadEntry (index: LoadedOrthagonalIndex, number: number) {
+export async function loadEntry (index: LoadedOrthagonalIndex, number: number): Promise<EncodedSearchDataEntry> {
   const shardNumber = Math.floor(number / index.meta.entriesPerShard)
   const entryNumber = number % index.meta.entriesPerShard
   const response = await fetch(`${index.url}/shard-${shardNumber}.json`)
   const json: OrthagonalColumnData = await response.json()
-  if (json.buildID !== index.meta.buildID) throw new OutdatedError('Entry buildID unsyncronized, reload')
+  if (json.buildID !== index.meta.buildID) throw new OutdatedError('Entry buildID unsyncronized, reload', index.url)
   return json.entries[entryNumber]
 }

@@ -35,10 +35,13 @@
     "cbor-codec": "^0.9.7",
     "cookie": "^0.4.1",
     "discord-interactions": "^3.2.0",
+    "fastest-levenshtein": "^1.0.12",
     "it-length-prefixed": "^7.0.1",
     "nanoid": "^3.3.4",
     "node-fetch": "^3.2.4",
     "pigeonmark-xml": "^1.0.1",
+    "svelte-inview": "^3.0.0",
+    "svelte-media": "^0.1.5",
     "tweetnacl-ts": "^1.0.3",
     "uri-tag": "^1.4.1",
     "varint": "^6.0.0"

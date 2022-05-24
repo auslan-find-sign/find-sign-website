@@ -10,6 +10,7 @@
     {#if $session.userID}
       <a href="/admin">Admin Home</a>
       <a href="/admin/users">User Management</a>
+      <a href="/admin/indexes">Search Indexes</a>
     {/if}
   </nav>
   <main class="content">

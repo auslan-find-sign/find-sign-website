@@ -107,6 +107,7 @@ export const post = async function post ({ request }: { request: Request }) {
     const challenge = verifyToken(req.token)
     if (!challenge) return { status: 400, body: { error: 'Challenge Token Invalid' } }
     const user = await getUser(req.credential.rawId)
+    if (!user) return { status: 400, body: { error: 'User is not known to server' } }
     try {
       const { verified, authenticationInfo } = await verifyAuthenticationResponse({
         credential: req.credential,

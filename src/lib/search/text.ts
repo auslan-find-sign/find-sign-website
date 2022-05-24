@@ -1,7 +1,7 @@
 import { distanceSquared } from './vector-utilities'
 import './array-at-polyfill'
-import type { LibraryEntry } from './search-index'
-
+// import type { LibraryEntry } from './search-index'
+import type { LoadedOrthagonalEntry } from '$lib/orthagonal/read'
 
 export type QueryAndNode = {
   type: 'and',
@@ -38,7 +38,7 @@ export type QueryNode = QueryAndNode | QueryOrNode | QueryWord | QueryTag | Quer
 type Token = string | QueryNode
 type ParserPass = (tokens: Token[]) => Token[]
 
-export type RankingFilterFunction = (searchEntry: LibraryEntry) => number
+export type RankingFilterFunction = (searchEntry: LoadedOrthagonalEntry) => number
 export type LookupVectorFunction = (word: string) => Promise<readonly number[]>
 
 // Vector Library normalization: any words that aren't entirely uppercase (like an acronym) get downcased
@@ -59,24 +59,40 @@ export function normalizeWord (word: string): string {
  *   - "OR", "AND" (default) boolean combiners
  */
 export async function compileQuery (query: string, lookupVectorFn?: LookupVectorFunction): Promise<{ rank: RankingFilterFunction, requirements: QueryColumnName[] }> {
-  const ast = parseQuery(query)
+  const ast = await vectorizeAST(parseQuery(query), lookupVectorFn)
   return {
-    rank: await compileQueryAST(ast, lookupVectorFn),
+    rank: await compileQueryAST(ast),
     requirements: getQueryRequirements(ast)
   }
 }
 
+export async function vectorizeAST (ast: QueryNode | undefined, lookupVectorFn?: LookupVectorFunction): Promise<QueryNode | undefined> {
+  if (ast === undefined) {
+    return ast
+  } else if (ast.type === 'word') {
+    return { ...ast, vector: await lookupVectorFn(ast.string) }
+  } else if (ast.type === 'and' || ast.type === 'or') {
+    return {
+      ...ast,
+      left: await vectorizeAST(ast.left, lookupVectorFn),
+      right: await vectorizeAST(ast.right, lookupVectorFn),
+    }
+  } else {
+    return ast
+  }
+}
+
 // Given a query AST, builds a closure function to check an entry and return a rank number
-export async function compileQueryAST (ast: QueryNode | undefined, lookupVectorFn?: LookupVectorFunction): Promise<RankingFilterFunction> {
+export async function compileQueryAST (ast: QueryNode | undefined): Promise<RankingFilterFunction> {
   if (ast === undefined) {
     return () => 0
   } else if (ast.type === 'and') {
-    const left = await compileQueryAST(ast.left, lookupVectorFn)
-    const right = await compileQueryAST(ast.right, lookupVectorFn)
+    const left = await compileQueryAST(ast.left)
+    const right = await compileQueryAST(ast.right)
     return (entry) => left(entry) + right(entry)
   } else if (ast.type === 'or') {
-    const left = await compileQueryAST(ast.left, lookupVectorFn)
-    const right = await compileQueryAST(ast.right, lookupVectorFn)
+    const left = await compileQueryAST(ast.left)
+    const right = await compileQueryAST(ast.right)
     return (entry) => Math.min(left(entry), right(entry))
   } else if (ast.type === 'tag') {
     const string = ast.string
@@ -86,17 +102,16 @@ export async function compileQueryAST (ast: QueryNode | undefined, lookupVectorF
       return ({ tags }) => tags.includes(string) ? Infinity : 0
     }
   } else if (ast.type === 'word') {
-    const vector = ast.vector || (await lookupVectorFn(ast.string))
+    const { vector, string } = ast
     if (vector) {
-      return ({ words }) => {
-        const entryVectors = words.filter(x => typeof x !== 'string')
-        const distances = entryVectors.map(entryVector => distanceSquared(entryVector, vector))
+      return ({ vectors }) => {
+        const distances = vectors.map(entryVector => distanceSquared(entryVector, vector))
         return Math.min(...distances)
       }
     } else {
       const searchWord = ast.string
       return ({ words }) => {
-        return words.some(entryString => typeof entryString === 'string' && entryString.toLowerCase() === searchWord) ? 0 : Infinity
+        return words.some(entryString => entryString.toLowerCase() === searchWord) ? 0 : Infinity
       }
     }
   } else if (ast.type === 'author') {

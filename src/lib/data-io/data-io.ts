@@ -1,6 +1,7 @@
 import { createLicense } from '$lib/data-io/auth'
 import { stringToBytes } from '$lib/functions/string-encode'
-const identity = import.meta.env.VITE_DATA_IDENTITY
+import { encodeBase64 } from 'tweetnacl-ts'
+const identity = import.meta.env.VITE_SEARCH_WRITE_IDENTITY
 const collectionPath = import.meta.env.VITE_SEARCH_DATA
 
 export type FileInfoJSON = {
@@ -13,6 +14,10 @@ export type FileInfoJSON = {
   path: string, // full path to file
   isFile: boolean, // is this item a file?
   isFolder: boolean, // is this item a folder?
+}
+
+export type BulkWriteFiles = {
+  [filePath: string]: string | Uint8Array
 }
 
 async function request (path: string, init: RequestInit, ignoreError = false): Promise<Response> {
@@ -37,6 +42,25 @@ export async function writeFile (path: string, data: Uint8Array | string): Promi
     method: 'PUT',
     headers: { 'Content-Type': 'application/octet-stream' },
     body: data
+  })
+}
+
+export async function bulkWrite (path: string, files: BulkWriteFiles): Promise<void> {
+  await request(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'bulk',
+      files: Object.fromEntries(Object.entries(files).map(([filePath, data]) => {
+        if (typeof data === 'string') {
+          return [filePath, { encoding: 'string', data }]
+        } else if (data instanceof Uint8Array) {
+          return [filePath, { encoding: 'base64', data: encodeBase64(data) }]
+        } else {
+          return [filePath, { encoding: 'string', data: JSON.stringify(data) }]
+        }
+      }))
+    })
   })
 }
 

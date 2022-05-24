@@ -10,8 +10,16 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
   const json: EncodedSearchData = await response.json()
   for (const id in json) {
     const entry = json[id]
+    if (!entry.title && entry.words) {
+      entry.title = entry.words.join(', ')
+    }
+    if (!entry.words && entry.title) {
+      /** @ts-ignore */
+      const seg = new Intl.Segmenter(import.meta.env.VITE_LOCALE, { granularity: 'word' }) // node 16.x
+      entry.words = [...seg.segment(entry.title)].filter(x => x.isWordLike).map(x => x.segment)
+    }
     // make all the links absolute
-    if (entry.link) entry.link = (new URL(entry.link), url)
+    if (entry.link) entry.link = (new URL(entry.link, url)).toString()
     if (entry.nav) entry.nav = entry.nav.map(([label, link]) => [label, (new URL(link, url)).toString()])
     if (entry.author && entry.author.link) {
       entry.author.link = (new URL(entry.author.link, url)).toString()
@@ -46,7 +54,7 @@ export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?
   const indexFile: OrthagonalIndex = {
     buildTimestamp: Date.now(),
     buildID: nanoid(),
-    entriesPerShard: 20,
+    entriesPerShard: 8,
     entries: Object.keys(searchData).length,
     vectorCachePath: 'vectors.lps',
     columns: exportedColumns
@@ -62,15 +70,17 @@ export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?
 
   // build the shards and indexes
   chunk(Object.keys(searchData), indexFile.entriesPerShard).forEach((entryIDs, shardNum) => {
-    outputFiles[`shard-${shardNum}.json`] = JSON.stringify(
-      entryIDs.map(id => {
+    outputFiles[`shard-${shardNum}.json`] = JSON.stringify({
+      buildID: indexFile.buildID,
+      entries: entryIDs.map(id => {
         const output = { id, ...searchData[id] }
         for (const key in exportedColumns) {
-          exportDatas[exportedColumns[key].path].entries.push(output[key] || null)
+          const value = output[key]
+          exportDatas[key].entries.push(value === undefined ? null : value)
         }
         return output
       })
-    )
+    })
   })
 
   const uniqueWords: Set<string> = new Set()
@@ -79,9 +89,13 @@ export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?
     for (const word of words) uniqueWords.add(normalizeWord(word))
   }
   const vectorIndex = {}
-  await Promise.all([...uniqueWords].map(async word => {
-    vectorIndex[word] = await lookupVectorFn(word)
-  }))
+  // load word vectors in batches
+  for (const wordChunk of chunk([...uniqueWords], 10)) {
+    await Promise.all(wordChunk.map(async word => {
+      const vector = await lookupVectorFn(word)
+      if (vector) vectorIndex[word] = vector
+    }))
+  }
 
   // export vector cache
   outputFiles['vectors.lps'] = buildVectorShard(vectorIndex)

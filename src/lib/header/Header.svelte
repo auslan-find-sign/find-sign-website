@@ -32,6 +32,7 @@
     max-width: 500px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 1rem;
   }
 
   header > a {
@@ -65,7 +66,7 @@
     flex-direction: row;
     justify-content: space-evenly;
     width: auto;
-    padding: 2.5rem 0 2.5rem 0;
+    padding: 2.5rem 0 1.5rem 0;
     margin: 0 auto 0 auto;
     font-size: 1.2em;
   }

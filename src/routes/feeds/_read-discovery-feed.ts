@@ -1,19 +1,16 @@
 import { base } from '$app/paths'
-import { iter_decode } from 'cbor-codec/esm/index.mjs'
-
-export async function * readUpdateLog (fetch) {
-  const response = await fetch(import.meta.env.VITE_UPDATE_LOG)
-  yield * iter_decode(await response.arrayBuffer())
-}
+import { getSearchLibrary } from '$lib/search/search'
 
 export async function getUpdatesFeed ({ page = 0, length = 30, url, extended = false }) {
-  let updates = []
-  for await (const entry of readUpdateLog(fetch)) {
-    if (entry.available) updates.push(entry)
-  }
 
+  const libraries = await getSearchLibrary(false, ['timestamp'])
+  let updates = Object.values(libraries).flatMap(x => x.entries)
+
+  updates = updates.filter(x => x.timestamp && x.timestamp > 0)
   updates = updates.sort((a, b) => b.timestamp - a.timestamp)
   updates = updates.slice(length * page, length * (page + 1))
+
+  const loaded = await Promise.all(updates.map(x => x.load()))
 
   const version = 'https://jsonfeed.org/version/1.1'
 
@@ -24,20 +21,34 @@ export async function getUpdatesFeed ({ page = 0, length = 30, url, extended = f
 
   return {
     version, title, home_page_url, feed_url, next_url,
-    items: updates.map(entry => ({
-      id: `${entry.provider}:${entry.id}`,
-      title: `${entry.provider} ${entry.verb}: ${[...entry.words].flat(2).join(' ').trim()}`,
-      url: (new URL(`/entries/${encodeURIComponent(entry.provider)}/${encodeURIComponent(entry.id)}`, url)).toString(),
+    items: loaded.map(entry => ({
+      id: `${entry.provider.id}:${entry.id}`,
+      title: `${entry.provider.name} ${entry.provider.verb || 'shared'}: ${entry.title}`,
+      url: (new URL(`/entries/${encodeURIComponent(entry.provider.id)}/${encodeURIComponent(entry.id)}`, url)).toString(),
       external_url: entry.link,
-      authors: [{ name: entry.provider, url: entry.providerLink }],
+      authors: entry.author
+        ? [{
+            name: entry.author.name,
+            url: entry.author.link,
+            avatar: entry.author.avatar
+          }]
+        : [{
+            name: entry.provider.name,
+            url: entry.provider.link
+          }],
       date_published: (new Date(entry.timestamp)).toISOString(),
       content_text: `${entry.body}`,
-      // TODO: get the videos in here, RSS and Atom theoretically can translate it
-      // Before deploy, check json, rss, and atom feeds are all still valid
-      // and remember, title must be identical if linking multiple equivilent formats
-      attachments: [],
+      attachments: entry.media.flatMap((x, idx) => {
+        return x.encodes.map(x => {
+          return {
+            url: x.url,
+            mime_type: x.type,
+            title: `Video ${idx + 1}`,
+          }
+        })
+      }),
       ...(extended ? {
-        __fs_verb: entry.verb,
+        __fs_verb: entry.provider.verb,
         __fs_words: entry.words
       } : {})
     }))

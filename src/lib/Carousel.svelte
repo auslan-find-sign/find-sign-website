@@ -1,16 +1,34 @@
 <script lang=ts>
-  import type { MediaItem } from './search/search-index'
+  // import type { MediaItem } from './search/search-index'
+  import type { SearchDataEncodedMedia } from '$lib/orthagonal/types'
   import { page } from '$app/stores'
   import { goto } from '$app/navigation'
+  import { inview } from 'svelte-inview' // intersection observer
 
   export let key: number|string = 0 // unique index of carousel, for search params state transmission
-  export let medias: MediaItem[] = []
+  export let medias: SearchDataEncodedMedia[] = []
   export let selected: number = parseInt($page.url.searchParams.get(`carousel${key}`) || '0')
   export let link = undefined
+  export let prefer: 'performance' | 'quality' = 'performance'
+  export let ssrPlayVideo = false
 
   $: selected = parseInt($page.url.searchParams.get(`carousel${key}`) || `${selected}`)
 
-  $: media = medias[selected].sort((a, b) => b.maxHeight - a.maxHeight)
+  $: media = medias[selected].encodes.sort((a, b) => {
+    if (prefer === 'quality') {
+      return b.height - a.height
+    } else {
+      return a.height - b.height
+    }
+  })
+
+  let isInView = ssrPlayVideo
+
+  function intersectionChange(event) {
+    isInView = event.detail.inView
+  }
+
+  $: thumbnail = medias[selected].thumbnail
   // 'image' or 'video'
   $: type = media[0].type.split('/')[0]
 
@@ -33,16 +51,20 @@
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- these videos have no audio to caption -->
-<div class={$$props.class}>
+<div class={$$props.class} use:inview={{}} on:change={intersectionChange} style={`--backdrop: url("${thumbnail}")`}>
   <a href={link} referrerpolicy="origin" rel="external">
     {#key media}
       {#if type === 'video'}
-        <video muted preload="auto" autoplay loop playsinline>
-          {#each media as source}<source src={source.src} type={source.type} data-max-width={`${source.maxWidth}`} data-max-height={`${source.maxHeight}`}>{/each}
-        </video>
+        {#if isInView}
+          <video muted preload="auto" autoplay loop playsinline poster={thumbnail}>
+            {#each media as source}<source src={source.url} type={source.type} data-width={`${source.width}`} data-height={`${source.height}`}>{/each}
+          </video>
+        {:else}
+          <img class="thumbnail" src={thumbnail} alt="video thumbnail">
+        {/if}
       {:else if type === 'image'}
         <picture>
-          {#each media as source}<source src={source.src} type={source.type}>{/each}
+          {#each media as source}<source src={source.url} type={source.type}>{/each}
         </picture>
       {/if}
     {/key}
@@ -61,7 +83,7 @@
     display: grid;
     grid-template-columns: 32px auto 32px;
     grid-template-rows: auto;
-    background-color: var(--submodule-bg);
+    /* background-color: var(--submodule-bg); */
     border-radius: 6px;
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -70,8 +92,8 @@
     /* very fancy soon to be out of style custom 'neumorphic' style box */
     box-shadow:
       /* inset highlight and shadow */
-      inset 0 -7rem 5em -2em hsla(var(--hue), calc(var(--module-bg-sat) - 5%), calc(var(--module-bg-lum) + 5%), var(--outer-highlight-alpha)),
-      inset 0 +7rem 5em -2em hsla(var(--hue), calc(var(--module-bg-sat) + 5%), calc(var(--module-bg-lum) - 3%), var(--outer-shadow-alpha)),
+      /* inset 0 -7rem 5em -2em hsla(var(--hue), calc(var(--module-bg-sat) - 5%), calc(var(--module-bg-lum) + 5%), var(--outer-highlight-alpha)), */
+      /* inset 0 +7rem 5em -2em hsla(var(--hue), calc(var(--module-bg-sat) + 5%), calc(var(--module-bg-lum) - 3%), var(--outer-shadow-alpha)), */
       /* outside drop shadow */
       0.3rem 0.3rem 0.4rem hsla(var(--hue), calc(var(--module-bg-sat) + 5%), calc(var(--module-bg-lum) - 10%), var(--outer-shadow-alpha)),
       0.2rem 0.3rem 0.2rem hsla(var(--hue), calc(var(--module-bg-sat) + 5%), calc(var(--module-bg-lum) - 8%), var(--outer-shadow-alpha)),
@@ -81,12 +103,20 @@
       -0.2rem -0.2rem 0.2rem hsla(var(--hue), calc(var(--module-bg-sat) - 5%), calc(var(--module-bg-lum) + 4%), var(--outer-highlight-alpha)),
       -0.1rem -0.1rem 0.1rem hsla(var(--hue), calc(var(--module-bg-sat) - 5%), calc(var(--module-bg-lum) + 2%), var(--outer-highlight-alpha))
     ;
+
+    /* backdrop effect */
+    background-image: var(--backdrop);
+    background-size: cover;
+    --background-filter: blur(7px) brightness(75%);
   }
 
-  div > a {
+  div > a[rel=external] {
     grid-row: 1;
     grid-column: 1 / 4;
     overflow: hidden;
+    backdrop-filter: var(--background-filter);
+    -webkit-backdrop-filter: var(--background-filter);
+    border-radius: inherit;
   }
 
   video, picture {
@@ -96,6 +126,14 @@
     border-radius: 6px;
     z-index: 5;
     aspect-ratio: 16 / 9;
+  }
+
+  img.thumbnail {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   a[role=button] {

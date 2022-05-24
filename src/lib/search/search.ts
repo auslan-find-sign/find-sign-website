@@ -1,49 +1,52 @@
-import { getResult, type Library, type SearchDataItem } from './search-index'
-import { open, freshen, getResultByNumericPath } from '$lib/search/search-index'
+// import { getResult, type Library, type SearchDataItem } from './search-index'
+// import { open, freshen, getResultByNumericPath } from '$lib/search/search-index'
+import { loadIndex, type LoadedOrthagonalIndex } from '$lib/orthagonal/read'
+import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
 import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
 import { compileQuery } from '$lib/search/text'
 import normalizeWord from '$lib/orthagonal/normalize-word'
 import lru from '$lib/functions/lru'
 
-const freshenInterval = 1000 * 60 // 1 minute
+const freshenInterval = 1000 * 60 * 10 // 10 minutes
 
-let searchLibrary: Library = undefined
+const indexURLs = Object.fromEntries(import.meta.env.VITE_SEARCH_INDEXES.split(',').map(name => {
+  return [name, `${import.meta.env.VITE_SEARCH_INDEX_PATH}/${encodeURIComponent(name)}`]
+}))
+
+// let searchLibrary: Library = undefined
+// let searchLibraries = {}
 let lastQuery: string|undefined = undefined
-let lastFreshenTimestamp: number = 0
+let compiledQuery: { rank: (EncodedSearchDataEntry) => number, requirements: string[] } = undefined
+// let lastFreshenTimestamp: number = 0
 let cachedRankedIndex = undefined
-let resultItemCache = lru(100)
+// let resultItemCache = lru(100)
 
-type SearchResponse = {
-  results: SearchDataItem[],
+export type SearchResponse = {
+  results: EncodedSearchDataEntry[],
   totalResults: number
 }
 
-export async function getSearchLibrary (): Promise<Library> {
-  if (!searchLibrary) {
-    searchLibrary = await open(import.meta.env.VITE_SEARCH_INDEX)
-    cachedRankedIndex = undefined
-    lastFreshenTimestamp = Date.now()
-  }
+export type SearchLibrary = {
+  [name: string]: LoadedOrthagonalIndex
+}
 
-  if (lastFreshenTimestamp < Date.now() - freshenInterval) {
-    searchLibrary = await freshen(searchLibrary)
-    cachedRankedIndex = undefined
-    lastFreshenTimestamp = Date.now()
-  }
+/** limit libraries maybe an array of provider ids */
+export async function getSearchLibrary (limitLibraries: string[] | false = false, columns = ['words', 'tags']): Promise<SearchLibrary> {
+  if (limitLibraries === false) limitLibraries = Object.keys(indexURLs)
 
-  return searchLibrary
+  const collection = Object.fromEntries(await Promise.all(limitLibraries.map(async name => {
+    const index = await loadIndex(indexURLs[name], columns)
+    return [name, index]
+  })))
+
+  // TODO: implement freshen logic and caching of loaded libraries
+  return collection
 }
 
 export async function search (query: string, start: number, length: number): Promise<SearchResponse> {
-  const library = await getSearchLibrary()
-
-  if (query !== lastQuery) {
-    cachedRankedIndex = undefined
-  }
-
-  if (!cachedRankedIndex) {
-    const { rank: queryFn } = await compileQuery(query, async (word) => {
+  if (query !== lastQuery || !compiledQuery) {
+    compiledQuery = await compileQuery(query, async (word) => {
       const normalized = normalizeWord(word)
       const normalizedResult = await lookup(normalized)
       if (normalizedResult) {
@@ -53,19 +56,26 @@ export async function search (query: string, start: number, length: number): Pro
         return lowerCasedResult
       }
     })
+  }
 
-    cachedRankedIndex = rank(library, queryFn)
+  const { requirements: columns, rank: rankFn } = compiledQuery
+  const library = await getSearchLibrary(false, columns)
+
+  if (query !== lastQuery) cachedRankedIndex = undefined
+
+  if (!cachedRankedIndex) {
+    cachedRankedIndex = rank(library, rankFn)
   }
 
   lastQuery = query
 
-  const resultEntries = cachedRankedIndex.index.slice(start, start + length)
+  const resultEntries = cachedRankedIndex.entries.slice(start, start + length)
   const results = await Promise.all(resultEntries.map(entry => {
-    return resultItemCache(JSON.stringify(entry.path), () => getResult(searchLibrary, entry))
+    return entry.load()
   }))
 
   return {
-    totalResults: cachedRankedIndex.index.length,
+    totalResults: cachedRankedIndex.entries.length,
     results
   }
 }

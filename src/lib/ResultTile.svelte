@@ -2,12 +2,15 @@
   import Carousel from '$lib/Carousel.svelte'
   import RegionMap from '$lib/RegionMap.svelte'
   import Icon from '$lib/Icon.svelte'
+import type { EncodedSearchDataEntry } from './orthagonal/types';
 
-  export let data = undefined
+  export let data: EncodedSearchDataEntry = undefined
   export let expand = false
   export let permalink = undefined
   export let carouselSelected = undefined
   export let key: number = 0
+  export let prefer: 'performance' | 'quality' = 'performance'
+  export let ssrPlayVideo = false
 
   $: warnings = data ? [...getWarnings(data.tags)] : []
 
@@ -19,19 +22,38 @@
 
 <div class={$$props.class} class:result={true} class:placeholder={!data} class:expand={expand}>
   {#if data}
-    <Carousel bind:selected={carouselSelected} medias={data.media} {key} link={data.link} class="carousel"></Carousel>
+    <Carousel
+      bind:selected={carouselSelected}
+      medias={data.media}
+      {key}
+      link={data.link ? data.link : permalink}
+      {ssrPlayVideo}
+      {prefer}
+      class="carousel" />
 
     <div class=heading>
       <div class=datas>
-        <h2 class=words><a href={data.link} referrerpolicy=origin rel=external sveltekit:reload>{data.title || data.keywords.join(', ')}</a></h2>
+        <h2 class=words>
+          {#if data.link}
+            <a href={data.link} referrerpolicy=origin rel=external sveltekit:reload>
+              {data.title || data.words.join(', ')}
+            </a>
+          {:else if permalink}
+            <a href={permalink}>{data.title || data.words.join(', ')}</a>
+          {:else}
+            {data.title || data.words.join(', ')}
+          {/if}
+        </h2>
 
         <cite class=link>
           {#if data.nav && data.nav.length > 0}
             {#each data.nav as [name, url]}
               <a href={url} referrerpolicy=origin rel=external sveltekit:reload>{name}</a>
             {/each}
-          {:else}
+          {:else if data.link}
             <a href={data.link} referrerpolicy=origin rel=external sveltekit:reload>{data.link}</a>
+          {:else if permalink}
+          <a href={permalink}>{permalink}</a>
           {/if}
         </cite>
 
