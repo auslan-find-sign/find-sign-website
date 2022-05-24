@@ -44,6 +44,8 @@ export async function getUpdatesFeed ({ page = 0, length = 30, url, extended = f
             url: x.url,
             mime_type: x.type,
             title: `Video ${idx + 1}`,
+            size_in_bytes: x.byteSize,
+            duration_in_seconds: x.duration,
           }
         })
       }),

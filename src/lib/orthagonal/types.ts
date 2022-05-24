@@ -66,4 +66,6 @@ export type SearchDataEncode = {
   codec: 'x264' | 'x265' | 'vp8' | 'vp9' | 'av1',
   version: string, // media invalidation string, used internally by encoder, e.g. "mp4:x264:22@512x288"
   url: string, // relative path to video file, e.g. "auslan-signbank-media/BOY.NTH-0-x264-512x288.mp4"
+  byteSize: number, // size in bytes
+  duration: number, // duration in seconds
 }

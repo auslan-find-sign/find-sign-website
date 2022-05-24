@@ -24,7 +24,7 @@ export async function get ({ url }) {
           ['guid', item.external_url],
           ['description', item.content_text],
           ...item.attachments.map(media =>
-            ['enclosure', { type: media.mime_type, url: media.url, length: media.size_in_bytes }]
+            ['enclosure', { type: media.mime_type, url: media.url, length: `${media.size_in_bytes}` }]
           )
         ]))
       ]

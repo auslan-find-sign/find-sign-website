@@ -32,7 +32,7 @@ export async function get ({ url }) {
         ['link', { rel: 'via', href: item.external_url }],
         ['content', { type: 'text' }, item.content_text],
         ...item.attachments.map(media =>
-          ['link', { rel: 'enclosure', title: media.title, href: media.url, type: media.mime_type, length: media.size_in_bytes }]
+          ['link', { rel: 'enclosure', title: media.title, href: media.url, type: media.mime_type, length: `${media.size_in_bytes}` }]
         ),
         // ['content', { type: 'html' }, ... html body],
       ]))
