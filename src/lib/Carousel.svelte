@@ -16,9 +16,9 @@
 
   $: media = medias[selected].encodes.sort((a, b) => {
     if (prefer === 'quality') {
-      return b.height - a.height
+      return b.byteSize - a.byteSize
     } else {
-      return a.height - b.height
+      return a.byteSize - b.byteSize
     }
   })
 
@@ -107,6 +107,7 @@
     /* backdrop effect */
     background-image: var(--backdrop);
     background-size: cover;
+    background-position: center center;
     --background-filter: blur(7px) brightness(75%);
   }
 

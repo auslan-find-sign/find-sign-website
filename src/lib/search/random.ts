@@ -9,18 +9,18 @@ export const blockedTags = [
   'lexis.fingerspell' // fingerspelling entries are too boring
 ]
 
-export async function getRandomSigns (count: number): Promise<[provider: string, entry: string][]> {
-  const library = await getSearchLibrary(false, ['id', 'tags', 'provider'])
-  const index = [...Object.values(library).flatMap(x => x.entries).filter(entry => {
+export async function getRandomSigns (count: number): Promise<{provider: string, id: string}[]> {
+  const library = await getSearchLibrary(false, ['id', 'tags'])
+  const index = Object.entries(library).flatMap(([providerID, data]) => {
+    return data.entries.map(entry => ({ providerID, ...entry }))
+  }).filter(entry => {
     return blockedTags.every(tag => !entry.tags.includes(tag))
-  })]
+  })
   const signs = []
 
   for (let i = 0; i < count; i++) {
     const random = index[Math.round(Math.random() * (index.length - 1))]
-    const provider = random.provider.id
-    const entry = random.id
-    signs.push({ provider, entry })
+    signs.push({ provider: random.providerID, id: random.id })
   }
   return signs
 }

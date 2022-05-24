@@ -2,7 +2,7 @@
   import Carousel from '$lib/Carousel.svelte'
   import RegionMap from '$lib/RegionMap.svelte'
   import Icon from '$lib/Icon.svelte'
-import type { EncodedSearchDataEntry } from './orthagonal/types';
+  import type { EncodedSearchDataEntry } from './orthagonal/types'
 
   export let data: EncodedSearchDataEntry = undefined
   export let expand = false

@@ -9,16 +9,16 @@
     const sign = url.searchParams.get('sign')
     if (sign) {
       const [provider, entry] = sign.split('*')
-      const library = await getSearchLibrary()
-      const result = await getResultByPath(library, provider, entry)
+      const library = await getSearchLibrary([provider], ['id'])
+      const result = await library[provider].entries.find(x => x.id === entry).load()
       const [random] = await getRandomSigns(1)
-      const next = `/random?${new URLSearchParams([['sign', random.join('*')]])}`
+      const next = `/random?${new URLSearchParams([['sign', `${random.provider}*${random.id}`]])}`
       return { props: { result, next } }
     } else {
-      const library = await getSearchLibrary()
       const [random1, random2] = await getRandomSigns(2)
-      const result = await getResultByPath(library, ...random1)
-      const next = `/random?${new URLSearchParams([['sign', random2.join('*')]])}`
+      const library = await getSearchLibrary([random1.provider], ['id'])
+      const result = await library[random1.provider].entries.find(x => x.id === random1.id).load()
+      const next = `/random?${new URLSearchParams([['sign', `${random2.provider}*${random2.id}`]])}`
       return { props: { result, next } }
     }
   }
@@ -28,8 +28,9 @@
   import ResultTile from '$lib/ResultTile.svelte'
   import { onMount } from 'svelte'
   import { prefetch } from '$app/navigation'
+  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
 
-  export let result: SearchDataItem | undefined
+  export let result: EncodedSearchDataEntry
   export let next: string // next url
 
   onMount(() => {
@@ -48,7 +49,7 @@
 
   <h2><a href={next} role="button" class="button" sveltekit:noscroll>🎲 Reroll</a></h2>
   <div class="result-box">
-    <ResultTile data={result} expand/>
+    <ResultTile data={result} expand prefer="quality" />
   </div>
   <div style="height: 20em"></div>
 </main>
