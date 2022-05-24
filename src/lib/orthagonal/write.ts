@@ -92,8 +92,10 @@ export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?
   // load word vectors in batches
   for (const wordChunk of chunk([...uniqueWords], 10)) {
     await Promise.all(wordChunk.map(async word => {
-      const vector = await lookupVectorFn(word)
-      if (vector) vectorIndex[word] = vector
+      if (!(word in vectorIndex)) {
+        const vector = await lookupVectorFn(word)
+        if (vector) vectorIndex[word] = vector
+      }
     }))
   }
 
