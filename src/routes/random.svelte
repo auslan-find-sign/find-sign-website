@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  import type { SearchDataItem } from '$lib/search/search-index'
   import { getSearchLibrary } from '$lib/search/search'
-  import { getResultByPath } from '$lib/search/search-index'
   import { getRandomSigns } from '$lib/search/random'
 
   import type { Load } from './random'

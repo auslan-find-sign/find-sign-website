@@ -6,6 +6,7 @@
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   export let hashtags = []
+  export let usernames = []
 
   function searchURL (query) {
     return `/search?${new URLSearchParams(Object.entries({ query, page: 0 }))}`
@@ -68,21 +69,29 @@
     results where both hands do the same thing.
   </p>
   <h1>What are all the #hashtags?</h1>
-  <ul class="hashtags">
+  <ul>
     {#each hashtags as { hashtag, count }}
       {#if count > 1}
         <li><a href={searchURL(`#${hashtag}`)}>#{hashtag}</a> <span>({count})</span></li>
       {/if}
     {/each}
   </ul>
+  <h1>And all the @usernames?</h1>
+  <ul>
+    {#each usernames as { username, count }}
+      {#if count > 0}
+        <li><a href={searchURL(`@${username}`)}>@{username}</a> <span>({count})</span></li>
+      {/if}
+    {/each}
+  </ul>
 </MainBlock>
 <style>
-  ul.hashtags {
+  ul {
     display: grid;
     grid-template-columns: repeat(3, 33%);
   }
 
-  ul.hashtags li {
+  ul li {
     list-style: none;
   }
 </style>
