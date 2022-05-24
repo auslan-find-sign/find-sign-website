@@ -1,21 +1,21 @@
 import { InteractionType, InteractionResponseType, MessageComponentTypes, ButtonStyleTypes } from 'discord-interactions'
 import { search } from '$lib/search/search.js'
 import { getSearchLibrary } from '$lib/search/search.js'
-import { getResultByPath, type SearchDataItem } from '$lib/search/search-index.js'
 import { getRandomSigns } from '$lib/search/random.js'
-import { discordRequest, formDataBody, isValidReq } from './_discord_request.js'
+import { discordRequest, isValidReq } from './_discord_request.js'
 import { times } from '$lib/functions/iters.js'
-import { lagSwitch } from '$lib/functions/delay.js'
+// import { lagSwitch } from '$lib/functions/delay.js'
 import { DiscordAppID } from './_setup.js'
-import { sha256, arrayToHex } from '$lib/search/hash.js'
+// import { sha256, arrayToHex } from '$lib/search/hash.js'
+import type { EncodedSearchDataEntry, SearchDataEncodedMedia } from '$lib/orthagonal/types.js'
 
 const MaxPages = 3
 
-async function signToMessage ({ sign, request, message = '', components = [], bodyOverride = {} }: { sign: SearchDataItem, request: Request, message?: string, components?: any[], bodyOverride?: any }) {
+async function signToMessage ({ sign, request, message = '', components = [], bodyOverride = {} }: { sign: EncodedSearchDataEntry, request: Request, message?: string, components?: any[], bodyOverride?: any }) {
   // const permalink = new URL(`/sign/${encodeURIComponent(sign.provider)}/${encodeURIComponent(sign.id)}`, request.url)
-  const sources = sign.media[0]
-  const source = sources.find(x => x.type.startsWith('video/mp4'))
-  const videoTypeLabel = source.type.split('/')[1]
+  const sources: SearchDataEncodedMedia = sign.media[0]
+  const source = sources.encodes.find(x => x.type.startsWith('video/mp4'))
+  // const videoTypeLabel = source.type.split('/')[1]
   // const videoResponse = await fetch(source.src)
 
   // const attachment = {
@@ -31,7 +31,7 @@ async function signToMessage ({ sign, request, message = '', components = [], bo
       `Auslan: “**${sign.title || sign.words.join('**”, “**')}**”`,
       `Link: <${sign.link}>`,
       // sign.body,
-      source.src
+      source.url
     ].join('\n'),
     components,
     // attachments: [{
@@ -95,17 +95,6 @@ export async function post ({ request }: { request: Request}) {
     const { name, options } = data
     if (name === 'auslan') {
       const { value: query } = options.find(x => x.name === 'query')
-
-      // return await runSearch(query, request, 0)
-      // return await lagSwitch(50,
-      //   runSearch(query, request, 0),
-      //   ,
-      //   async (message) => {
-      //     const { body } = message
-      //     // PATCH `/webhooks/${DiscordAppID}/${token}/messages/@original`
-      //     discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body })
-      //   }
-      // )
       runSearch(query, request, 0).then(async result => {
         // PATCH `/webhooks/${DiscordAppID}/${token}/messages/@original`
         discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, {
@@ -117,7 +106,9 @@ export async function post ({ request }: { request: Request}) {
       return placeholderMessage()
     } else if (name === 'random-auslan') {
       const [random] = await getRandomSigns(1)
-      const sign = await getResultByPath(await getSearchLibrary(), ...random)
+      const library = await getSearchLibrary([random[0]], ['id'])
+      const sign = await library[random[0]].entries.find(x => x.id === random[1]).load()
+
       const userId = member.user.id
       signToMessage({ sign, request, message: `<@${userId}> 🎲 rolled the dice…`}).then(message => {
         discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })

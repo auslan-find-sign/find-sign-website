@@ -10,16 +10,17 @@ export const blockedTags = [
 ]
 
 export async function getRandomSigns (count: number): Promise<[provider: string, entry: string][]> {
-  const library = await getSearchLibrary()
+  const library = await getSearchLibrary(false, ['id', 'tags', 'provider'])
+  const index = [...Object.values(library).flatMap(x => x.entries).filter(entry => {
+    return blockedTags.every(tag => !entry.tags.includes(tag))
+  })]
   const signs = []
 
-  for (let i = 0; i < 100 * count; i++) {
-    const random = library.index[Math.round(Math.random() * (library.index.length - 1))]
-    const tagMatch = blockedTags.some(x => random.tags.includes(x))
-    if (!tagMatch) {
-      // load the result and set it up as the answer
-      signs.push(await getProviderIDForLibraryEntry(library, random))
-      if (signs.length >= count) return signs
-    }
+  for (let i = 0; i < count; i++) {
+    const random = index[Math.round(Math.random() * (index.length - 1))]
+    const provider = random.provider.id
+    const entry = random.id
+    signs.push({ provider, entry })
   }
+  return signs
 }
