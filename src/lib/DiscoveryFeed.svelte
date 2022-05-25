@@ -45,9 +45,9 @@
 </script>
 
 <svelte:head>
-	<link rel=alternate title="Recently Added (JSON)" type="application/json" href="/feeds/discovery.json">
-	<link rel=alternate title="Recently Added (Atom)" type="application/atom+xml" href="/feeds/discovery.atom">
-	<link rel=alternate title="Recently Added (RSS)" type="application/rss+xml" href="/feeds/discovery.rss">
+	<link rel="alternate" title="Recently Added (JSON)" type="application/json" href="/feeds/discovery.json" sveltekit>
+	<link rel="alternate" title="Recently Added (Atom)" type="application/atom+xml" href="/feeds/discovery.atom">
+	<link rel="alternate" title="Recently Added (RSS)" type="application/rss+xml" href="/feeds/discovery.rss">
 </svelte:head>
 
 <MainBlock>
@@ -61,7 +61,10 @@
             <time datetime={entry.date} class="dt-published entry-timestamp">{humane}</time>
             <a class="provider-link p-author h-card" href={entry.author.url} rel="external">{entry.author.name}</a>
             {entry.verb || 'documented'}
-            <a href={entry.remoteURL} class="entry-link p-name u-url" rel="external">{entry.title}</a>
+            {#if entry.remoteURL}
+              <a href={entry.remoteURL} class="entry-link p-name u-url" rel="external">{entry.title}</a>
+              <a href={entry.cacheURL} class="permalink"><Icon name="link"/></a>
+            {/if}
           </div>
         {/each}
       {/each}

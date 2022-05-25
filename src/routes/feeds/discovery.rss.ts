@@ -1,6 +1,8 @@
 import { getUpdatesFeed } from './_read-discovery-feed'
 import encode from 'pigeonmark-xml/library/encode.js'
 
+export const prerender = false
+
 // how many entries does the json feed contain
 const length = 50
 

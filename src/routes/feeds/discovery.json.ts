@@ -1,6 +1,7 @@
 import { getUpdatesFeed } from './_read-discovery-feed'
 import type { RequestHandler } from './discovery.json.d'
 
+export const prerender = false
 
 export const get: RequestHandler = async ({ url }) => {
   const page = parseInt(url.searchParams.get('page') || '0')
