@@ -56,4 +56,11 @@
     font-style: normal;
     opacity: 0.5;
   }
+
+  @media (max-width: 600px) {
+    main :global(h1::before), main :global(h1::after) { content: " — " }
+    main :global(h1) {
+      line-height: 1.05em;
+    }
+  }
 </style>

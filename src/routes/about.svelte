@@ -88,10 +88,14 @@
 <style>
   ul {
     display: grid;
-    grid-template-columns: repeat(3, 33%);
+    grid-template-columns: repeat(2, 50%);
   }
 
   ul li {
     list-style: none;
+  }
+
+  @media (max-width: 600px) {
+    ul { grid-template-columns: 100% }
   }
 </style>
