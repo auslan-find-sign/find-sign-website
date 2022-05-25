@@ -170,7 +170,7 @@
 
   .result:not(.expand) {
     display: grid;
-    grid-template-columns: 250px 1ex auto;
+    grid-template-columns: 256px 1ex auto;
     grid-template-rows: auto 1fr;
     height: 158px;
     grid-template-areas:
