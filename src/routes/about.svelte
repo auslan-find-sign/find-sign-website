@@ -33,7 +33,7 @@
     I think it’s useful for two people:
   </p>
   <ol>
-    <li>Person learning Auslan: they can learn more vocabulary</li>
+    <li>Person learning Auslan: they can learn more vocabulary and phrases</li>
     <li>Person who doesn’t know much English: They can look up an English word, and see roughly what
       it might mean in Auslan, even if no sign for exactly that idea exists in the websites yet</li>
   </ol>
@@ -60,19 +60,25 @@
     #hashtags allow you to limit the search results, so only results with the tags you asked for appear.
     Every search result has a list of #hashtags under the web link. You can put any of these in to the
     search box, and then your results will only be ones which include every hashtag you searched for.
-    For example, you can search for "<a href={searchURL('#asphyxia')}>#asphyxia</a>" to only see results
-    from Asphyxia's youtube series, or "<a href={searchURL('#qld')}>#qld</a>" to only see results which
+    For example, you can search for “<a href={searchURL('#asphyxia')}>#asphyxia</a>” to only see results
+    from Asphyxia's youtube series, or “<a href={searchURL('#qld')}>#qld</a>” to only see results which
     are listed as being used in Queensland. You can also search for a hashtag, with a minus in front of
-    it, like "<a href={searchURL('-#toddslan')}>-#toddslan</a>" to show results which <em>do not include</em>
+    it, like “<a href={searchURL('-#toddslan')}>-#toddslan</a>” to show results which <em>do not include</em>
     #toddslan. This can be very powerful with Auslan Signbank searches. You can search for
-    "<a href={searchURL('#signbank #phonology.symmetrical')}>#signbank #phonology.symmetrical</a>" to find
+    “<a href={searchURL('#signbank #phonology.symmetrical')}>#signbank #phonology.symmetrical</a>” to find
     results where both hands do the same thing.
+  </p>
+  <p>
+    @usernames work like hashtags on some results, like those from Auslan Anywhere, you might
+    also see @usernames listed along side the hashtags. You can enter these @usernames in to the search box
+    just like hashtags to narrow your search. Usernames aren't working on every site yet, but importing from
+    instagram and youtube is planned to be added later.
   </p>
   <h1>What are all the #hashtags?</h1>
   <ul>
     {#each hashtags as { hashtag, count }}
       {#if count > 1}
-        <li><a href={searchURL(`#${hashtag}`)}>#{hashtag}</a> <span>({count})</span></li>
+        <li><a href={searchURL(`#${hashtag}`)}>#{hashtag}</a> <span>({count} videos)</span></li>
       {/if}
     {/each}
   </ul>
@@ -80,7 +86,7 @@
   <ul>
     {#each usernames as { username, count }}
       {#if count > 0}
-        <li><a href={searchURL(`@${username}`)}>@{username}</a> <span>({count})</span></li>
+        <li><a href={searchURL(`@${username}`)}>@{username}</a> <span>({count} videos)</span></li>
       {/if}
     {/each}
   </ul>
@@ -93,6 +99,10 @@
 
   ul li {
     list-style: none;
+  }
+
+  ul li span {
+    opacity: 40%;
   }
 
   @media (max-width: 600px) {
