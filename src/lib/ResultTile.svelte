@@ -1,8 +1,9 @@
 <script lang="ts">
+  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
+  import watchMedia from 'svelte-media'
   import Carousel from '$lib/Carousel.svelte'
   import RegionMap from '$lib/RegionMap.svelte'
   import Icon from '$lib/Icon.svelte'
-  import type { EncodedSearchDataEntry } from './orthagonal/types'
 
   export let data: EncodedSearchDataEntry = undefined
   export let expand = false
@@ -14,13 +15,16 @@
 
   $: warnings = data ? [...getWarnings(data.tags)] : []
 
+  const media = watchMedia({ phone: '(max-width: 600px)' })
+  $: implicitExpand = expand || $media.phone
+
   function * getWarnings (tags) {
     if (tags.includes('invented'))
       yield { text: 'Informal, colloqual sign. Professionals should not use.', type: '', icon: 'alert' }
   }
 </script>
 
-<div class={$$props.class} class:result={true} class:placeholder={!data} class:expand={expand}>
+<div class={$$props.class} class:result={true} class:placeholder={!data} class:expand={implicitExpand}>
   {#if data}
     <Carousel
       bind:selected={carouselSelected}
@@ -229,22 +233,5 @@
   .result.invented { background-color: var(--alert-bg); }
   .result .alert :global(svg) {
     vertical-align: -0.2ex;
-  }
-
-  @media (max-width: 600px) {
-    div.result:not(.expand) {
-      display: grid;
-      grid-template-columns: auto;
-      grid-template-rows: auto 1ex auto auto;
-      grid-template-areas:
-        "media"
-        "gap"
-        "heading"
-        "body";
-    }
-
-    div.result:not(.expand) .body {
-      max-height: unset;
-    }
   }
 </style>

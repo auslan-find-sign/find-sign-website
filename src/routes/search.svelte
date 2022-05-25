@@ -20,7 +20,13 @@
 
     console.log(results)
 
-    return { props: { query, page, results, totalPages } }
+    return { props: {
+      query,
+      page,
+      results,
+      totalPages,
+      viewport: url.searchParams.get('vp') === 'm' ? 'mobile' : 'desktop'
+    } }
   }
 </script>
 <script lang="ts">
@@ -30,18 +36,20 @@
   import ResultTile from '$lib/ResultTile.svelte'
   import watchMedia from 'svelte-media'
   import { closest } from 'fastest-levenshtein'
-  import { tokenize } from '$lib/search/text';
+  import { tokenize } from '$lib/search/text'
+  import { browser } from '$app/env'
 
 	export let query: string = ''
   export let page: number = 0
   export let totalPages: number = 0
   export let results: EncodedSearchDataEntry[] = []
+  export let viewport: 'mobile' | 'desktop' = 'desktop'
 
   let didYouMean = undefined
   $: (results.length === 0) && autocorrect(query)
 
   const media = watchMedia({ phone: '(max-width: 600px)' })
-  $: isWide = !$media.phone
+  $: if (browser) viewport = $media.phone ? 'mobile' : 'desktop'
 
   export let preconnectOrigin = [...new Set([
     import.meta.env.VITE_VECTOR_INDEX,
@@ -99,7 +107,7 @@
         data={entry}
         key={idx}
         permalink="/sign/{uri(entry.provider.id)}/{uri(entry.id)}"
-        prefer={isWide ? 'performance' : 'quality'} />
+        prefer={viewport === 'desktop' ? 'performance' : 'quality'} />
     {/each}
   </div>
 {:else}
@@ -114,7 +122,11 @@
 {/if}
 
 {#if totalPages > 0}
-  <Paginator selected={page} length={totalPages} toURL={(page) => `?query=${uri(query)}&page=${uri(page)}`}/>
+  <Paginator
+    selected={page}
+    length={totalPages}
+    toURL={(page) => `?query=${uri(query)}&page=${uri(page)}&vp=${viewport === 'mobile' ? 'm' : 'd'}`}
+    />
 {/if}
 
 <style>

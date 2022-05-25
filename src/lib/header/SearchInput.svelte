@@ -1,4 +1,5 @@
 <script lang="ts">
+  import watchMedia from 'svelte-media'
   import { onMount } from 'svelte'
   import { browser } from '$app/env'
   import { goto } from '$app/navigation'
@@ -10,6 +11,8 @@
   export let query = ''
   export let input = undefined
   let formElement
+
+  const media = watchMedia({ phone: '(max-width: 600px)' })
 
   onMount(() => {
     if (queryHandler === undefined) {
@@ -36,6 +39,7 @@
   <Icon name=search/>
   <input bind:this={input} autocomplete=off autocapitalize=none aria-label="Enter search query here." name=query bind:value={query}>
   <input type=hidden name=page value=0>
+  <input type=hidden name=vp value={$media.phone ? 'm' : 'd'}>
 </form>
 
 <style>
