@@ -2,7 +2,6 @@
   import { getSearchLibrary } from '$lib/search/search'
 
   export async function load ({ params }) {
-    console.log(params)
     const library = await getSearchLibrary([params.provider], ['id'])
     const result = await library[params.provider].entries.find(x => x.id === params.id).load()
     return { props: { result } }
@@ -24,7 +23,7 @@
   }).slice(selectedVideoOffset, selectedVideoOffset + 1)
 </script>
 <svelte:head>
-	<title>{result.provider}’s “{result.title || result.words.join(' ')}”</title>
+	<title>{result.provider.name || result.provider.id}’s “{result.title || result.words.join(' ')}”</title>
   <meta property="og:title" content="Auslan: “{result.title || result.words.join(' ')}”">
   <meta property="og:type" content="video">
   <meta property="og:description" content="{result.body}">
