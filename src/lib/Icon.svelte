@@ -5,7 +5,7 @@
   export let ariaHidden = false
 </script>
 
-<svg class={$$props.class} style={$$props.style} aria-label="{name} icon" aria-hidden={ariaHidden}>
+<svg class={$$props.class} style={$$props.style} aria-label="{name} icon" aria-hidden={ariaHidden ? 'true' : undefined}>
   <use href="{symbols}#icon-{name}"></use>
 </svg>
 

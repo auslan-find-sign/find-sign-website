@@ -52,7 +52,7 @@
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- these videos have no audio to caption -->
 <div class={$$props.class} use:inview={{}} on:change={intersectionChange} style={`--backdrop: url("${thumbnail}")`}>
-  <a href={link} referrerpolicy="origin" rel="external">
+  <a href={link} referrerpolicy="origin" rel="external" title="video {selected + 1}">
     {#key media}
       {#if type === 'video'}
         {#if isInView}
