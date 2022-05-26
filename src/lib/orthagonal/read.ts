@@ -43,71 +43,83 @@ export class OutdatedError extends Error {
 }
 
 /** load the search index */
-export async function loadIndex (url: string, columns = []): Promise<LoadedOrthagonalIndex> {
-  const columnData = {}
-  const [meta, vectors] = await Promise.all([
-    fetch(`${url}/meta.json`).then(x => x.json()),
-    columns.includes('vectors') ? fetch(`${url}/vectors.lps`)
-      .then(x => x.arrayBuffer())
-      .then(arrayBuffer => {
-        const output = {}
-        for (const { word, getVector } of parseVectorPack(new Uint8Array(arrayBuffer))) {
-          output[word] = getVector()
-        }
-        return output
-      }) : Promise.resolve({}),
-    ...columns.filter(x => x !== 'vectors').map(async (name: string) => {
-      const response = await fetch(`${url}/${name}.json`)
-      const data: OrthagonalColumnData = await response.json()
-      columnData[name] = data
-    })
-  ])
+export async function loadIndex (url: string, columns = [], forceReload = false): Promise<LoadedOrthagonalIndex> {
+  try {
+    const columnData = {}
+    const forceRecheck: RequestInit = { cache: 'no-cache' }
+    const lazyCache: RequestInit = { cache: 'default' }
+    const loadOptions: RequestInit = forceReload ? forceRecheck : lazyCache
 
-  const index: LoadedOrthagonalIndex = {
-    url,
-    meta,
-    entries: timesMap(meta.entries, idx => {
-      const obj = {
-        /** searchable vectors */
-        vectors: [],
-        /** load this entry's full definition file */
-        load: async () => loadEntry(index, idx)
-      }
-      for (const columnName of columns) {
-        if (columnName === 'vectors') continue
-        const { isVectorIndexed, type: columnType } = meta.columns[columnName]
-        const data = columnData[columnName]
-        if (data.buildID !== meta.buildID) throw new OutdatedError('Column buildID doesn’t match meta buildID', url)
-        if (data.entries[idx] !== null) {
-          obj[columnName] = data.entries[idx]
-        } else {
-          obj[columnName] = {
-            'string': '',
-            'string[]': [],
-            'number': 0,
-            'number[]': [],
-            'object': {}
-          }[columnType]
+    const [meta, vectors] = await Promise.all([
+      fetch(`${url}/meta.json`, forceRecheck).then(x => x.json()),
+      columns.includes('vectors') ? fetch(`${url}/vectors.lps`, loadOptions)
+        .then(x => x.arrayBuffer())
+        .then(arrayBuffer => {
+          const output = {}
+          for (const { word, getVector } of parseVectorPack(new Uint8Array(arrayBuffer))) {
+            output[word] = getVector()
+          }
+          return output
+        }) : Promise.resolve({}),
+      ...columns.filter(x => x !== 'vectors').map(async (name: string) => {
+        const response = await fetch(`${url}/${name}.json`, loadOptions)
+        const data: OrthagonalColumnData = await response.json()
+        columnData[name] = data
+      })
+    ])
+
+    const index: LoadedOrthagonalIndex = {
+      url,
+      meta,
+      entries: timesMap(meta.entries, idx => {
+        const obj = {
+          /** searchable vectors */
+          vectors: [],
+          /** load this entry's full definition file */
+          load: async () => loadEntry(index, idx)
         }
-        if (isVectorIndexed && columns.includes('vectors')) {
-          for (const word of data.entries[idx]) {
-            const vector = vectors[word] || vectors[word.toLowerCase()]
-            if (vector) obj.vectors.push(vector)
+        for (const columnName of columns) {
+          if (columnName === 'vectors') continue
+          const { isVectorIndexed, type: columnType } = meta.columns[columnName]
+          const data = columnData[columnName]
+          if (data.buildID !== meta.buildID) throw new OutdatedError('Column buildID doesn’t match meta buildID', url)
+          if (data.entries[idx] !== null) {
+            obj[columnName] = data.entries[idx]
+          } else {
+            obj[columnName] = {
+              'string': '',
+              'string[]': [],
+              'number': 0,
+              'number[]': [],
+              'object': {}
+            }[columnType]
+          }
+          if (isVectorIndexed && columns.includes('vectors')) {
+            for (const word of data.entries[idx]) {
+              const vector = vectors[word] || vectors[word.toLowerCase()]
+              if (vector) obj.vectors.push(vector)
+            }
           }
         }
-      }
-      return obj
-    })
-  }
+        return obj
+      })
+    }
 
-  return index
+    return index
+  } catch (err) {
+    if (forceReload === false && err instanceof OutdatedError) {
+      return await loadIndex(url, columns, true)
+    } else {
+      throw err
+    }
+  }
 }
 
 /** load an entry from an index using it's entry number */
 export async function loadEntry (index: LoadedOrthagonalIndex, number: number): Promise<EncodedSearchDataEntry> {
   const shardNumber = Math.floor(number / index.meta.entriesPerShard)
   const entryNumber = number % index.meta.entriesPerShard
-  const response = await fetch(`${index.url}/shard-${shardNumber}.json`)
+  const response = await fetch(`${index.url}/shard-${shardNumber}.json`, { cache: 'no-store' })
   const json: OrthagonalColumnData = await response.json()
   if (json.buildID !== index.meta.buildID) throw new OutdatedError('Entry buildID unsyncronized, reload', index.url)
   return json.entries[entryNumber]
