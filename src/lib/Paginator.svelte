@@ -8,7 +8,7 @@
 
 <nav>
   {#each { length } as _, page}
-    <a href={toURL ? toURL(page) : '#'} aria-label={toAriaLabel(page)} aria-current={page === selected ? 'page' : false} on:click={() => selected = page}>
+    <a sveltekit:prefetch href={toURL ? toURL(page) : '#'} aria-label={toAriaLabel(page)} aria-current={page === selected ? 'page' : false} on:click={() => selected = page}>
       <slot page>
         <Icon name={`${page + 1}`}/>
       </slot>
