@@ -18,8 +18,6 @@
     const { results, totalResults } = await search(query, page * resultsPerPage, resultsPerPage)
     const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
 
-    console.log(results)
-
     return { props: {
       query,
       page,
