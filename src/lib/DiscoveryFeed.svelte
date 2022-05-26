@@ -45,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<link rel="alternate" title="Recently Added (JSON)" type="application/json" href="/feeds/discovery.json" sveltekit>
+	<link rel="alternate" title="Recently Added (JSON)" type="application/json" href="/feeds/discovery.json">
 	<link rel="alternate" title="Recently Added (Atom)" type="application/atom+xml" href="/feeds/discovery.atom">
 	<link rel="alternate" title="Recently Added (RSS)" type="application/rss+xml" href="/feeds/discovery.rss">
 </svelte:head>
