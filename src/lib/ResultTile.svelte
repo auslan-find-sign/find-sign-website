@@ -172,7 +172,7 @@
     display: grid;
     grid-template-columns: 256px 1ex auto;
     grid-template-rows: auto 1fr;
-    height: 158px;
+    height: 160px;
     grid-template-areas:
       "media gap heading"
       "media gap body";
