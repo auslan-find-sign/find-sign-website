@@ -78,7 +78,7 @@ export async function search (query: string, start: number, length: number, forc
   } catch (error) {
     if (error instanceof OutdatedError) {
       if (forceReload === false) {
-        return await search(query, start, length, forceReload)
+        return await search(query, start, length, true)
       }
       throw error
     }
