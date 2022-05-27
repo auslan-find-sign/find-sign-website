@@ -21,10 +21,10 @@ export async function post ({ locals, params }) {
     const files = await writeIndex(searchData, {
       lookupVector: word => lookup(word),
       log,
-      progress: (num) => progress(num * 0.8)
+      progress: (num) => progress(num * 0.95)
     })
     log(`Search index files constructed, writing...`)
-    progress(0.85)
+    progress(0.96)
     await bulkWrite(`index/${params.provider}`, files)
     progress(1.00)
     log('Build complete')

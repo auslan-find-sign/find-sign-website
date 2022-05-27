@@ -14,25 +14,36 @@ import delay from '$lib/functions/delay';
       const endpoint = `/admin/indexes/${encodeURIComponent(provider)}/build`
       const response = await fetch(endpoint, { method: 'POST', body: '' })
       const json = await response.json()
-      rebuilding[provider] = { endpoint, id: json.progress.id }
+      rebuilding[provider] = { endpoint, id: json.progress.id, finished: false }
+      rebuilding = rebuilding
     }
   }
 
   async function buildFinished (provider) {
-    console.log('build finished!', provider)
+    rebuilding[provider].finished = true
+    rebuilding = rebuilding
+
+    await delay(10 * 1000)
     delete rebuilding[provider]
+    rebuilding = rebuilding
   }
 </script>
 <ul>
   {#each providers as provider}
     <li>
       <a href="/admin/indexes/{encodeURIComponent(provider)}">{provider}</a>
-      {#if rebuilding[provider]}[building...]
+      {#if rebuilding[provider] && rebuilding[provider].finished === false}
+        [building...]
+      {:else}
+        [<a href="#rebuild-{provider}" on:click={(event) => rebuild(event, provider)}>rebuild</a>]
+      {/if}
+
+      {#if rebuilding[provider]}
         <ProgressLogViewer
           endpoint={rebuilding[provider].endpoint}
           id={rebuilding[provider].id}
           on:finished={() => buildFinished(provider)} />
-      {:else}[<a href="#rebuild-{provider}" on:click={(event) => rebuild(event, provider)}>rebuild</a>]{/if}
+      {/if}
     </li>
   {/each}
 </ul>

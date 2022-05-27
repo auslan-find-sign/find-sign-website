@@ -3,6 +3,7 @@ import type { OrthagonalColumns, EncodedSearchData, OrthagonalIndex } from './ty
 import normalizeWord from './normalize-word'
 import { chunk } from '$lib/search/times'
 import { nanoid } from 'nanoid'
+import { times } from '$lib/functions/iters'
 
 /** read an encoded-search-data from a url, transforming all URLs to be absolute */
 export async function readEncodedSearchData (url: string): Promise<EncodedSearchData> {
@@ -92,7 +93,7 @@ export async function writeIndex (searchData: EncodedSearchData, { lookupVector,
   })
 
   if (progress) progress(0.09)
-  if (log) log(`Collecting every unique word from search-data...`)
+  if (log) log('Collecting every unique word from search-data...')
 
   const uniqueWords: Set<string> = new Set()
   // add word vectors to cache index
@@ -104,35 +105,34 @@ export async function writeIndex (searchData: EncodedSearchData, { lookupVector,
   if (log) log(`${uniqueWords.size} unique words found`)
   if (log) log('Beginning looking up word vectors, building vector cache')
 
-  const vectorIndex = {}
+  const wordsQueue = [...uniqueWords]
   let wordsLookedUp = 0
-  // load word vectors in batches
-  for (const wordChunk of chunk([...uniqueWords], 10)) {
-    await Promise.all(wordChunk.map(async word => {
-      if (!(word in vectorIndex)) {
-        const vector = await lookupVector(word)
-        if (vector) vectorIndex[word] = vector
-        wordsLookedUp += 1
-        if (progress) progress(0.10 + ((wordsLookedUp / uniqueWords.size) * 0.8))
-      }
-    }))
-  }
+  const vectorIndex = {}
+  await Promise.all([...times(3, async () => {
+    while (wordsQueue.length) {
+      const word = wordsQueue.shift()
+      const vector = await lookupVector(word)
+      if (vector) vectorIndex[word] = vector
+      wordsLookedUp += 1
+      if (progress) progress(0.10 + ((wordsLookedUp / uniqueWords.size) * 0.87))
+    }
+  })])
 
-  if (progress) progress(0.90)
-  if (log) log(`Lookups complete, building vector cache package...`)
+  if (progress) progress(0.98)
+  if (log) log('Serializing word vector cache...')
 
   // export vector cache
   outputFiles['vectors.lps'] = buildVectorShard(vectorIndex)
 
-  if (progress) progress(0.91)
-  if (log) log(`Vector cache package is serialized`)
-  if (log) log(`Serializing orthagonal json’s...`)
+  if (progress) progress(0.99)
+  if (log) log('Serializing orthagonal json’s...')
 
   for (const key in exportDatas) {
     outputFiles[exportedColumns[key].path] = JSON.stringify(exportDatas[key])
   }
 
   if (progress) progress(1.0)
+  if (log) log('Search Index data prepared')
 
   return outputFiles
 }
