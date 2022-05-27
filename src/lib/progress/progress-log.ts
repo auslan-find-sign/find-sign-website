@@ -67,7 +67,7 @@ function sliceUpdates (id: string, index: number): ProgressReport {
             while (subscribers[id].length > 0) subscribers[id].shift()()
             delete subscribers[id]
           }
-        })
+        }, 1000 * 60)
       }
       report.index += 1
     }
