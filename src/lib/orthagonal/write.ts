@@ -39,7 +39,7 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
   return json
 }
 
-export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?) {
+export async function writeIndex (searchData: EncodedSearchData, { lookupVector, log = undefined, progress = undefined }) {
   const exportedColumns: OrthagonalColumns = {
     id: { type: 'string', path: 'id.json' },
     title: { type: 'string', path: 'title.json' },
@@ -66,10 +66,17 @@ export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?
     entries: []
   }]))
 
+  if (progress) progress(0.01)
+  if (log) log('Building metadata...')
+
   const outputFiles = { 'meta.json': JSON.stringify(indexFile) }
+
+  if (progress) progress(0.02)
+  if (log) log('Building shards and orthagonal views...')
 
   // build the shards and indexes
   chunk(Object.keys(searchData), indexFile.entriesPerShard).forEach((entryIDs, shardNum) => {
+    if (log) log(`Building shard-${shardNum}.json`)
     outputFiles[`shard-${shardNum}.json`] = JSON.stringify({
       buildID: indexFile.buildID,
       entries: entryIDs.map(id => {
@@ -81,30 +88,51 @@ export async function writeIndex (searchData: EncodedSearchData, lookupVectorFn?
         return output
       })
     })
+    if (progress) progress(0.02 + (0.07) * (shardNum / (indexFile.entries / indexFile.entriesPerShard)))
   })
+
+  if (progress) progress(0.09)
+  if (log) log(`Collecting every unique word from search-data...`)
 
   const uniqueWords: Set<string> = new Set()
   // add word vectors to cache index
   for (const { words } of Object.values(searchData)) {
     for (const word of words) uniqueWords.add(normalizeWord(word))
   }
+
+  if (progress) progress(0.10)
+  if (log) log(`${uniqueWords.size} unique words found`)
+  if (log) log('Beginning looking up word vectors, building vector cache')
+
   const vectorIndex = {}
+  let wordsLookedUp = 0
   // load word vectors in batches
   for (const wordChunk of chunk([...uniqueWords], 10)) {
     await Promise.all(wordChunk.map(async word => {
       if (!(word in vectorIndex)) {
-        const vector = await lookupVectorFn(word)
+        const vector = await lookupVector(word)
         if (vector) vectorIndex[word] = vector
+        wordsLookedUp += 1
+        if (progress) progress(0.10 + ((wordsLookedUp / uniqueWords.size) * 0.8))
       }
     }))
   }
 
+  if (progress) progress(0.90)
+  if (log) log(`Lookups complete, building vector cache package...`)
+
   // export vector cache
   outputFiles['vectors.lps'] = buildVectorShard(vectorIndex)
+
+  if (progress) progress(0.91)
+  if (log) log(`Vector cache package is serialized`)
+  if (log) log(`Serializing orthagonal json’s...`)
 
   for (const key in exportDatas) {
     outputFiles[exportedColumns[key].path] = JSON.stringify(exportDatas[key])
   }
+
+  if (progress) progress(1.0)
 
   return outputFiles
 }
