@@ -1,5 +1,4 @@
 import cookie from 'cookie'
-import { v4 as uuid } from '@lukeed/uuid'
 import type { Handle, GetSession } from '@sveltejs/kit'
 import { verifyToken } from '$lib/../routes/admin/login'
 
