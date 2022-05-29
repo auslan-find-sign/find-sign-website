@@ -1,9 +1,12 @@
 <script lang="ts" context="module">
   import { getSearchLibrary } from '$lib/search/search'
+  import { decodeFilename } from '$lib/models/filename-codec'
 
   export async function load ({ params }) {
-    const library = await getSearchLibrary([params.provider], ['id'])
-    const result = await library[params.provider].entries.find(x => x.id === params.id).load()
+    const provider = decodeFilename(params.provider)
+    const id = decodeFilename(params.id)
+    const library = await getSearchLibrary([provider], ['id'])
+    const result = await library[provider].entries.find(x => x.id === id).load()
     return { props: { result } }
   }
 </script>

@@ -36,6 +36,7 @@
   import { closest } from 'fastest-levenshtein'
   import { tokenize } from '$lib/search/text'
   import { browser } from '$app/env'
+  import { fn } from '$lib/models/filename-codec'
 
 	export let query: string = ''
   export let page: number = 0
@@ -104,7 +105,7 @@
       <ResultTile
         data={entry}
         key={idx}
-        permalink="/sign/{uri(entry.provider.id)}/{uri(entry.id)}"
+        permalink={fn`/sign/${entry.provider.id}/${entry.id}`}
         prefer={viewport === 'desktop' ? 'performance' : 'quality'} />
     {/each}
   </div>
