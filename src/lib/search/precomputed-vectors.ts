@@ -20,7 +20,7 @@ export type VectorLibrarySettings = {
   built: string, // iso timestamp string for when build was done
 }
 
-export type WordVector = readonly number[]
+export type WordVector = Float32Array
 
 /**
  * Open precomputed vectors library
@@ -53,7 +53,7 @@ export function * parse (buffer: Uint8Array) {
       getVector: () => {
         const scaleDataView = new DataView(scaleBuffer.buffer, scaleBuffer.byteOffset, scaleBuffer.byteLength)
         const entryScale = scaleDataView.getFloat32(0)
-        const scaledVector = [...entryPackedVector].map(x =>
+        const scaledVector = Float32Array.from(entryPackedVector, x =>
           (((x / 255) * 2.0) - 1.0) * entryScale
         )
         return scaledVector
