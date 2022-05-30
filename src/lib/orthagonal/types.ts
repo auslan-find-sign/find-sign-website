@@ -33,6 +33,7 @@ export type EncodedSearchDataEntry = {
   body: string, // markdown-like text body
   media: SearchDataEncodedMedia[], // videos for the carousel
   tags: string[], // hashtags
+  published?: boolean, // is this entry 'published'? if it's true or unset, entry should be included in search results
   provider: {
     id: string, // url component sort of label like auslan-signbank
     name: string, // friendly name for site

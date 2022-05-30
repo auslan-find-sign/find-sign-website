@@ -10,7 +10,11 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
   const response = await fetch(url)
   const json: EncodedSearchData = await response.json()
   for (const id in json) {
-    const entry = json[id]
+    const entry = {
+      title: id,
+      published: true,
+      ...json[id]
+    }
     if (!entry.title && entry.words) {
       entry.title = entry.words.join(', ')
     }
@@ -24,6 +28,9 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
     if (entry.nav) entry.nav = entry.nav.map(([label, link]) => [label, (new URL(link, url)).toString()])
     if (entry.author && entry.author.link) {
       entry.author.link = (new URL(entry.author.link, url)).toString()
+    }
+    if (entry.author && entry.author.avatar) {
+      entry.author.avatar = (new URL(entry.author.avatar, url)).toString()
     }
     if (entry.provider && entry.provider.link) {
       entry.provider.link = (new URL(entry.provider.link, url)).toString()
