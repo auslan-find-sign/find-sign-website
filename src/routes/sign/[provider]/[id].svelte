@@ -22,7 +22,10 @@
 
   const ogVideoTypePreference = ['video/mp4', 'video/webm']
   $: openGraphVideos = result.media.map((formats) => {
-    return formats.encodes.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
+    return {
+      thumbnail: formats.thumbnail,
+      ...formats.encodes.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
+    }
   }).slice(selectedVideoOffset, selectedVideoOffset + 1)
 </script>
 <svelte:head>
@@ -35,6 +38,7 @@
     <meta property="og:video:type" content="{video.type}">
     <meta property="og:video:width" content="{video.width.toString()}">
     <meta property="og:video:height" content="{video.height.toString()}">
+    <meta property="og:image" content="{video.thumbnail}">
   {/each}
 </svelte:head>
 
