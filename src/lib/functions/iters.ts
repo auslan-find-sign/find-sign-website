@@ -43,10 +43,11 @@ export async function * asyncIterateBuffer (buffer: ArrayBuffer) {
 
 // sync version of it-length-prefixed decoder basically
 export function * iterateLengthPrefixed (buffer: Uint8Array): Generator<Uint8Array> {
-  while (buffer.length > 0) {
-    const length = varint.decode(buffer)
-    const offset = varint.decode.bytes
-    yield buffer.slice(offset, offset + length)
-    buffer = buffer.slice(offset + length)
+  let cursor = 0
+  while (cursor < buffer.length) {
+    const length = varint.decode(buffer, cursor)
+    cursor += varint.decode.bytes
+    yield buffer.subarray(cursor, cursor + length)
+    cursor += length
   }
 }
