@@ -18,28 +18,44 @@
 
   export let result: EncodedSearchDataEntry
 
-  $: selectedVideoOffset = parseInt($page.url.searchParams.get('carousel0') || '0')
-
   const ogVideoTypePreference = ['video/mp4', 'video/webm']
-  $: openGraphVideos = result.media.map((formats) => {
-    return {
-      thumbnail: formats.thumbnail,
-      ...formats.encodes.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
-    }
-  }).slice(selectedVideoOffset, selectedVideoOffset + 1)
+
+  $: selectedVideoOffset = parseInt($page.url.searchParams.get('carousel0') || '0')
+  $: selectedVideo = result.media[selectedVideoOffset]
+  $: selectedVideoOG = selectedVideo.encodes.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
 </script>
 <svelte:head>
 	<title>{result.provider.name || result.provider.id}’s “{result.title || result.words.join(' ')}”</title>
   <meta property="og:title" content="Auslan: “{result.title || result.words.join(' ')}”">
   <meta property="og:type" content="video">
   <meta property="og:description" content="{result.body}">
-  {#each openGraphVideos as video}
-    <meta property="og:video" content="{video.url}">
-    <meta property="og:video:type" content="{video.type}">
-    <meta property="og:video:width" content="{video.width.toString()}">
-    <meta property="og:video:height" content="{video.height.toString()}">
-    <meta property="og:image" content="{video.thumbnail}">
-  {/each}
+  <meta property="og:video" content="{selectedVideoOG.url}">
+  <meta property="og:video:type" content="{selectedVideoOG.type}">
+  <meta property="og:video:width" content="{selectedVideoOG.width.toString()}">
+  <meta property="og:video:height" content="{selectedVideoOG.height.toString()}">
+  <meta property="og:image" content="{selectedVideo.thumbnail}">
+  {@html `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: result.title || result.words.join(' '),
+    description: result.body,
+    thumbnailUrl: [selectedVideo.thumbnail],
+    uploadDate: (new Date(result.timestamp)).toISOString(),
+    duration: `PT${Math.ceil(selectedVideoOG.duration)}S`, //"PT1M54S",
+    contentUrl: selectedVideoOG.url,
+    contentSize: selectedVideoOG.byteSize,
+    encodingFormat: selectedVideoOG.type,
+    width: selectedVideoOG.width,
+    height: selectedVideoOG.height,
+    creator: result.author ? {
+      name: result.author.name || result.author.id,
+      url: result.author.link,
+      image: result.author.avatar
+    } : {
+      name: result.provider.name || result.provider.id,
+      url: result.provider.link,
+    }
+  })}</script>`}
 </svelte:head>
 
 
