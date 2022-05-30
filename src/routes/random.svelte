@@ -20,7 +20,7 @@
 </script>
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
-  import ResultTile from '$lib/ResultTile.svelte'
+  import Result from '$lib/result/Result.svelte'
   import { onMount } from 'svelte'
   import { prefetch } from '$app/navigation'
   import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
@@ -46,7 +46,7 @@
   <h2><a href={next} role="button" class="button" sveltekit:noscroll>🎲 Reroll</a></h2>
   <div class="result-box">
     {#key permalink}
-      <ResultTile data={result} {permalink} expand prefer="quality" carouselSelected={0} />
+      <Result data={result} {permalink} expand prefer="quality" carouselSelected={0} />
     {/key}
   </div>
   <div style="height: 20em"></div>

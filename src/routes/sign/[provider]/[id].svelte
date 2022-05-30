@@ -12,7 +12,7 @@
 </script>
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
-  import ResultTile from '$lib/ResultTile.svelte'
+  import Result from '$lib/result/Result.svelte'
   import { page } from '$app/stores'
   import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
 
@@ -42,7 +42,7 @@
 <Header />
 
 <div>
-  <ResultTile key={0} data={result} expand prefer="quality" />
+  <Result key={0} data={result} expand prefer="quality" />
 </div>
 
 <style>

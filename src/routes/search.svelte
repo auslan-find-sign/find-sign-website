@@ -31,7 +31,7 @@
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   import Paginator from '$lib/Paginator.svelte'
-  import ResultTile from '$lib/ResultTile.svelte'
+  import Result from '$lib/result/Result.svelte'
   import watchMedia from 'svelte-media'
   import { closest } from 'fastest-levenshtein'
   import { tokenize } from '$lib/search/text'
@@ -102,7 +102,7 @@
 {#if results && results.length > 0}
   <div class="results">
     {#each results as entry, idx (`${entry.provider.id}/${entry.id}`)}
-      <ResultTile
+      <Result
         data={entry}
         key={idx}
         permalink={fn`/sign/${entry.provider.id}/${entry.id}`}
