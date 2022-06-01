@@ -4,6 +4,7 @@
 
 <script>
   import Header from '$lib/header/Header.svelte'
+import HiddenEmail from '$lib/HiddenEmail.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   export let hashtags = []
   export let usernames = []
@@ -18,38 +19,38 @@
 <MainBlock wide={true}>
   <h1>What is this?</h1>
   <p>
-    This website is a search engine. It looks at other websites that have Auslan sign videos, and creates
-    search results including videos from other websites. This search system uses Artificial Intelligence
-    research to understand what words and signs mean, and find signs with similar meaning.
+    This website is a search engine. It gathers videos from trusted people and organisations and gives
+    you good quality, reliable answers for how different ideas can be signed in parts of Australia.
+    Artificial Intelligence language translation systems are used to help the computer better understand
+    the real meaning of signs, and not just look up which english words match perfectly.
   </p>
   <p>
     Try any English word or phrase. This website will try to understand what the word means, and find sign
     videos with similar meaning. It's different to how other Auslan search systems work. You don’t need
     to type the same words the authors of sign videos used in their English descriptions. If the meaning is
-    similar, it should find it!
+    similar, it should find it! For example, if you search for fruit, it will show you lots of videos about
+    different kinds of fruit, as well as signs for “fruit” as a group concept.
   </p>
-  <h1>Who is this for?</h1>
-  <p>
-    I think it’s useful for two people:
-  </p>
+  <h1>What are the goals?</h1>
   <ol>
-    <li>Person learning Auslan: they can learn more vocabulary and phrases</li>
-    <li>Person who doesn’t know much English: They can look up an English word, and see roughly what
-      it might mean in Auslan, even if no sign for exactly that idea exists in the websites yet</li>
+    <li>Help make a world where more people know Auslan</li>
+    <li>Help improve communication for people who got language deprived</li>
+    <li>Promote real Auslan grammar, not signed english styles</li>
+    <li>
+      Encourage people to try real Auslan and not only use Key Word Sign or other
+      language depriving alternative communication systems with disabled people
+    </li>
+    <li>
+      To help people out in rural areas who can't easily get to Auslan classes to at
+      least learn some basics
+    </li>
+    <li>Make it easier for students to improve their vocabulary</li>
   </ol>
   <h1>Who made it?</h1>
   <p>
-    My name is Phoenix. I’m Hard of Hearing, and I love Auslan! English is my first language, but Auslan
-    is my favourite language. I created Find Sign to help make it easier for people learning this beautiful
-    language, and launched this website in 2019, after 6 months building it together with input from many
-    Deaf friends and Auslan students.
-  </p>
-  <p>
-    I want to help spread Auslan to people who cannot learn it. Maybe they are too poor to come to Deaf
-    socials or go to Tafe, or maybe they live far away and cannot travel. I think a lot of people can live
-    better lives by learning some Auslan, and there are lots of ways to help spread information and grow
-    our community! Even if they only learn vocabulary and use signed english style, it can still help
-    improve their life!
+    Deaf, Hard of Hearing, and students, mostly in the inner west of Sydney, collaborated,
+    designed, and built it together. Prototypes were tested at Auslan social events for about 6
+    months before it's initial release happened at Inner West Auslan Social in 2019.
   </p>
   <h1>How to use it best?</h1>
   <p>
@@ -90,6 +91,11 @@
       {/if}
     {/each}
   </ul>
+
+  <h1>How can I contact the admins?</h1>
+  <p>
+    Email <HiddenEmail user=find domain=auslan.fyi /> with your feedback.
+  </p>
 </MainBlock>
 <style>
   ul {
