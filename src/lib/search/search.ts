@@ -6,13 +6,14 @@ import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
 import { compileQuery } from '$lib/search/text'
 import normalizeWord from '$lib/orthagonal/normalize-word'
+import { encodeFilename } from '$lib/models/filename-codec'
 import lru from '$lib/functions/lru'
 
-const freshenInterval = 1000 * 60 * 10 // 10 minutes
-
-const indexURLs = Object.fromEntries(import.meta.env.VITE_SEARCH_INDEXES.split(',').map(name => {
-  return [name, `${import.meta.env.VITE_SEARCH_INDEX_PATH}/${encodeURIComponent(name)}`]
+export const availableIndexes = import.meta.env.VITE_SEARCH_INDEXES.split(',')
+const indexURLs = Object.fromEntries(availableIndexes.map(name => {
+  return [name, `${import.meta.env.VITE_SEARCH_INDEX_PATH}/${encodeFilename(name)}`]
 }))
+
 
 // let searchLibrary: Library = undefined
 // let searchLibraries = {}
