@@ -16,5 +16,4 @@ export default async function * progressConsumer (endpoint: string, id: string) 
     if ('logs' in json && json.logs.length > 0) yield * json.logs
     await delay(15)
   }
-  yield { progress: 1.0 }
 }

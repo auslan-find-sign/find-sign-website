@@ -45,6 +45,10 @@ export function createProgressLog (cb: ProgressReporter): ProgressReport {
     output.then(() => {
       if (inProgress[id]) inProgress[id].push({ timestamp: Date.now(), progress: 1.0, finished: true })
       if (subscribers[id]) while (subscribers[id].length > 0) subscribers[id].shift()()
+    }).catch(reason => {
+      if (reason instanceof Error) reason = reason.stack || reason.message
+      if (inProgress[id]) inProgress[id].push({ timestamp: Date.now(), log: [`Error: ${reason}`], finished: true })
+      if (subscribers[id]) while (subscribers[id].length > 0) subscribers[id].shift()()
     })
   } else {
     if (inProgress[id]) inProgress[id].push({ timestamp: Date.now(), progress: 1.0, finished: true })
