@@ -1,13 +1,20 @@
 <script lang="ts" context="module">
   import { getSearchLibrary } from '$lib/search/search'
   import { decodeFilename } from '$lib/models/filename-codec'
+  import { availableIndexes } from '$lib/search/search'
 
   export async function load ({ params }) {
     const provider = decodeFilename(params.provider)
     const id = decodeFilename(params.id)
-    const library = await getSearchLibrary([provider], ['id'])
-    const result = await library[provider].entries.find(x => x.id === id).load()
-    return { props: { result } }
+    if (availableIndexes.includes(provider)) {
+      const library = await getSearchLibrary([provider], ['id'])
+      const entry = library[provider].entries.find(x => x.id === id)
+      if (entry) {
+        const result = await entry.load()
+        return { props: { result } }
+      }
+    }
+    return { status: 404 }
   }
 </script>
 <script lang="ts">
