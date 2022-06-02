@@ -25,7 +25,7 @@
 
   const fields: Field[] = [
     { name: 'id', type: 'string' },
-    { name: 'published', type: 'boolean', label: 'Should this be included in the search results?'},
+    { name: 'published', type: 'boolean', label: 'include in search results'},
     { name: 'title', type: 'string' },
     { name: 'words', type: 'string[]' },
     { name: 'tags', type: 'string[]', autocomplete: knownTags },
@@ -39,30 +39,50 @@
   ]
 
   for (const field of fields) {
-    field.override = false
-    field.value = entry[field.name]
+    if (field.name in override) {
+      field.override = true
+      field.value = override[field.name] || undefined
+    } else {
+      field.override = false
+      field.value = entry[field.name] || undefined
+    }
   }
 
   function updateOverride () {
-    override = Object.fromEntries(fields.map(x => [x.name, x.value]))
+    for (const field of fields) {
+      if (!field.override) field.value = entry[field.name] || undefined
+    }
+    override = Object.fromEntries(fields.filter(x => x.override).map(x => [x.name, x.value]))
     fire('change', { override })
   }
 </script>
 <table>
   <thead><tr>
     <td>Field</td>
-    <td>Override</td>
-    <td>Value</td>
+    <td>Override Value</td>
   </tr></thead>
   <tbody>
     {#each fields as field, idx}
       <tr>
         <OverrideField {...field} on:change={(event) => {
-          fields[idx].value = event.detail.value
-          fields[idx].override = event.detail.override
-          updateOverride()
+          if (fields[idx].value !== event.detail.value || fields[idx].override !== event.detail.override) {
+            fields[idx].value = event.detail.value
+            fields[idx].override = event.detail.override
+            updateOverride()
+          }
         }}/>
       </tr>
     {/each}
   </tbody>
 </table>
+<style>
+  table {
+    width: 100%;
+  }
+  table :global(td) {
+    vertical-align: top;
+  }
+  table :global(td:first-child) {
+    text-align: right;
+  }
+</style>
