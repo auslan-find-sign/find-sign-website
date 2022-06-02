@@ -10,7 +10,7 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
   const response = await fetch(url)
   const json: EncodedSearchData = await response.json()
   for (const id in json) {
-    const entry = {
+    const entry = json[id] = {
       title: id,
       published: true,
       ...json[id]
@@ -104,7 +104,8 @@ export async function writeIndex (searchData: EncodedSearchData, { lookupVector,
 
   const uniqueWords: Set<string> = new Set()
   // add word vectors to cache index
-  for (const { words } of Object.values(searchData)) {
+  for (const id in searchData) {
+    const { words } = searchData[id]
     for (const word of words) uniqueWords.add(normalizeWord(word))
   }
 
