@@ -2,6 +2,7 @@ import { distanceSquared } from './vector-utilities'
 import './array-at-polyfill'
 // import type { LibraryEntry } from './search-index'
 import type { LoadedOrthagonalEntry } from '$lib/orthagonal/read'
+import type { WordVector } from './precomputed-vectors'
 
 export type QueryAndNode = {
   type: 'and',
@@ -18,7 +19,7 @@ export type QueryOrNode = {
 export type QueryWord = {
   type: 'word',
   string: string,
-  vector?: readonly number[]
+  vector?: WordVector
 }
 
 export type QueryTag = {
@@ -39,7 +40,7 @@ type Token = string | QueryNode
 type ParserPass = (tokens: Token[]) => Token[]
 
 export type RankingFilterFunction = (searchEntry: LoadedOrthagonalEntry) => number
-export type LookupVectorFunction = (word: string) => Promise<readonly number[]>
+export type LookupVectorFunction = (word: string) => Promise<WordVector>
 
 // Vector Library normalization: any words that aren't entirely uppercase (like an acronym) get downcased
 export function normalizeWord (word: string): string {
