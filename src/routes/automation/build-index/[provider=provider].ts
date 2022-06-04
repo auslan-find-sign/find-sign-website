@@ -5,7 +5,7 @@ import { bulkWrite } from '$lib/data-io/data-io'
 
 /** endpoint for cron-like tasks to automatically rebuild orthagonal indexes after encoder has done it's work */
 export async function get ({ url, params }) {
-  if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400 }
+  if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400, body: 'needs automation key query string param' }
 
   const provider = decodeFilename(params.provider)
   const log = []
@@ -22,6 +22,6 @@ export async function get ({ url, params }) {
 
   return {
     headers: { 'Content-Type': 'text/plain' },
-    body: log.join('\n')
+    body: log.map(str => `${str}\n`).join('')
   }
 }
