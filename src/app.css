@@ -44,6 +44,14 @@ body {
 
 a {
   color: inherit;
+  text-decoration-color: hsla(var(--hue), var(--base-fg-sat), var(--base-fg-lum), 40%);
+  text-decoration-style: solid;
+  text-decoration-skip-ink: all;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+  text-decoration-style: solid;
 }
 
 @media (prefers-color-scheme: light) {
