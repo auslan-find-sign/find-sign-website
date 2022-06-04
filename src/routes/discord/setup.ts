@@ -38,7 +38,9 @@ export async function installCommand(command) {
   }
 }
 
-export async function get () {
+export async function get ({ url }) {
+  if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400 }
+
   for (const command of commands) {
     await hasCommand(command)
   }
