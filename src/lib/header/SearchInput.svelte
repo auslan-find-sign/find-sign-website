@@ -64,7 +64,7 @@
     <MiniBlock>
       <h1>Advanced Settings</h1>
       {#if $regionStore}
-        Only show results from {$regionStore} region
+        Only show results from {`${$regionStore}`.toUpperCase()} region
       {:else}
         Show results from everywhere
       {/if}

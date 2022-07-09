@@ -126,7 +126,7 @@
     p.delete('r')
     return `?${p}`
   })()}
-  <div class="hint">Only showing results in {region}, would you like to <a href="{everythingURL}">see everything</a>?</div>
+  <div class="hint">Only showing results in {`${region}`.toUpperCase()}, would you like to <a href="{everythingURL}">see everything</a>?</div>
 {/if}
 {#if $regionStore && $regionStore !== region}
   {@const limitURL = (() => {
@@ -134,7 +134,7 @@
     p.set('r', `${$regionStore}`)
     return `?${p}`
   })()}
-  <div class="hint">Showing results in every region, would you like to <a href="{limitURL}">limit to only {$regionStore}</a>?</div>
+  <div class="hint">Showing results in every region, would you like to <a href="{limitURL}">limit to only {`${$regionStore}`.toUpperCase()}</a>?</div>
 {/if}
 
 {#if results && results.length > 0}
