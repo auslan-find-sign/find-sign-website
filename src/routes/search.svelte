@@ -189,4 +189,8 @@
     text-align: center;
     font-style: italic;
   }
+
+  .hint a {
+    display: inline-block; /* try not to break over multiple lines if possible */
+  }
 </style>
