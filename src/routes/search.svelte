@@ -102,7 +102,7 @@
       } else {
         searchParams.delete('r')
       }
-      goto(`?${searchParams}`)
+      goto(`?${searchParams}`, { noscroll: true, replaceState: true })
     }
   }
 </script>
