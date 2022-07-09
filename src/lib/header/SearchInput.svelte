@@ -3,14 +3,21 @@
   import { onMount } from 'svelte'
   import { browser } from '$app/env'
   import { goto } from '$app/navigation'
+  import { slide } from 'svelte/transition'
+  import { quintOut } from 'svelte/easing'
 
   import Icon from '$lib/Icon.svelte'
+  import RegionMap from '$lib/RegionMap.svelte'
+  import regionStore from '$lib/models/region-store'
+  import MiniBlock from '$lib/MiniBlock.svelte'
+
   export let formAction = '/search'
   export let method = 'GET'
   export let queryHandler = undefined
   export let query = ''
   export let input = undefined
   let formElement
+  let showAdvanced = false
 
   const media = watchMedia({ phone: '(max-width: 600px)' })
 
@@ -38,15 +45,38 @@
 <form class={$$props.class} style={$$props.style} bind:this={formElement} role=search autocomplete=off action={formAction} {method} on:submit={onSearch} on:click={() => input.focus()}>
   <Icon name=search/>
   <input bind:this={input} autocomplete=off autocapitalize=none aria-label="Enter search query here." name=query bind:value={query}>
+  <RegionMap class="map"
+    tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
+    on:click={() => showAdvanced = !showAdvanced}
+    />
   <input type=hidden name=page value=0>
   <input type=hidden name=vp value={$media.phone ? 'm' : 'd'}>
 </form>
+
+{#if showAdvanced}
+  <div class="advanced" transition:slide={{ duration: 300 }}>
+    <MiniBlock>
+      Prioritise search results from: {$regionStore || 'anywhere in Australia'}.
+      <RegionMap
+        tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
+        editable
+        on:click={(e) => {
+          if ($regionStore === e.detail.region) {
+            $regionStore = false
+          } else {
+            $regionStore = e.detail.region
+          }
+        }}
+        />
+    </MiniBlock>
+  </div>
+{/if}
 
 <style>
   form {
     --square: calc(3.6rem - 6px);
     display: grid;
-    grid-template-columns: var(--square) auto;
+    grid-template-columns: var(--square) auto var(--square);
     grid-template-rows: var(--square);
     grid-auto-columns: var(--square);
     align-items: center;
@@ -104,4 +134,12 @@
     width: 100%;
     height: 100%;
   }
+
+  form :global(.map) {
+    display: block;
+    width: 1em;
+    height: 1em;
+    grid-column: 3;
+  }
+
 </style>

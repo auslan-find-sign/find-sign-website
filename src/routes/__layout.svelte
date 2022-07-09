@@ -30,9 +30,20 @@
   <meta name=viewport content="width=device-width">
 </svelte:head>
 
-{#if !showSpinner}
-	<slot></slot>
-{:else}
-	<Header {query} showNavigation={true} />
-	<Spinner active={true} />
+<slot></slot>
+
+{#if showSpinner}
+	<div class="spinner-overlay">
+		<Spinner active={true} />
+	</div>
 {/if}
+
+<style>
+	.spinner-overlay {
+		position: fixed;
+		top: 0; left: 0; right: 0; bottom: 0;
+		display: grid;
+		justify-items: center;
+		align-items: center;
+	}
+</style>
