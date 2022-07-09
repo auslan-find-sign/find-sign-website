@@ -1,6 +1,6 @@
 <script lang="ts">
   import watchMedia from 'svelte-media'
-  import { onMount } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
   import { browser } from '$app/env'
   import { goto } from '$app/navigation'
   import { slide } from 'svelte/transition'
@@ -18,6 +18,8 @@
   export let input = undefined
   let formElement
   let showAdvanced = false
+
+  const fire = createEventDispatcher()
 
   const media = watchMedia({ phone: '(max-width: 600px)' })
 
@@ -48,15 +50,24 @@
   <RegionMap class="map"
     tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
     on:click={() => showAdvanced = !showAdvanced}
+    editable
     />
   <input type=hidden name=page value=0>
   <input type=hidden name=vp value={$media.phone ? 'm' : 'd'}>
+  {#if $regionStore}
+    <input type=hidden name=r value={$regionStore}/>
+  {/if}
 </form>
 
 {#if showAdvanced}
   <div class="advanced" transition:slide={{ duration: 300 }}>
     <MiniBlock>
-      Prioritise search results from: {$regionStore || 'anywhere in Australia'}.
+      <h1>Advanced Settings</h1>
+      {#if $regionStore}
+        Only show results from {$regionStore} region
+      {:else}
+        Show results from everywhere
+      {/if}
       <RegionMap
         tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
         editable
@@ -66,6 +77,7 @@
           } else {
             $regionStore = e.detail.region
           }
+          fire('regionChange', { region: $regionStore })
         }}
         />
     </MiniBlock>

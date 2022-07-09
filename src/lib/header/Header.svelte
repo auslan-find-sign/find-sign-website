@@ -14,7 +14,7 @@
   <a href="/" sveltekit:prefetch><img class=header alt="Home Button" src={logo} width=411 height=90></a>
 
   <!-- search query input bar -->
-  <SearchInput bind:query {formAction}/>
+  <SearchInput bind:query {formAction} on:regionChange/>
 
   <!-- nav links to static pages on the site -->
   {#if showNavigation}

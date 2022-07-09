@@ -11,11 +11,13 @@
   export async function load ({ url }) {
     const query = url.searchParams.get('query') || ''
     const page = parseInt(url.searchParams.get('page') || '0')
+    const region = url.searchParams.get('r')
 
     // empty queries go home!
     if (query.trim() === '') return { status: 301, redirect: '/' }
 
-    const { results, totalResults } = await search(query, page * resultsPerPage, resultsPerPage)
+    let actualQuery = region ? `#${region} (${query})` : query
+    const { results, totalResults } = await search(actualQuery, page * resultsPerPage, resultsPerPage)
     const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
 
     return { props: {
@@ -23,11 +25,15 @@
       page,
       results,
       totalPages,
+      region: region || false,
       viewport: url.searchParams.get('vp') === 'm' ? 'mobile' : 'desktop'
     } }
   }
 </script>
 <script lang="ts">
+  import { page as pageStore } from '$app/stores'
+  import regionStore from '$lib/models/region-store'
+
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   import Paginator from '$lib/Paginator.svelte'
@@ -37,12 +43,14 @@
   import { tokenize } from '$lib/search/text'
   import { browser } from '$app/env'
   import { fn } from '$lib/models/filename-codec'
+  import { goto } from '$app/navigation';
 
 	export let query: string = ''
   export let page: number = 0
   export let totalPages: number = 0
   export let results: EncodedSearchDataEntry[] = []
   export let viewport: 'mobile' | 'desktop' = 'desktop'
+  export let region
 
   let didYouMean = undefined
   $: (results.length === 0) && autocorrect(query)
@@ -84,6 +92,19 @@
       console.log(didYouMean)
     }
   }
+
+  function regionChangeHandler (event) {
+    console.log(event)
+    if (event.detail.region !== region) {
+      const searchParams = new URLSearchParams($pageStore.url.searchParams)
+      if (event.detail.region) {
+        searchParams.set('r', event.detail.region)
+      } else {
+        searchParams.delete('r')
+      }
+      goto(`?${searchParams}`)
+    }
+  }
 </script>
 
 <svelte:head>
@@ -93,10 +114,27 @@
   {/each}
 </svelte:head>
 
-<Header {query} showNavigation={false} />
+<Header {query} showNavigation={false} on:regionChange={regionChangeHandler} />
 
 {#if query === 'admin'}
   <div class="hint">Would you like to <a href="/admin">Login to Site Admin</a> area?</div>
+{/if}
+
+{#if region}
+  {@const everythingURL = (() => {
+    const p = new URLSearchParams($pageStore.url.searchParams)
+    p.delete('r')
+    return `?${p}`
+  })()}
+  <div class="hint">Only showing results in {region}, would you like to <a href="{everythingURL}">see everything</a>?</div>
+{/if}
+{#if $regionStore && $regionStore !== region}
+  {@const limitURL = (() => {
+    const p = new URLSearchParams($pageStore.url.searchParams)
+    p.set('r', `${$regionStore}`)
+    return `?${p}`
+  })()}
+  <div class="hint">Showing results in every region, would you like to <a href="{limitURL}">limit to only {$regionStore}</a>?</div>
 {/if}
 
 {#if results && results.length > 0}
@@ -124,7 +162,12 @@
   <Paginator
     selected={page}
     length={totalPages}
-    toURL={(page) => `?query=${uri(query)}&page=${uri(page)}&vp=${viewport === 'mobile' ? 'm' : 'd'}`}
+    toURL={(page) => {
+      const params = new URLSearchParams($pageStore.url.searchParams)
+      params.set('page', `${page}`)
+      params.set('vp', viewport === 'mobile' ? 'm' : 'd')
+      return `?${params}`
+    }}
     />
 {/if}
 
