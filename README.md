@@ -40,26 +40,35 @@ your search data should be a JSON object in which each key/property name is a st
     { "method": "fetch", "url": "https://media.your-site.tld/path/to/whatever.mp4", "version": "version-1" }
   ],
   "author": {
+    "id": "persons-username",
     "name": "Person's Name",
     "link": "https://your-site.tld/user/profile",
     "avatar": "https://your-site.tld/user/profile/avatar.jpeg"
+  },
+  "provider": {
+    "id": "identifier-for-provider",
+    "name": "Friendly Name of Provider",
+    "verb": "documented",
+    "link": "https://your-site.tld/"
   }
 }
 ```
 
-You can, if you choose, omit `title`, in which case it will be `words` joined with commas. `words` are always the searchable thing, and must be provided. words list will be transformed in to word vectors and compared against user's search terms to rank results, so it's content should usually be quite similar to the title string. Words should not include punctuation like `.` or `,` or quote marks.
+You can, if you choose, omit `title`, in which case it will default to the unique key of this entry in the search data file. `words` are always the searchable thing. If `words` are not provided, Find Sign will make a best effort attempt to extract them automatically from `title`. If both `title` and `words` are omitted, the search data is invalid and cannot be indexed. words list will be transformed in to word vectors and compared against user's search terms to rank results, so it's content should usually be quite similar to the title string if both are provided. Words should not include punctuation like `.` or `,` or quote marks.
 
-Newlines are rendered correctly in body text, and in the future markdown maybe supported there, but html never will.
+Newlines are rendered correctly in body text, and in the future basic markdown maybe supported there, but html never will.
 
 `link` specifies where the user is sent when they click the title or videos. If omitted, find-sign will link to it's own permalink page about the entry.
 
-`nav` if provided, will cause a breadcrumbs-like link under the title to be rendered, which looks nicer for users. It's a great place to put some branding, and should reflect the structure of your site. If it's missing, `link` will be used, and if that's missing, a find-sign permalink will be used by default.
+`nav` if provided, will cause a breadcrumbs-like link under the title to be rendered, which looks nicer for users. It's a great place to put some branding, and should reflect the structure of your site. If it's missing, `link` will be used, and if that's missing, a Find Sign permalink will be used by default.
 
-`tags` is optional, and can be provided as a list of hashtags. Each string must not contain whitespace. It should only contain characters that are easy to type like a-z0-9 and may also use `.`, and `-` seperators. No other punctuation may be present and the strings should not begin with a `#`.
+`tags` is optional, and can be provided as a list of hashtags. Each string must not contain whitespace. It should only contain characters that are easy to type like a-z0-9 and may also use `.`, and `-` seperators. No other punctuation may be present and the strings should not begin with a `#`. If you know which states a sign is used in, please include hashtags like `nsw` and `vic` in the list to indicate which states your sign is used in.
 
 `media` must be present, and must be an array of Media Elements (see below).
 
-`author` isn't currently used, but maybe in the future to provide a little profile link.
+`author` is optional, if provided it should include an `"id"` field, which can be used with searching for `@username` or `-@username` queries. The other fields are currently not used by find sign and exist for future proofing against ideas for new ways to display search results. If avatar is provided, it should be a square image in a web compatible format like jpeg, png, gif, or webp. Username will be shown along side hashtags in search results if available.
+
+`provider` is optional. If provided, it should specify a unique `id` for your site/corpus, a `link` to a webpage about your site/corpus, a `verb` which is used in the Find Sign homepage when describing new entries added recently, and a friendly `name` for your website, also used on the homepage and feeds. The provider value should normally be the same for every entry in your search data file, though it might make sense to vary the verb (i.e. `"made up"` or `"recorded"` or `"shared"`)
 
 ### Media Elements
 
@@ -70,3 +79,24 @@ You may also add a `version` property to this object, with any string value whic
 You may also provide a `clipping` property, which is an object containing optional `start` and `end` properties. If start is specified, it must be a number, which is how many seconds find-sign should skip in to the start of the video before transcoding, clipping off that many seconds from the beginning. If end is specified, it is how many seconds deep in to the video the clip should include. if both are provided, end must be a larger number than start. Start defaults to 0 and end defaults to the intrinsic duration of the video file.
 
 If you have a video that contains several signs, you can reference the same video url in multiple search-data entries, and use clipping to control which section of the video is presented to the user. You could also use it to skip past intro logos or exclude end credits from the loop seen on find-sign.
+
+### Minimal example of search data
+
+```json
+{
+  "Welcome to latrobe university": {
+    "media": [{ "method": "fetch", "url": "./welcome-to-ltu.ogg" }]
+  },
+  "How are you?": {
+    "media": [{ "method": "fetch", "url": "how-are-you.mp4" }]
+  }
+}
+```
+
+It is possible to publish an extremely minimal search data file like above. Title will be implied from object keys, and words extracted from title. The only mandatory field really is media. Downside's to this approach:
+
+- not providing version on media means changes to the video file wont be noticed for a long time
+- any small changes to the object key to edit title will break permalinks and may cause media to be downloaded and encoded again in some cases
+- no control over presentation of discovery feed on homepage or listing of states in hashtags for usage regions limits utility of information
+
+If you can provide more info, please do.
