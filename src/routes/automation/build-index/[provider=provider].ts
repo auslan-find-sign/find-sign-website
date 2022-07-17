@@ -8,20 +8,31 @@ export async function get ({ url, params }) {
   if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400, body: 'needs automation key query string param' }
 
   const provider = decodeFilename(params.provider)
-  const log = []
-
-  log.push(`Reading search data ${params.provider}...`)
-  const searchData = await readEncodedSearchData(import.meta.env.VITE_ENCODED_SEARCH_DATAS + fn`/${provider}.json`)
-  log.push(`Building orthagonal index in memory...`)
-  const files = await writeIndex(searchData, {
-    lookupVector: word => lookup(word),
-    log: (...args) => log.push(args.join(' ')),
-  })
-  log.push('Search index files constructed, writing...')
-  await bulkWrite(fn`index/${provider}`, files)
 
   return {
     headers: { 'Content-Type': 'text/plain' },
-    body: log.map(str => `${str}\n`).join('')
+    body: new ReadableStream({
+      async start (controller) {
+        controller.enqueue(`Reading search data ${params.provider}...\n`)
+        const searchData = await readEncodedSearchData(import.meta.env.VITE_ENCODED_SEARCH_DATAS + fn`/${provider}.json`)
+        controller.enqueue(`Building orthagonal index in memory...\n`)
+
+        let lastProgress = 0.0
+        const files = await writeIndex(searchData, {
+          lookupVector: word => lookup(word),
+          log: (...args) => controller.enqueue(args.join(' ') + '\n'),
+          progress: (num) => {
+            if (num > lastProgress + 0.05 || num === 1.0) {
+              controller.enqueue(`Progress: ${Math.round(num * 100)}%\n`)
+              lastProgress = Math.round(num * 100) / 100
+            }
+          }
+        })
+        controller.enqueue('Search index files constructed, writing...\n')
+        await bulkWrite(fn`index/${provider}`, files)
+        controller.enqueue('Done\n')
+        controller.close()
+      }
+    })
   }
 }
