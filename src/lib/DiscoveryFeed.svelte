@@ -1,29 +1,9 @@
 <script lang=ts>
   import Icon from '$lib/Icon.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
-  import Spinner from '$lib/Spinner.svelte'
   import { humane as humaneTime } from '$lib/functions/date'
-  import { onMount } from 'svelte'
 
-  let feed = undefined
-  let loading = false
-  let showSpinner = false
-
-  onMount(() => {
-		// load feed
-    loading = true
-    const showSpinnerTimeout = setTimeout(() => {
-      showSpinner = true
-    }, 250)
-
-		fetch('/feeds/discovery-widget').then(response => {
-      return response.json()
-		}).then(json => {
-      clearTimeout(showSpinnerTimeout)
-      loading = false
-      feed = json
-    })
-  })
+  export let feed = undefined
 
   // group entries by day, with humane headings
   function dateGrouped (entries) {
@@ -54,7 +34,7 @@
   {#if feed}
     <div class="h-feed">
       <a href={'/feeds/discovery.atom'} class="icon-feed" title="Atom Feed"><Icon name=feed/></a>
-      {#each dateGrouped(feed.reverse()) as { humane, computer, entries }}
+      {#each dateGrouped([...feed]) as { humane, computer, entries }}
         <h2><time datetime={computer}>{humane}</time></h2>
         {#each entries as entry}
           <div class="discovery-link h-entry">
@@ -63,33 +43,18 @@
             {entry.verb || 'documented'}
             {#if entry.remoteURL}
               <a href={entry.remoteURL} class="entry-link p-name u-url" rel="external">{entry.title}</a>
-              <a href={entry.cacheURL} class="permalink"><Icon name="link"/></a>
+              <!-- <a href={entry.cacheURL} class="permalink"><Icon name="link"/></a> -->
             {/if}
           </div>
         {/each}
       {/each}
     </div>
   {:else}
-    <div class="loading">
-      {#if showSpinner}
-        <Spinner/>
-      {/if}
-    </div>
+    <p>Feed data missing</p>
   {/if}
 </MainBlock>
 
 <style>
-  div.loading {
-    display: grid;
-    height: calc(300px - 1rem - 6px);
-  }
-
-  div.loading > :global(.spinner) {
-    justify-content: center;
-    align-content: center;
-    height: 100%;
-  }
-
   a.icon-feed {
     display: block;
     width: 1em; height: 1em;

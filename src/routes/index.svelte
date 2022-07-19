@@ -1,12 +1,10 @@
-<script context="module" lang="ts">
-	export const prerender = true;
-</script>
-
 <script lang="ts">
 	import Header from '$lib/header/Header.svelte'
 	import DiscoveryFeed from '$lib/DiscoveryFeed.svelte'
 	import { onMount } from 'svelte'
 	import { prefetchRoutes } from '$app/navigation'
+
+	export let feed
 
 	onMount(() => {
 		// preload the search results interface
@@ -23,4 +21,4 @@
 
 <Header/>
 
-<DiscoveryFeed/>
+<DiscoveryFeed {feed} />
