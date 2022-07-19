@@ -43,7 +43,7 @@ export class OutdatedError extends Error {
 }
 
 /** load the search index */
-export async function loadIndex (url: string, columns = [], forceReload = false): Promise<LoadedOrthagonalIndex> {
+export async function loadIndex (url: string, columns = [], forceReload = false, globalVectors?: { [word: string]: WordVector }): Promise<LoadedOrthagonalIndex> {
   try {
     const columnData = {}
     const forceRecheck: RequestInit = { cache: 'no-cache' }
@@ -51,16 +51,16 @@ export async function loadIndex (url: string, columns = [], forceReload = false)
     const loadOptions: RequestInit = forceReload ? forceRecheck : lazyCache
 
     const [meta, vectors] = await Promise.all([
-      fetch(`${url}/meta.json`, forceRecheck).then(x => x.json()),
-      columns.includes('vectors') ? fetch(`${url}/vectors.lps`, loadOptions)
+      fetch(`${url}/meta.json`, forceRecheck).then(x => x.json() as Promise<OrthagonalIndex>),
+      columns.includes('vectors') && !globalVectors ? fetch(`${url}/vectors.lps`, loadOptions)
         .then(x => x.arrayBuffer())
         .then(arrayBuffer => {
-          const output = {}
+          const output: { [word: string]: WordVector } = {}
           for (const { word, getVector } of parseVectorPack(new Uint8Array(arrayBuffer))) {
             output[word] = getVector()
           }
           return output
-        }) : Promise.resolve({}),
+        }) : Promise.resolve(globalVectors),
       ...columns.filter(x => x !== 'vectors').map(async (name: string) => {
         const response = await fetch(`${url}/${name}.json`, loadOptions)
         const data: OrthagonalColumnData = await response.json()
