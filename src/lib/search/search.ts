@@ -4,7 +4,7 @@ import { loadIndex, OutdatedError, type LoadedOrthagonalIndex } from '$lib/ortha
 import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
 import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
-import { compileQuery } from '$lib/search/text'
+import { checkQueryContainsWords, compileQuery } from '$lib/search/text'
 import normalizeWord from '$lib/orthagonal/normalize-word'
 import { encodeFilename } from '$lib/models/filename-codec'
 import lru from '$lib/functions/lru'
@@ -51,12 +51,12 @@ let globalVectors: { [word: string]: Float32Array }
 
 export async function search (query: string, start: number, length: number, forceReload = false): Promise<SearchResponse> {
   // load the globalVector cache
-  if (!globalVectors) {
+  if (!globalVectors && checkQueryContainsWords(query)) {
     globalVectors = await openGlobalVectors(`${import.meta.env.VITE_SEARCH_INDEX_PATH}/global-vectors.lps`)
   }
 
   const lookupLocal = async function (word) {
-    if (globalVectors[word]) return globalVectors[word]
+    if (globalVectors && globalVectors[word]) return globalVectors[word]
     return lookup(word)
   }
 

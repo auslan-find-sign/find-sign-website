@@ -296,3 +296,9 @@ export function getQueryRequirements (ast: QueryNode | undefined): QueryColumnNa
   }
   return []
 }
+
+export function checkQueryContainsWords (query: string): boolean {
+  const parsed = parseQuery(query)
+  const requirements = getQueryRequirements(parsed)
+  return requirements.includes('words')
+}
