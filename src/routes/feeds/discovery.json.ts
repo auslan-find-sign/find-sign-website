@@ -3,7 +3,7 @@ import type { RequestHandler } from './discovery.json.d'
 
 export const prerender = false
 
-export const get: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url }) => {
   const page = parseInt(url.searchParams.get('page') || '0')
   const length = parseInt(url.searchParams.get('length') || '50')
 

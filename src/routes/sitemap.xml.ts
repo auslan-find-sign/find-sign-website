@@ -11,7 +11,7 @@ const staticPages = [
   '/feeds/discovery.rss',
 ]
 
-export async function get({ url }) {
+export async function GET ({ url }) {
   const data = []
 
   data.push('<?xml version="1.0" encoding="UTF-8" ?>')

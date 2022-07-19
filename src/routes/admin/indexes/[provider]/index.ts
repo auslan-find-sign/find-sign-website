@@ -2,7 +2,7 @@ import { userHasPower } from '$lib/models/user'
 import { loadIndex } from '$lib/orthagonal/read'
 import { LoginRedirect } from '../../login'
 
-export async function get ({ locals, params }) {
+export async function GET ({ locals, params }) {
   if (!locals.userID) return LoginRedirect
   if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 

@@ -3,7 +3,7 @@ import { getSearchLibrary } from '$lib/search/search'
 
 const cached = cache(60 * 60)
 
-export async function get () {
+export async function GET () {
   if (cached.get()) {
     return cached.get()
   } else {

@@ -1,6 +1,6 @@
 import cookie from 'cookie'
 
-export function get () {
+export function GET () {
   return {
     status: 307,
     headers: {

@@ -7,7 +7,7 @@ export const prerender = false
 // stores old feed output for homepage feed
 const cachedFeed = cache(60 * 5)
 
-export const get: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url }) => {
   let body = cachedFeed.get()
   if (!body) {
     const feed = await getUpdatesFeed({ url, page: 0, length: 20, extended: true })

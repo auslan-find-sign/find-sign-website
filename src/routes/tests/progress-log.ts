@@ -1,7 +1,7 @@
 import delay from '$lib/functions/delay'
 import { createProgressLog, nextUpdate } from '$lib/progress/progress-log'
 
-export async function get ({ url }) {
+export async function GET ({ url }) {
   const id = url.searchParams.get('id')
   const index = url.searchParams.get('index')
   console.log(url.toString())

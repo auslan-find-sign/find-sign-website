@@ -6,7 +6,7 @@ export const prerender = false
 // how many entries does the json feed contain
 const length = 25
 
-export async function get ({ url }) {
+export async function GET ({ url }) {
   const page = parseInt(url.searchParams.get('page') || '0')
   const jsonFeed = await getUpdatesFeed({ url, page, length })
 

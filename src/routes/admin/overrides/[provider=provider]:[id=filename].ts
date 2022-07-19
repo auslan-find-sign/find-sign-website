@@ -4,7 +4,7 @@ import { userHasPower } from '$lib/models/user'
 import { readEncodedSearchData } from '$lib/orthagonal/write'
 import { LoginRedirect } from '../login'
 
-export async function get ({ locals, params }) {
+export async function GET ({ locals, params }) {
   if (!locals.userID) return LoginRedirect
   if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 
@@ -20,7 +20,7 @@ export async function get ({ locals, params }) {
   return { body: { entry, override }}
 }
 
-export async function post ({ locals, params, request }) {
+export async function POST ({ locals, params, request }) {
   if (!locals.userID) return LoginRedirect
   if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
   const [provider, id] = [params.provider, params.id].map(decodeFilename)

@@ -7,13 +7,13 @@ import { build, parse } from '$lib/search/precomputed-vectors'
 import { LoginRedirect } from '../../login'
 
 /** long polling endpoint for progress and log streaming from the post endpoints long running output */
-export async function get ({ url }) {
+export async function GET ({ url }) {
   const update = await nextUpdate(url.searchParams.get('id'), parseInt(url.searchParams.get('index')))
   return { body: update }
 }
 
 /** endpoint for manually rebuilding search index, e.g. after authoring an index override */
-export async function post ({ locals, params }) {
+export async function POST ({ locals, params }) {
   if (!locals.userID) return LoginRedirect
   if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 

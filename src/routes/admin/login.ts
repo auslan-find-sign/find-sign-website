@@ -50,7 +50,7 @@ export const LoginRedirect = {
 }
 
 // webauthn endpoint
-export const post = async function post ({ request }: { request: Request }) {
+export async function POST ({ request }: { request: Request }) {
   const req = await request.json()
   const url = new URL(request.url)
 

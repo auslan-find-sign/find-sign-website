@@ -83,7 +83,7 @@ async function runSearch (query: string, request, page = 0, bodyOverride?: any) 
   }
 }
 
-export async function post ({ request }: { request: Request}) {
+export async function POST ({ request }: { request: Request}) {
   const bodyText = await request.text()
   if (!isValidReq(request, bodyText)) return { status: 401, body: 'Bad request signature' }
 

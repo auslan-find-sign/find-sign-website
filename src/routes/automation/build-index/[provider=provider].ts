@@ -5,7 +5,7 @@ import { bulkWrite, readFile, writeFile } from '$lib/data-io/data-io'
 import { build, parse } from '$lib/search/precomputed-vectors'
 
 /** endpoint for cron-like tasks to automatically rebuild orthagonal indexes after encoder has done it's work */
-export async function get ({ url, params }) {
+export async function GET ({ url, params }) {
   if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400, body: 'needs automation key query string param' }
 
   const provider = decodeFilename(params.provider)
