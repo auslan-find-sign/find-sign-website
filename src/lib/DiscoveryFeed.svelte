@@ -34,7 +34,7 @@
   {#if feed}
     <div class="h-feed">
       <a href={'/feeds/discovery.atom'} class="icon-feed" title="Atom Feed"><Icon name=feed/></a>
-      {#each dateGrouped([...feed]) as { humane, computer, entries }}
+      {#each dateGrouped(feed) as { humane, computer, entries }}
         <h2><time datetime={computer}>{humane}</time></h2>
         {#each entries as entry}
           <div class="discovery-link h-entry">

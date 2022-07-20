@@ -18,7 +18,7 @@ export async function GET ({ url }) {
       date: x.date_published,
       cacheURL: x.url,
       remoteURL: x.external_url
-    }))
+    })).reverse()
     body = cachedFeed.set(response)
   }
 
