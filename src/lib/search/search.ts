@@ -7,7 +7,6 @@ import rank from '$lib/search/search-rank'
 import { checkQueryContainsWords, compileQuery } from '$lib/search/text'
 import normalizeWord from '$lib/orthagonal/normalize-word'
 import { encodeFilename } from '$lib/models/filename-codec'
-import lru from '$lib/functions/lru'
 import openGlobalVectors from './global-vectors'
 import type { WordVector } from './precomputed-vectors'
 
@@ -15,15 +14,6 @@ export const availableIndexes = import.meta.env.VITE_SEARCH_INDEXES.split(',')
 const indexURLs = Object.fromEntries(availableIndexes.map(name => {
   return [name, `${import.meta.env.VITE_SEARCH_INDEX_PATH}/${encodeFilename(name)}`]
 }))
-
-
-// let searchLibrary: Library = undefined
-// let searchLibraries = {}
-let lastQuery: string|undefined = undefined
-let compiledQuery: { rank: (EncodedSearchDataEntry) => number, requirements: string[] } = undefined
-// let lastFreshenTimestamp: number = 0
-let cachedRankedIndex = undefined
-// let resultItemCache = lru(100)
 
 export type SearchResponse = {
   results: EncodedSearchDataEntry[],
@@ -51,7 +41,8 @@ let globalVectors: { [word: string]: Float32Array }
 
 export async function search (query: string, start: number, length: number, forceReload = false): Promise<SearchResponse> {
   // load the globalVector cache
-  if (!globalVectors && checkQueryContainsWords(query)) {
+  if (/*!globalVectors &&*/ checkQueryContainsWords(query)) {
+    // !!! should this have a cache expiry mechanism?
     globalVectors = await openGlobalVectors(`${import.meta.env.VITE_SEARCH_INDEX_PATH}/global-vectors.lps`)
   }
 
@@ -60,31 +51,24 @@ export async function search (query: string, start: number, length: number, forc
     return lookup(word)
   }
 
-  if (query !== lastQuery || !compiledQuery) {
-    compiledQuery = await compileQuery(query, async (word) => {
-      const normalized = normalizeWord(word)
-      const normalizedResult = await lookupLocal(normalized)
-      if (normalizedResult) {
-        return normalizedResult
-      } else if (normalized !== normalized.toLowerCase()) {
-        const lowerCasedResult = await lookupLocal(normalized.toLowerCase())
-        return lowerCasedResult
-      }
-    })
-  }
+
+  const compiledQuery = await compileQuery(query, async (word) => {
+    const normalized = normalizeWord(word)
+    const normalizedResult = await lookupLocal(normalized)
+    if (normalizedResult) {
+      return normalizedResult
+    } else if (normalized !== normalized.toLowerCase()) {
+      const lowerCasedResult = await lookupLocal(normalized.toLowerCase())
+      return lowerCasedResult
+    }
+  })
 
   const { requirements: columns, rank: rankFn } = compiledQuery
   const library = await getSearchLibrary(false, columns, forceReload, globalVectors)
 
-  if (query !== lastQuery) cachedRankedIndex = undefined
+  const rankedIndex = rank(library, rankFn)
 
-  if (!cachedRankedIndex) {
-    cachedRankedIndex = rank(library, rankFn)
-  }
-
-  lastQuery = query
-
-  const resultEntries = cachedRankedIndex.entries.slice(start, start + length)
+  const resultEntries = rankedIndex.entries.slice(start, start + length)
   let results
   try {
     results = await Promise.all(resultEntries.map(entry => {
@@ -100,7 +84,7 @@ export async function search (query: string, start: number, length: number, forc
   }
 
   return {
-    totalResults: cachedRankedIndex.entries.length,
+    totalResults: rankedIndex.entries.length,
     results
   }
 }
