@@ -44,7 +44,7 @@ export async function GET ({ url, params }) {
           }
         }
         controller.enqueue(`Writing global word vector cache...\n`)
-        await writeFile('index/global-vectors.lps', build(globalVectors))
+        await writeFile('index/global-vectors.lps', build(globalVectors, parseFloat(import.meta.env.VITE_VECTOR_FIDELITY || '1.0')))
 
         controller.enqueue('Done\n')
         controller.close()

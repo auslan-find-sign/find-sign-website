@@ -44,7 +44,7 @@ export async function POST ({ locals, params }) {
     }
     progress(0.99)
     log(`Writing global word vector cache...`)
-    await writeFile('index/global-vectors.lps', build(globalVectors))
+    await writeFile('index/global-vectors.lps', build(globalVectors, parseFloat(import.meta.env.VITE_VECTOR_FIDELITY || '1.0')))
     progress(1.00)
     log('Build complete')
   })

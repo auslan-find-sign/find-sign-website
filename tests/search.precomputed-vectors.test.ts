@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import { expect, describe, it } from 'vitest'
 import { parse, build } from '../src/lib/search/precomputed-vectors.js'
+import { gzipSync } from 'node:zlib'
 
 const sampleLPSData = fs.readFileSync(new URL('search.precomputed-vectors.sample.lps', import.meta.url))
 
@@ -31,7 +32,7 @@ describe('/src/lib/search/precomputed-vectors parse()', () => {
 })
 
 describe('/src/lib/search/precomputed-vectors build()', () => {
-  it('roundtrips a single item well', () => {
+  it('roundtrips two items well', () => {
     const output = [...parse(build({
       'test': [-1, +1],
       'test2': [-5, +5],
@@ -43,7 +44,7 @@ describe('/src/lib/search/precomputed-vectors build()', () => {
     ])
   })
 
-  it('roundtrips a two items well', () => {
+  it('roundtrips a single item well', () => {
     const output = [...parse(build({
       'test': [-2, +2]
     }))].map(({ word, getVector }) => ({ word, vector: getVector() }))
@@ -66,5 +67,18 @@ describe('/src/lib/search/precomputed-vectors build()', () => {
     const sample = Object.fromEntries([...parse(sampleLPSData)].map(x => [x.word, x.getVector()]))
     const repro = Object.fromEntries([...parse(build(sample))].map(x => [x.word, x.getVector()]))
     expect(repro).to.deep.equal(sample)
+  })
+
+  it('fidelity option creates smaller packages when compressed with gzip', () => {
+    const sample = Object.fromEntries([...parse(sampleLPSData)].map(x => [x.word, x.getVector()]))
+    const reencodedFullFat = build(sample, 1.0)
+    const reencodedPoint9 = build(sample, 0.9)
+    const reencodedPoint5 = build(sample, 0.5)
+    const reencodedPoint1 = build(sample, 0.1)
+
+    expect(reencodedFullFat.byteLength).to.equal(sampleLPSData.byteLength)
+    expect(gzipSync(reencodedPoint9).byteLength).to.be.lessThan(gzipSync(reencodedFullFat).byteLength)
+    expect(gzipSync(reencodedPoint5).byteLength).to.be.lessThan(gzipSync(reencodedPoint9).byteLength)
+    expect(gzipSync(reencodedPoint1).byteLength).to.be.lessThan(gzipSync(reencodedPoint5).byteLength)
   })
 })

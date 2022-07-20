@@ -64,7 +64,9 @@ export function * parse (buffer: Uint8Array) {
 
 // builds a shard, returns a Uint8Array containing all the words packed in to an lps file's contents
 // used by orthagonal index to build a word cache
-export function build (entries: { [word: string]: number[] }) {
+// if fidelity is specified as a number < 1.0, the vectors will be compressed and scaled more aggressively
+// in hopes of producing a more gzip/brotli compressible result
+export function build (entries: { [word: string]: number[] }, fidelity = 1.0) {
   const pieces: Uint8Array[] = []
   const textEncoder = new TextEncoder()
 
@@ -75,7 +77,7 @@ export function build (entries: { [word: string]: number[] }) {
 
     // compute the compressed vector
     const vector = entries[word]
-    const scaling = Math.max(...vector.map(x => Math.abs(x)))
+    const scaling = Math.max(...vector.map(x => Math.abs(x))) / (fidelity ** 2)
     const scaledVector = vector.map(x => x / scaling)
     const discretizedVector = scaledVector.map(x => {
       const value = ((x + 1.0) / 2.0) * 255
