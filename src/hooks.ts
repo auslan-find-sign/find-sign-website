@@ -1,9 +1,9 @@
-import cookie from 'cookie'
+import { parse as cookieParse } from 'cookie'
 import type { Handle, GetSession } from '@sveltejs/kit'
 import { verifyToken } from '$lib/../routes/admin/login'
 
 export const handle: Handle = async function ({ event, resolve }) {
-	const cookies = cookie.parse(event.request.headers.get('cookie') || '')
+	const cookies = cookieParse(event.request.headers.get('cookie') || '')
 
 	// verify and parse login cookie tokens if user is passkey logged in
 	if (cookies.token) {

@@ -2,7 +2,7 @@
   import { getSearchLibrary } from '$lib/search/search'
   import { getRandomSigns } from '$lib/search/random'
 
-  import type { Load } from './random'
+  import type { Load } from './__types/random'
   export const load: Load = async function load ({ url }) {
     const sign = url.searchParams.get('sign')
     let randoms = await getRandomSigns(2)

@@ -4,7 +4,7 @@
 
 <script>
   import Header from '$lib/header/Header.svelte'
-import HiddenEmail from '$lib/HiddenEmail.svelte'
+  import HiddenEmail from '$lib/HiddenEmail.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   export let hashtags = []
   export let usernames = []

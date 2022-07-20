@@ -1,7 +1,8 @@
 import cache from '$lib/functions/cache'
 import { getSearchLibrary } from '$lib/search/search'
 
-const cached = cache(60 * 60)
+const maxAge = 60 * 60 // 1 hour
+const cached = cache(maxAge)
 
 export async function GET () {
   if (cached.get()) {
@@ -9,7 +10,7 @@ export async function GET () {
   } else {
     const tagAccumulator = {}
     const userAccumulator = {}
-    // const library = await open(import.meta.env.VITE_SEARCH_INDEX)
+
     const libraries = await getSearchLibrary(false, ['tags', 'author'])
 
     for (const provider in libraries) {
@@ -34,6 +35,10 @@ export async function GET () {
       .sort((left, right) => right.count - left.count)
 
     return cached.set({
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Cache-Control': `max-age=${maxAge}`
+      },
       body: { hashtags, usernames }
     })
   }
