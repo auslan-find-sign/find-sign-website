@@ -49,18 +49,20 @@
   }
 </script>
 
-<form class={$$props.class} style={$$props.style} bind:this={formElement} role=search autocomplete=off action={formAction} {method} on:submit={onSearch} on:click={() => input.focus()}>
-  {#if !isSearchLoad}
-    <Icon name=search/>
-  {:else}
-    <MiniSpinner speed="0.5s" />
-  {/if}
+<form class={$$props.class} style={$$props.style} bind:this={formElement} role=search autocomplete=off action={formAction} {method} on:submit={onSearch}>
+  <div class="left-icon" on:click={() => input.focus()}>
+    {#if !isSearchLoad}
+      <Icon name=search/>
+    {:else}
+      <MiniSpinner speed="0.5s" />
+    {/if}
+  </div>
   <input bind:this={input} autocomplete=off autocapitalize=none aria-label="Enter search query here." name=query bind:value={query}>
-  <RegionMap class="map"
-    tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
-    on:click={() => showAdvanced = !showAdvanced}
-    editable
+  <div class="right-icon" on:click={() => showAdvanced = !showAdvanced}>
+    <RegionMap class="map"
+      tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
     />
+  </div>
   <input type=hidden name=page value=0>
   <input type=hidden name=vp value={$media.phone ? 'm' : 'd'}>
   {#if $regionStore}
@@ -135,12 +137,12 @@
   }
 
   /* magnifing glass symbol in search form */
-  /* form > *:first-child {
+  form > div.left-icon {
     display: block;
     width: 1em;
     height: 1em;
     grid-column: 1;
-  } */
+  }
 
   input {
     display: block;
@@ -156,11 +158,12 @@
     height: 100%;
   }
 
-  form :global(.map) {
+  form > .right-icon {
     display: block;
     width: 1em;
     height: 1em;
     grid-column: 3;
+    cursor: pointer;
   }
 
 </style>
