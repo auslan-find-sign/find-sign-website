@@ -40,6 +40,7 @@
     "it-length-prefixed": "^7.0.1",
     "nanoid": "^3.3.4",
     "node-fetch": "^3.2.4",
+    "pigeonmark-utils": "^2.0.2",
     "pigeonmark-xml": "^1.0.1",
     "svelte-inview": "^3.0.1",
     "svelte-media": "^0.1.5",
