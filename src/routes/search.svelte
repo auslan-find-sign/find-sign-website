@@ -163,10 +163,11 @@
     selected={page}
     length={totalPages}
     toURL={(page) => {
-      const params = new URLSearchParams($pageStore.url.searchParams)
-      params.set('page', `${page}`)
-      params.set('vp', viewport === 'mobile' ? 'm' : 'd')
-      return `?${params}`
+      return `?${new URLSearchParams([
+        ['query', query],
+        ['page', `${page}`],
+        ['vp', viewport === 'mobile' ? 'm' : 'd']
+      ])}`
     }}
     />
 {/if}
