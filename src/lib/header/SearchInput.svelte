@@ -5,8 +5,10 @@
   import { goto } from '$app/navigation'
   import { slide } from 'svelte/transition'
   import { quintOut } from 'svelte/easing'
+  import { navigating } from '$app/stores'
 
   import Icon from '$lib/Icon.svelte'
+  import MiniSpinner from '$lib/MiniSpinner.svelte'
   import RegionMap from '$lib/RegionMap.svelte'
   import regionStore from '$lib/models/region-store'
   import MiniBlock from '$lib/MiniBlock.svelte'
@@ -22,6 +24,9 @@
   const fire = createEventDispatcher()
 
   const media = watchMedia({ phone: '(max-width: 600px)' })
+
+  // is the page load towards a search results page?
+	$: isSearchLoad = $navigating && $navigating.to.pathname === '/search'
 
   onMount(() => {
     if (queryHandler === undefined) {
@@ -45,7 +50,11 @@
 </script>
 
 <form class={$$props.class} style={$$props.style} bind:this={formElement} role=search autocomplete=off action={formAction} {method} on:submit={onSearch} on:click={() => input.focus()}>
-  <Icon name=search/>
+  {#if !isSearchLoad}
+    <Icon name=search/>
+  {:else}
+    <MiniSpinner speed="0.5s" />
+  {/if}
   <input bind:this={input} autocomplete=off autocapitalize=none aria-label="Enter search query here." name=query bind:value={query}>
   <RegionMap class="map"
     tags={$regionStore ? [$regionStore] : ['wa', 'nt', 'sa', 'qld', 'nsw', 'vic', 'tas']}
@@ -126,12 +135,12 @@
   }
 
   /* magnifing glass symbol in search form */
-  form :global(.icon-search) {
+  /* form > *:first-child {
     display: block;
     width: 1em;
     height: 1em;
     grid-column: 1;
-  }
+  } */
 
   input {
     display: block;

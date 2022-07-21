@@ -13,9 +13,12 @@
 
 	$: query = browser ? $page.url.searchParams.get('query') : ''
 
+	// is the page load towards a search results page?
+	$: isSearchLoad = $navigating && $navigating.to.pathname === '/search'
+
 	let showSpinner = false
 	let timer = undefined
-	$: if (loading === true) {
+	$: if (loading === true && isSearchLoad === false) {
 		if (timer) clearTimeout(timer)
 		timer = setTimeout(() => showSpinner = true, 50)
 	} else if (loading === false) {

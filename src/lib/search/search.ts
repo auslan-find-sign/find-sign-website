@@ -37,10 +37,9 @@ export async function getSearchLibrary (limitLibraries: string[] | false = false
   return collection
 }
 
-let globalVectors: { [word: string]: Float32Array }
-
 export async function search (query: string, start: number, length: number, forceReload = false): Promise<SearchResponse> {
   // load the globalVector cache
+  let globalVectors: { [word: string]: Float32Array }
   if (/*!globalVectors &&*/ checkQueryContainsWords(query)) {
     // !!! should this have a cache expiry mechanism?
     globalVectors = await openGlobalVectors(`${import.meta.env.VITE_SEARCH_INDEX_PATH}/global-vectors.lps`)
