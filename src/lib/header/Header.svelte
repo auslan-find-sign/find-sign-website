@@ -22,7 +22,7 @@
       <a href=/random sveltekit:prefetch>Random</a>
       <a href=/about sveltekit:prefetch>About</a>
       <a href=/technology sveltekit:prefetch>Technology</a>
-      <a href="https://blog.auslan.fyi/">News</a>
+      <a href="https://blog.auslan.fyi/" rel="external">News</a>
     </nav>
   {/if}
 </header>
