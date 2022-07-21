@@ -1,5 +1,5 @@
 import { getUpdatesFeed } from './_read-discovery-feed'
-import type { RequestHandler } from './discovery.json.d'
+import type { RequestHandler } from './__types/discovery.json.d'
 
 export const prerender = false
 

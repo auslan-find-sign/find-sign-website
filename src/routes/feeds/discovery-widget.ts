@@ -1,6 +1,6 @@
 import { getUpdatesFeed } from './_read-discovery-feed'
 import cache from '$lib/functions/cache'
-import type { RequestHandler } from './discovery-widget.d'
+import type { RequestHandler } from './__types/discovery-widget.d'
 
 export const prerender = false
 
