@@ -30,7 +30,8 @@ export type LoadedOrthagonalEntry = {
     verb?: string, // discovery verb like 'shared' or 'invented'
   }
   timestamp?: number, // epochMs timestamp
-  load: () => Promise<EncodedSearchDataEntry>
+  load: () => Promise<EncodedSearchDataEntry>,
+  indexURL: string
 }
 
 export class OutdatedError extends Error {
@@ -76,7 +77,8 @@ export async function loadIndex (url: string, columns = [], forceReload = false,
           /** searchable vectors */
           vectors: [],
           /** load this entry's full definition file */
-          load: async () => loadEntry(index, idx)
+          load: async () => loadEntry(index, idx),
+          indexURL: url
         }
         for (const columnName of columns) {
           if (columnName === 'vectors') continue
@@ -122,5 +124,6 @@ export async function loadEntry (index: LoadedOrthagonalIndex, number: number): 
   const response = await fetch(`${index.url}/shard-${shardNumber}.json`, { cache: 'no-store' })
   const json: OrthagonalColumnData = await response.json()
   if (json.buildID !== index.meta.buildID) throw new OutdatedError('Entry buildID unsyncronized, reload', index.url)
-  return json.entries[entryNumber]
+  const entry = json.entries[entryNumber]
+  return entry
 }

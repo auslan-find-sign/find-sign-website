@@ -47,7 +47,9 @@
     name: result.title || result.words.join(' '),
     description: result.body,
     thumbnailUrl: [selectedVideo.thumbnail],
-    uploadDate: (new Date(result.timestamp)).toISOString(),
+    uploadDate: result.timestamp
+      ? (new Date(result.timestamp)).toISOString()
+      : undefined,
     duration: `PT${Math.ceil(selectedVideoOG.duration)}S`, //"PT1M54S",
     contentUrl: selectedVideoOG.url,
     contentSize: selectedVideoOG.byteSize,

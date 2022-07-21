@@ -1,13 +1,14 @@
 <script lang="ts" context="module">
-  import { open, getProviders } from '$lib/search/search-index'
+  import { availableIndexes } from '$lib/search/search'
 
   export async function load () {
-    const library = await open(import.meta.env.VITE_SEARCH_INDEX)
-    const providers = await getProviders(library)
+    const providers = availableIndexes
     return { props: { providers } }
   }
 </script>
 <script lang="ts">
+  import { encodeFilename } from '$lib/models/filename-codec'
+
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
 
@@ -23,7 +24,7 @@
   <h1>List of Data Sources</h1>
   <ul>
     {#each providers as provider}
-      <li><a href="/sign/{encodeURIComponent(provider)}">{provider}</a></li>
+      <li><a href="/sign/{encodeFilename(provider)}">{provider}</a></li>
     {/each}
   </ul>
 </MainBlock>

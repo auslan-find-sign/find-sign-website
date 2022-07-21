@@ -11,17 +11,22 @@ import openGlobalVectors from './global-vectors'
 import type { WordVector } from './precomputed-vectors'
 
 export const availableIndexes = import.meta.env.VITE_SEARCH_INDEXES.split(',')
-const indexURLs = Object.fromEntries(availableIndexes.map(name => {
+export const indexURLs = Object.fromEntries(availableIndexes.map(name => {
   return [name, `${import.meta.env.VITE_SEARCH_INDEX_PATH}/${encodeFilename(name)}`]
 }))
+export const indexByURL = Object.fromEntries(Object.entries(indexURLs).map(x => x.reverse()))
 
 export type SearchResponse = {
-  results: EncodedSearchDataEntry[],
+  results: SearchResult[],
   totalResults: number
 }
 
 export type SearchLibrary = {
   [name: string]: LoadedOrthagonalIndex
+}
+
+export interface SearchResult extends EncodedSearchDataEntry {
+  index: string, // string search index name, e.g. "auslan-signbank"
 }
 
 /** limit libraries maybe an array of provider ids */
@@ -68,10 +73,14 @@ export async function search (query: string, start: number, length: number, forc
   const rankedIndex = rank(library, rankFn)
 
   const resultEntries = rankedIndex.entries.slice(start, start + length)
-  let results
+  let results: SearchResult[]
   try {
-    results = await Promise.all(resultEntries.map(entry => {
-      return entry.load()
+    results = await Promise.all(resultEntries.map(async entry => {
+      const loadedResult: SearchResult = {
+        ...await entry.load(),
+        index: indexByURL[entry.indexURL]
+      }
+      return loadedResult
     }))
   } catch (error) {
     if (error instanceof OutdatedError) {

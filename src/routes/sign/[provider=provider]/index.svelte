@@ -1,11 +1,14 @@
 <script lang="ts" context="module">
-  import { open, getProviderIDs } from '$lib/search/search-index'
+  import { decodeFilename } from '$lib/models/filename-codec'
+  import { getSearchLibrary } from '$lib/search/search'
 
   export async function load ({ params }) {
-    const { provider } = params
-    const library = await open(import.meta.env.VITE_SEARCH_INDEX)
-    const ids = await getProviderIDs(library, provider)
-    return { props: { provider, ids } }
+    const provider = decodeFilename(params.provider)
+    const library = await getSearchLibrary([provider], ['id', 'title'], true)
+
+    const results = library[provider].entries
+
+    return { props: { provider, results } }
   }
 </script>
 <script lang="ts">
@@ -13,7 +16,7 @@
   import MainBlock from '$lib/MainBlock.svelte'
 
   export let provider
-  export let ids
+  export let results
 </script>
 <svelte:head>
 	<title>Find Sign, List of “{provider}” entries</title>
@@ -24,8 +27,8 @@
 <MainBlock wide>
   <h1>List of “{provider}” entries</h1>
   <ul>
-    {#each ids as id}
-    <li><a href="/sign/{encodeURIComponent(provider)}/{encodeURIComponent(id)}">{id}</a></li>
+    {#each results as { id, title }}
+      <li><a href={`/sign/${provider}/${id}`}>{id}: {title}</a></li>
     {/each}
   </ul>
 </MainBlock>

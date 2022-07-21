@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
-  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
-  import { getSearchLibrary, search } from '$lib/search/search'
+  import { getSearchLibrary, search, type SearchResult } from '$lib/search/search'
 
   const resultsPerPage = 10
   const maxPages = 9
@@ -48,7 +47,7 @@
 	export let query: string = ''
   export let page: number = 0
   export let totalPages: number = 0
-  export let results: EncodedSearchDataEntry[] = []
+  export let results: SearchResult[] = []
   export let viewport: 'mobile' | 'desktop' = 'desktop'
   export let region
 
@@ -143,7 +142,7 @@
       <Result
         data={entry}
         key={idx}
-        permalink={fn`/sign/${entry.provider.id}/${entry.id}`}
+        permalink={fn`/sign/${entry.index || entry.provider.id}/${entry.id}`}
         prefer={viewport === 'desktop' ? 'performance' : 'quality'} />
     {/each}
   </div>

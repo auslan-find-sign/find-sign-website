@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import { getSearchLibrary } from '$lib/search/search'
   import { getRandomSigns } from '$lib/search/random'
+  import { fn } from '$lib/models/filename-codec'
 
   import type { Load } from './__types/random'
   export const load: Load = async function load ({ url }) {
@@ -8,13 +9,13 @@
     let randoms = await getRandomSigns(2)
 
     if (sign) {
-      const [provider, id] = sign.split('*')
-      randoms[0] = { provider, id }
+      const [index, id] = sign.split('*')
+      randoms[0] = { index, id }
     }
-    const library = await getSearchLibrary([randoms[0].provider], ['id'])
-    const result = await library[randoms[0].provider].entries.find(x => x.id === randoms[0].id).load()
-    const next = `/random?${new URLSearchParams([['sign', `${randoms[1].provider}*${randoms[1].id}`]])}`
-    const permalink = `/sign/${encodeURIComponent(randoms[0].provider)}/${encodeURIComponent(randoms[0].id)}`
+    const library = await getSearchLibrary([randoms[0].index], ['id'])
+    const result = await library[randoms[0].index].entries.find(x => x.id === randoms[0].id).load()
+    const next = `/random?${new URLSearchParams([['sign', `${randoms[1].index}*${randoms[1].id}`]])}`
+    const permalink = fn`/sign/${randoms[0].index}/${randoms[0].id}`
     return { props: { result, permalink, next } }
   }
 </script>
