@@ -12,8 +12,6 @@
   export let prefer: 'performance' | 'quality' = 'performance'
   export let ssrPlayVideo = false
 
-  $: selected = parseInt($page.url.searchParams.get(`carousel${key}`) || `${selected}`)
-
   $: media = medias[selected].encodes.sort((a, b) => {
     if (prefer === 'quality') {
       return b.byteSize - a.byteSize
@@ -47,6 +45,16 @@
 
   $: prevLink = (selected > 0) && buttonHref($page.url.searchParams, selected - 1)
   $: nextLink = (selected < medias.length - 1) && buttonHref($page.url.searchParams, selected + 1)
+
+  function prevClick (event: MouseEvent) {
+    event.preventDefault()
+    selected -= 1
+  }
+
+  function nextClick (event: MouseEvent) {
+    event.preventDefault()
+    selected += 1
+  }
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
@@ -71,10 +79,10 @@
   </a>
 
   {#if prevLink}
-    <a role="button" href={prevLink} class="prev" aria-label="Previous Video" on:click={buttonClick}>❮</a>
+    <a role="button" href={prevLink} class="prev" aria-label="Previous Video" on:click={prevClick}>❮</a>
   {/if}
   {#if nextLink}
-    <a role="button" href={nextLink} class="next" aria-label="Next Video" on:click={buttonClick}>❯</a>
+    <a role="button" href={nextLink} class="next" aria-label="Next Video" on:click={nextClick}>❯</a>
   {/if}
 </div>
 
@@ -147,8 +155,10 @@
     font-weight: inherit;
     font-family: inherit;
     color: inherit;
-    background-color: hsla(var(--hue), var(--module-bg-sat), var(--module-bg-lum), 40%);
+    /* background-color: hsla(var(--hue), var(--module-bg-sat), var(--module-bg-lum), 40%); */
     /* backdrop-filter: blur(2px); */
+    -webkit-backdrop-filter: brightness(80%) saturate(80%);
+    backdrop-filter: brightness(80%) saturate(80%);
     /* center the label */
     padding-top: calc((140px - 1em) / 2);
     text-align: center;
