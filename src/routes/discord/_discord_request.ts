@@ -1,7 +1,7 @@
 import { DiscordBotToken, DiscordPublicKey } from './_setup'
 import { bytesToString, stringToBytes } from '$lib/functions/string-encode.js'
 import { verifyKey } from 'discord-interactions'
-import fetch from 'node-fetch'
+//import fetch from 'node-fetch'
 import { nanoid } from 'nanoid'
 
 export async function discordRequest(endpoint, options) {
@@ -17,14 +17,23 @@ export async function discordRequest(endpoint, options) {
     }
   }
 
-  // Use node-fetch to make requests
-  const res = await fetch(url, {
+  const request = new Request(url, {
     headers: {
       Authorization: `Bot ${DiscordBotToken}`,
       ...(options.headers || {})
     },
     ...options
   })
+
+  console.log('request')
+  console.log(request)
+
+  // Use node-fetch to make requests
+  const res = await fetch(request)
+
+  console.log('response')
+  console.log(res)
+
   // throw API errors
   if (!res.ok) {
     const data = await res.json();
