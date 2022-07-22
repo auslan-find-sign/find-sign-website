@@ -176,4 +176,11 @@
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
   }
+
+  @media (prefers-color-scheme: light) {
+    a[role=button] {
+      -webkit-backdrop-filter: brightness(140%) saturate(60%);
+      backdrop-filter: brightness(140%) saturate(60%);
+    }
+  }
 </style>
