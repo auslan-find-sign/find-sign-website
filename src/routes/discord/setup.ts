@@ -35,17 +35,20 @@ export async function installCommand(command) {
 
   // install command
   try {
-    await discordRequest(endpoint, { method: 'POST', body: command })
+    return await discordRequest(endpoint, { method: 'POST', body: command })
   } catch (err) {
     console.error(err)
+    return err
   }
 }
 
 export async function GET ({ url }) {
   if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400, body: 'needs automation key query string param' }
 
+  const output = []
   for (const command of commands) {
-    await hasCommand(command)
+    const result = await hasCommand(command)
+    output.push({ command, result })
   }
-  return { body: 'success!' }
+  return { body: output }
 }
