@@ -106,8 +106,8 @@ export async function POST ({ request }: { request: Request}) {
       return placeholderMessage()
     } else if (name === 'random-auslan') {
       const [random] = await getRandomSigns(1)
-      const library = await getSearchLibrary([random.provider], ['id'])
-      const sign = await library[random.provider].entries.find(x => x.id === random.id).load()
+      const library = await getSearchLibrary([random.index], ['id'])
+      const sign = await library[random.index].entries.find(x => x.id === random.id).load()
 
       const userId = member.user.id
       signToMessage({ sign, request, message: `<@${userId}> 🎲 rolled the dice…`}).then(message => {
