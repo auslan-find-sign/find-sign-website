@@ -25,14 +25,14 @@ export async function discordRequest(endpoint, options) {
     },
   })
 
-  console.log('request')
-  console.log(request)
+  // console.log('request')
+  // console.log(request)
 
   // Use node-fetch to make requests
   const res = await fetch(request)
 
-  console.log('response')
-  console.log(res)
+  // console.log('response')
+  // console.log(res)
 
   // throw API errors
   if (!res.ok) {
