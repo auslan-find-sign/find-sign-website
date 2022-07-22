@@ -18,11 +18,11 @@ export async function discordRequest(endpoint, options) {
   }
 
   const request = new Request(url, {
+    ...options,
     headers: {
       Authorization: `Bot ${DiscordBotToken}`,
       ...(options.headers || {})
     },
-    ...options
   })
 
   console.log('request')
