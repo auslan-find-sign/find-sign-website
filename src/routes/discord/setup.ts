@@ -3,10 +3,11 @@ import { discordRequest } from './_discord_request.js'
 import commands from './_commands.js'
 
 // Checks for a command
-export async function hasCommand(command) {
+export async function hasCommand(command, isDev) {
   // API endpoint to get and post guild commands
-  // const endpoint = `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
-  const endpoint = `applications/${DiscordAppID}/commands`
+  const endpoint = isDev
+    ? `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
+    : `applications/${DiscordAppID}/commands`
 
   try {
     const res = await discordRequest(endpoint, { method: 'GET' })
@@ -17,7 +18,7 @@ export async function hasCommand(command) {
       // This is just matching on the name, so it's not good for updates
       if (!installedNames.includes(command['name'])) {
         console.log(`Installing "${command['name']}"`)
-        await installCommand(command)
+        return await installCommand(command, endpoint)
       } else {
         console.log(`"${command['name']}" command already installed`)
       }
@@ -28,10 +29,10 @@ export async function hasCommand(command) {
 }
 
 // Installs a command
-export async function installCommand(command) {
+export async function installCommand(command, endpoint) {
   // API endpoint to get and post guild commands
   // const endpoint = `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
-  const endpoint = `applications/${DiscordAppID}/commands`
+  // const endpoint = `applications/${DiscordAppID}/commands`
 
   // install command
   try {
@@ -44,10 +45,11 @@ export async function installCommand(command) {
 
 export async function GET ({ url }) {
   if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return { status: 400, body: 'needs automation key query string param' }
+  const isDev = url.searchParams.has('dev')
 
   const output = []
   for (const command of commands) {
-    const result = await hasCommand(command)
+    const result = await hasCommand(command, isDev)
     output.push({ command, result })
   }
   return { body: output }
