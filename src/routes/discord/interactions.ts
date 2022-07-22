@@ -109,11 +109,20 @@ export async function POST ({ request }: { request: Request}) {
       const library = await getSearchLibrary([random.index], ['id'])
       const sign = await library[random.index].entries.find(x => x.id === random.id).load()
 
-      const userId = member.user.id
-      signToMessage({ sign, request, message: `<@${userId}> 🎲 rolled the dice…`}).then(message => {
-        discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
-      })
-      return placeholderMessage()
+      if (member) {
+        // it's a guild request
+        const userId = member.user.id
+        signToMessage({ sign, request, message: `<@${userId}> 🎲 rolled the dice…`}).then(message => {
+          discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
+        })
+        return placeholderMessage()
+      } else {
+        // it's a DM
+        signToMessage({ sign, request, message: `You rolled the dice 🎲`}).then(message => {
+          discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
+        })
+        return placeholderMessage()
+      }
     }
   } else if (type === InteractionType.MESSAGE_COMPONENT) {
     const { custom_id } = data
