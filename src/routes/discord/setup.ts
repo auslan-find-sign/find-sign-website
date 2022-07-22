@@ -5,7 +5,8 @@ import commands from './_commands.js'
 // Checks for a command
 export async function hasCommand(command) {
   // API endpoint to get and post guild commands
-  const endpoint = `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
+  // const endpoint = `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
+  const endpoint = `applications/${DiscordAppID}/commands`
 
   try {
     const res = await discordRequest(endpoint, { method: 'GET' })
@@ -29,7 +30,9 @@ export async function hasCommand(command) {
 // Installs a command
 export async function installCommand(command) {
   // API endpoint to get and post guild commands
-  const endpoint = `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
+  // const endpoint = `applications/${DiscordAppID}/guilds/${TestGuildID}/commands`
+  const endpoint = `applications/${DiscordAppID}/commands`
+
   // install command
   try {
     await discordRequest(endpoint, { method: 'POST', body: command })

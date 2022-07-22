@@ -34,7 +34,7 @@ export async function GET ({ url, params }) {
 
         controller.enqueue(`Rebuilding global word vector cache: Loading vector files...\n`)
         const vectorFiles = await Promise.all(import.meta.env.VITE_SEARCH_INDEXES.split(',').map(async provider =>
-          parse(await readFile(`index/${provider}/vectors.lps`))
+          parse(await readFile(fn`index/${provider}/vectors.lps`))
         ))
         controller.enqueue(`Building global word vector cache...\n`)
         const globalVectors = {}
