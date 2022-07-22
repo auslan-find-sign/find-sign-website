@@ -1,0 +1,11 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Find Sign</ShortName>
+  <LongName>Search Find Sign</LongName>
+  <Description>Look up Auslan vocab and phrase examples using find.auslan.fyi</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <OutputEncoding>UTF-8</OutputEncoding>
+  <AdultContent>false</AdultContent>
+  <Image width="128" height="128" type="image/png">https://find.auslan.fyi/favicon-128.png</Image>
+  <Url type="text/html" method="get" template="https://find.auslan.fyi/search?query={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://find.auslan.fyi/opensearch.xml"/>
+</OpenSearchDescription>
