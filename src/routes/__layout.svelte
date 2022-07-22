@@ -1,12 +1,10 @@
 <script lang="ts" context="module">
-	export const prerender = false;
+	export const prerender = false
 </script>
 <script lang="ts">
-	import Header from '$lib/header/Header.svelte'
 	import Spinner from '$lib/Spinner.svelte'
 	import { navigating, page } from '$app/stores'
 	import { browser } from '$app/env'
-	import favicon from '$lib/assets/favicon-32x32.png'
 	import '../app.css'
 
 	$: loading = $navigating !== null
@@ -29,7 +27,6 @@
 </script>
 
 <svelte:head>
-	<link rel=icon type=image/png sizes=32x32 href={favicon}>
   <meta name=viewport content="width=device-width">
 </svelte:head>
 
