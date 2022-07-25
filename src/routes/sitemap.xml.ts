@@ -1,5 +1,5 @@
-import { open, getProviders, getProviderIDs } from '$lib/search/search-index'
-import uri from 'uri-tag'
+import { fn } from '$lib/models/filename-codec'
+import { getSearchLibrary, availableIndexes } from '$lib/search/search'
 
 const staticPages = [
   '/',
@@ -23,12 +23,21 @@ export async function GET ({ url }) {
     data.push('</url>')
   }
 
-  const library = await open(import.meta.env.VITE_SEARCH_INDEX)
-  for (const provider of await getProviders(library)) {
-    for (const id of await getProviderIDs(library, provider)) {
+  data.push('<url>')
+  data.push(`<loc>${new URL(fn`/sign/`, url)}</loc>`)
+  data.push('</url>')
+
+  const libraries = await getSearchLibrary(availableIndexes, ['id'])
+
+  for (const index of await availableIndexes) {
+    data.push('<url>')
+    data.push(`<loc>${new URL(fn`/sign/${index}`, url)}</loc>`)
+    data.push('</url>')
+
+    for (const { id } of libraries[index].entries) {
       // TODO: proper url encoding
       data.push('<url>')
-      data.push(`<loc>${new URL(uri`/sign/${provider}/${id}`, url)}</loc>`)
+      data.push(`<loc>${new URL(fn`/sign/${index}/${id}`, url)}</loc>`)
       data.push('</url>')
     }
   }
