@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Executing remote command
+      uses: appleboy/ssh-action@master
+      with:
+        host: beta.find.auslan.fyi
+        USERNAME: web
+        KEY: ${{ secrets.HANDSHAPE_SSHKEY }}
+        script: |
+          cd ~/find-sign-website-beta
+          git pull
+          npm i
+          npm run build
+          pm2 restart find-sign-website-beta
