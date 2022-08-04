@@ -7,11 +7,18 @@
 	export let showNavigation = true
   export let query = undefined
   export let formAction = '/search'
+
+  const versionLabel = import.meta.env.VITE_VERSION_LABEL
 </script>
 
 <header class={$$props.class} style={$$props.style}>
 	<!-- header logo -->
-  <a href="/" sveltekit:prefetch><img class=header alt="Home Button" src={logo} width=411 height=90></a>
+  <a href="/" sveltekit:prefetch>
+    <img class=header alt="Home Button" src={logo} width=411 height=90>
+    {#if typeof versionLabel === 'string' && versionLabel.length > 0}
+      <span class=version-label>{versionLabel}</span>
+    {/if}
+  </a>
 
   <!-- search query input bar -->
   <SearchInput bind:query {formAction} on:regionChange/>
@@ -43,6 +50,15 @@
     margin-left: auto;
     margin-right: auto;
     padding-bottom: 1.5rem;
+  }
+
+  header > a > span.version-label {
+    display: block;
+    position: absolute;
+    color: red;
+    font-weight: bold;
+    font-size: 1.5rem;
+    transform: translate(27rem, -1rem) rotate(-5deg);
   }
 
   @media (max-width: 500px) {
