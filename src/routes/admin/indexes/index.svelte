@@ -12,7 +12,7 @@
     if (rebuilding[index]) {
       console.log('already rebuilding...')
     } else {
-      const endpoint = fn`/admin/indexes/${index}/build?${opts.fast ? 'fast=1' : ''}`
+      const endpoint = fn`/admin/indexes/${index}/build?` + (opts.fast ? 'fast=1' : '')
       const response = await fetch(endpoint, { method: 'POST', body: '' })
       const json = await response.json()
       rebuilding[index] = { endpoint, id: json.progress.id, finished: false }

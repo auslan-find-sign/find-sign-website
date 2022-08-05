@@ -13,7 +13,7 @@ export async function GET ({ url }) {
 export async function POST ({ locals, params, url }) {
   if (!locals.userID) return LoginRedirect
   if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
-  const fast = url.searchParams.has('fast')
+  const fast = !!url.searchParams.has('fast')
 
   const progress = createProgressLog(async ({ log, progress }) => {
     await buildSearchIndex(params.provider, { log, progress, fast })
