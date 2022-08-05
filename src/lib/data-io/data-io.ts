@@ -1,6 +1,7 @@
 import { createLicense } from '$lib/data-io/auth'
 import { stringToBytes } from '$lib/functions/string-encode'
 import { encodeBase64 } from 'tweetnacl-ts'
+import fetch, { FormData, type RequestInit, type Response } from 'node-fetch'
 const identity = import.meta.env.VITE_SEARCH_WRITE_IDENTITY
 const collectionPath = import.meta.env.VITE_SEARCH_DATA
 
@@ -24,7 +25,13 @@ async function request (path: string, init: RequestInit, ignoreError = false): P
   const license = createLicense(identity)
   const url = new URL(`${collectionPath}${path}`)
   url.searchParams.set('license', license)
-  const response = await fetch(url.toString(), init)
+  const response = await fetch(url.toString(), {
+    ...init,
+    headers: {
+      'User-Agent': 'find-sign-website',
+      ...(init.headers || {})
+    }
+  })
 
   if (!ignoreError && !response.ok) {
     throw new Error(`${response.status}: ${await response.text()}`)
@@ -41,11 +48,12 @@ export async function writeFile (path: string, data: Uint8Array | string): Promi
   await request(path, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/octet-stream' },
-    body: data
+    body: Buffer.from(data)
   })
 }
 
 export async function bulkWrite (path: string, files: BulkWriteFiles): Promise<void> {
+  // json is inefficient but gets the job done
   await request(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -62,6 +70,25 @@ export async function bulkWrite (path: string, files: BulkWriteFiles): Promise<v
       }))
     })
   })
+
+  // eventually want to move to using multipart uploads, but larger uploads are a little broken right now
+  // const formData = new FormData()
+  // formData.set('type', 'bulk')
+  // for (const filePath in files) {
+  //   // if (files[filePath] instanceof Blob) {
+  //   //   formData.append(filePath, files[filePath], filePath)
+  //   // } else {
+  //     const value = new Blob([files[filePath]], { type: 'application/octet-stream' })
+  //     formData.append('files[]', value, filePath)
+  //   // }
+  // }
+  //
+  // await request(path, { method: 'POST', body: formData })
+
+  // worst strategy, has potential chance of race conditions for clients seeing partial updates
+  // await Promise.all(Object.entries(files).map(async ([subPath, data]) => {
+  //   await writeFile(`${path}/${subPath}`, data)
+  // }))
 }
 
 export async function readFile (path: string): Promise<Uint8Array> {
@@ -84,7 +111,7 @@ export async function exists (path: string): Promise<boolean> {
 
 export async function listFiles (path: string): Promise<FileInfoJSON[]> {
   const response = await request(path, {})
-  const { files } = await response.json()
+  const { files } = await response.json() as { files: FileInfoJSON[] }
   return files
 }
 
