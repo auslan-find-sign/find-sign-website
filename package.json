@@ -39,7 +39,7 @@
     "fastest-levenshtein": "^1.0.12",
     "it-length-prefixed": "^7.0.1",
     "nanoid": "^3.3.4",
-    "node-fetch": "^3.2.4",
+    "node-fetch": "^3.2.10",
     "pigeonmark-utils": "^2.0.2",
     "pigeonmark-xml": "^1.0.1",
     "svelte-inview": "^3.0.1",
