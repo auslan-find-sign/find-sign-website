@@ -4,14 +4,17 @@ import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import rank from '$lib/search/search-rank'
 import { checkQueryContainsWords, compileQuery } from '$lib/search/text'
 import normalizeWord from '$lib/orthagonal/normalize-word'
-import { encodeFilename } from '$lib/models/filename-codec'
+import { fn } from '$lib/models/filename-codec'
 import openGlobalVectors from './global-vectors'
 import type { WordVector } from './precomputed-vectors'
 
+// the name of the overall index collection, to seperate prod builds from beta and tonino (phoenix's laptop)
+const IndexName = import.meta.env.VITE_SEARCH_INDEX_NAME
+// from .env, a list of indexes the search engine currently reads
 export const availableIndexes = import.meta.env.VITE_SEARCH_INDEXES.split(',')
 // an object of index names to url's where that index is published
 export const indexURLs = Object.fromEntries(availableIndexes.map(name => {
-  return [name, `${import.meta.env.VITE_SEARCH_INDEX_PATH}/${encodeFilename(name)}`]
+  return [name, import.meta.env.VITE_SEARCH_DATA + fn`${IndexName}/${name}`]
 }))
 // an object of index names, keyed by the url to that index, for reverse lookup
 export const indexByURL = Object.fromEntries(Object.entries(indexURLs).map(x => x.reverse()))
@@ -54,7 +57,7 @@ export async function search (query: string, start: number, length: number, forc
   let globalVectors: { [word: string]: Float32Array }
   if (/*!globalVectors &&*/ checkQueryContainsWords(query)) {
     // !!! should this have a cache expiry mechanism?
-    globalVectors = await openGlobalVectors(`${import.meta.env.VITE_SEARCH_INDEX_PATH}/global-vectors.lps`)
+    globalVectors = await openGlobalVectors(import.meta.env.VITE_SEARCH_DATA + fn`${IndexName}/global-vectors.lps`)
   }
 
   // word lookup function which checks the local vectors cache before bothering to load rare words

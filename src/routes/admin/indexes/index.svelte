@@ -1,49 +1,63 @@
 <script lang=ts>
-import delay from '$lib/functions/delay';
-
   import ProgressLogViewer from '$lib/progress/ProgressLogViewer.svelte'
-  export let providers: string[]
+  import { fn } from '$lib/models/filename-codec'
+  import delay from '$lib/functions/delay'
+
+  export let availableIndexes: string[]
 
   let rebuilding = {}
 
-  async function rebuild (event, provider) {
+  async function rebuild (event, index, opts) {
     event.preventDefault()
-    if (rebuilding[provider]) {
+    if (rebuilding[index]) {
       console.log('already rebuilding...')
     } else {
-      const endpoint = `/admin/indexes/${encodeURIComponent(provider)}/build`
+      const endpoint = fn`/admin/indexes/${index}/build?${opts.fast ? 'fast=1' : ''}`
       const response = await fetch(endpoint, { method: 'POST', body: '' })
       const json = await response.json()
-      rebuilding[provider] = { endpoint, id: json.progress.id, finished: false }
+      rebuilding[index] = { endpoint, id: json.progress.id, finished: false }
       rebuilding = rebuilding
     }
   }
 
-  async function buildFinished (provider) {
-    rebuilding[provider].finished = true
+  function indexURL (index) {
+    return fn`/admin/indexes/${index}`
+  }
+
+  async function buildFinished (index) {
+    rebuilding[index].finished = true
     rebuilding = rebuilding
 
     await delay(10 * 1000)
-    delete rebuilding[provider]
+    delete rebuilding[index]
     rebuilding = rebuilding
   }
 </script>
 <ul>
-  {#each providers as provider}
+  {#each availableIndexes as index}
     <li>
-      <a href="/admin/indexes/{encodeURIComponent(provider)}">{provider}</a>
-      {#if rebuilding[provider] && rebuilding[provider].finished === false}
-        [building...]
-      {:else}
-        [<a href="#rebuild-{provider}" on:click={(event) => rebuild(event, provider)}>rebuild</a>]
-      {/if}
+      <a href={indexURL(index)}>{index}</a>
+      <div>
+        <span class="controls">
+          {#if rebuilding[index] && rebuilding[index].finished === false}
+            [building...]
+          {:else}
+            [<a href="#update-{index}" on:click={(event) => rebuild(event, index, { fast: true })}>update</a>,
+            <a href="#rebuild-{index}" on:click={(event) => rebuild(event, index, { fast: false })}>rebuild</a>]
+          {/if}
+        </span>
 
-      {#if rebuilding[provider]}
-        <ProgressLogViewer
-          endpoint={rebuilding[provider].endpoint}
-          id={rebuilding[provider].id}
-          on:finished={() => buildFinished(provider)} />
-      {/if}
+        {#if rebuilding[index]}
+          <ProgressLogViewer
+            endpoint={rebuilding[index].endpoint}
+            id={rebuilding[index].id}
+            on:finished={() => buildFinished(index)} />
+        {/if}
+      </div>
     </li>
   {/each}
 </ul>
+
+<style>
+  .controls { opacity: 0.5 }
+</style>

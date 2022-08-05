@@ -59,7 +59,7 @@
 
   export let preconnectOrigin = [...new Set([
     import.meta.env.VITE_VECTOR_INDEX,
-    import.meta.env.VITE_SEARCH_INDEX_PATH
+    import.meta.env.VITE_SEARCH_DATA
   ].map(x => (new URL(x)).origin))]
 
   // attempt to offer autocorrection
