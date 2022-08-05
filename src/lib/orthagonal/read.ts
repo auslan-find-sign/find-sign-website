@@ -1,8 +1,6 @@
+import type { EncodedSearchDataEntry, OrthagonalColumnData, OrthagonalIndex } from './types'
 import { parse as parseVectorPack, type WordVector } from '$lib/search/precomputed-vectors'
-import { timesMap } from '$lib/search/times'
-import type { EncodedSearchDataEntry, OrthagonalColumnData, OrthagonalColumns, OrthagonalIndex } from './types'
-
-// const SearchDataPath = import.meta.env.VITE_SEARCH_DATA
+import { times } from '$lib/functions/iters'
 
 export type LoadedOrthagonalIndex = {
   url: string,
@@ -72,7 +70,7 @@ export async function loadIndex (url: string, columns = [], forceReload = false,
     const index: LoadedOrthagonalIndex = {
       url,
       meta,
-      entries: timesMap(meta.entries, idx => {
+      entries: [...times(meta.entries, idx => {
         const obj = {
           /** searchable vectors */
           vectors: [],
@@ -104,7 +102,7 @@ export async function loadIndex (url: string, columns = [], forceReload = false,
           }
         }
         return obj
-      })
+      })]
     }
 
     return index

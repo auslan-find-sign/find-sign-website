@@ -1,4 +1,4 @@
-import { chunkStringIterable } from './times'
+import { chunkStringIterable } from '$lib/functions/iters'
 
 // encode a (positive or 0) integer to a binary string
 export function intToBits (number: number, size: number): string {

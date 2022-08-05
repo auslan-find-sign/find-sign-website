@@ -1,6 +1,5 @@
-import { distanceSquared } from './vector-utilities'
-import './array-at-polyfill'
-// import type { LibraryEntry } from './search-index'
+import { distanceSquared } from '$lib/functions/vector-utilities'
+import '$lib/functions/array-at-polyfill'
 import type { LoadedOrthagonalEntry } from '$lib/orthagonal/read'
 import type { WordVector } from './precomputed-vectors'
 

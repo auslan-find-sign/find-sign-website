@@ -1,9 +1,8 @@
 import { build as buildVectorShard } from '$lib/search/precomputed-vectors'
 import type { OrthagonalColumns, EncodedSearchData, OrthagonalIndex } from './types'
 import normalizeWord from './normalize-word'
-import { chunk } from '$lib/search/times'
+import { chunk, times } from '$lib/functions/iters'
 import { nanoid } from 'nanoid'
-import { times } from '$lib/functions/iters'
 
 /** read an encoded-search-data from a url, transforming all URLs to be absolute */
 export async function readEncodedSearchData (url: string): Promise<EncodedSearchData> {
