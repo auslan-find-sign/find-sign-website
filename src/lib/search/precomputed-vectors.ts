@@ -1,7 +1,7 @@
 // lookup word vectors in precomputed index
-import { sha256 } from './hash'
-import { bytesToPrefixBits } from './bits'
-import { chunkIterable } from './times'
+import { sha256 } from '$lib/functions/hash'
+import { bytesToPrefixBits } from '$lib/functions/bits'
+import { chunkIterable } from '$lib/functions/iters'
 import { iterateLengthPrefixed } from '$lib/functions/iters'
 import { bytesToString } from '$lib/functions/string-encode'
 import varint from 'varint'
