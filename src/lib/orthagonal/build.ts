@@ -5,6 +5,7 @@ import { lookup } from '$lib/search/loaded-precomputed-vectors'
 import { bulkWrite, readFile, writeFile } from '$lib/data-io/data-io'
 import { build, parse, type WordVector } from '$lib/search/precomputed-vectors'
 import { fn } from '$lib/models/filename-codec'
+import { getOverrideFor, listOverrides } from '$lib/models/index-override'
 
 const IndexName = import.meta.env.VITE_SEARCH_INDEX_NAME
 
@@ -22,6 +23,21 @@ export default async function buildSearchIndex (provider: string, opts: { log?: 
 
   log(`Reading search data ${provider}...`)
   const searchData = await readEncodedSearchData(`${import.meta.env.VITE_ENCODED_SEARCH_DATAS}/${provider}.json`)
+  progress(0.01)
+
+  log(`Reading overrides...`)
+  const overridesList = (await listOverrides()).filter(x => x.provider === provider && x.id in searchData)
+  log(`Loading ${overridesList.length} override files...`)
+  let overrideNum = 0
+  for (const { id } of overridesList) {
+    const override = await getOverrideFor(provider, id)
+    searchData[id] = {
+      ...searchData[id],
+      ...override
+    }
+    overrideNum += 1
+    progress(0.01 + (0.04 * (overrideNum / overridesList.length)))
+  }
 
   let vectorCache: Map<string, WordVector>
   if (opts.fast) {
@@ -41,7 +57,7 @@ export default async function buildSearchIndex (provider: string, opts: { log?: 
       return await lookup(word)
     },
     log,
-    progress: (num) => progress(num * 0.95)
+    progress: (num) => progress(0.05 + (num * 0.90))
   })
 
   log(`Search index files constructed, writing...`)
