@@ -1,14 +1,15 @@
 <script lang=ts>
-  export let id: string
+  import type { UserAccount } from "$lib/models/user"
+  import { chunk } from "$lib/functions/iters"
+
+  export let user: UserAccount
   export let username: string
-  export let powers: string[]
-  export let created: number
   export let canEdit: boolean
 
   let newPower = ''
 
   function removePower (power) {
-    powers = powers.filter(p => p !== power)
+    user.powers = user.powers.filter(p => p !== power)
   }
 
   async function update (event) {
@@ -16,36 +17,49 @@
     const response = await fetch('', {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ username, powers })
+      body: JSON.stringify({ powers: user.powers })
     })
-    const output = await response.json()
-    id = output.id
-    username = output.username
-    powers = output.powers
-    created = output.created
+    user = await response.json()
   }
 </script>
 <form on:submit={update}>
   <dl>
-    <dt>Passkey ID</dt>
-    <dd>{id}</dd>
-
-    <dt><label for="username">Name</label></dt>
-    <dd><input name="username" bind:value={username}></dd>
+    <dt>Username</dt>
+    <dd>{username}</dd>
 
     <dt>Powers</dt>
     <dd>
       <ul>
-        {#each powers as power}
+        {#each user.powers as power}
         <li>{power} <span on:click={() => removePower(power)}>❌</span></li>
         {/each}
         <input bind:value={newPower}>
-        <input type="button" value="add power" on:click={() => { powers = [...powers, newPower]; newPower = '' }}>
+        <input type="button" value="add power" on:click={() => {
+          // @ts-ignore-error
+          user.powers = [...user.powers, newPower]
+          newPower = ''
+          user = user
+        }}>
       </ul>
     </dd>
 
     <dt>Account Created</dt>
-    <dd>{(new Date(created)).toLocaleString()}</dd>
+    <dd>{(new Date(user.created)).toLocaleString()}</dd>
+
+    {#each Object.entries(user.authenticators) as [id, config]}
+      <dt>Authenticator: {id}</dt>
+      <dd>
+        <dl>
+          {#each Object.entries(config) as [key, value]}
+            <dt>{key}</dt>
+            <dd><pre><code>{Array.isArray(value)
+              ? chunk(value.map(x => `00${x.toString(16)}`.slice(-2)), 16).map(x => x.join(' ')).join('\n')
+              : JSON.stringify(value)
+            }</code></pre></dd>
+          {/each}
+        </dl>
+      </dd>
+    {/each}
   </dl>
   <button type=submit disabled={!canEdit}>Save Changes</button>
 </form>

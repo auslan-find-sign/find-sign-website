@@ -4,8 +4,8 @@ import { getSearchLibrary } from '$lib/search/search'
 import { decodeFilename } from '$lib/models/filename-codec'
 
 export async function GET ({ locals, params }) {
-  if (!locals.userID) return LoginRedirect
-  if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
+  if (!locals.username) return LoginRedirect
+  if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 
   const provider = decodeFilename(params.provider)
   const id = decodeFilename(params.id)

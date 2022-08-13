@@ -1,11 +1,13 @@
 <script lang=ts>
   import { goto } from '$app/navigation'
 
-  import PasskeyLogin from '$lib/passkey/PasskeyLogin.svelte'
-  import PasskeyRegister from '$lib/passkey/PasskeyRegister.svelte'
+  import PasskeyForm from '$lib/passkey/PasskeyForm.svelte'
 
-  function onAuthenticated () {
-    goto('/admin')
+  export let username = ""
+
+  function onAuthenticated (...args) {
+    console.log('onAuthenticated', ...args)
+    // window.location.href = '/admin'
   }
 </script>
 <p>
@@ -19,9 +21,7 @@
   results, and create and manage other kinds of data used by the website to
   create educational games and other future content.
 </p>
-<div><PasskeyLogin on:authenticated={onAuthenticated} /></div>
-<div class="or-rule">or perhaps</div>
-<div><PasskeyRegister on:authenticated={onAuthenticated} /></div>
+<PasskeyForm on:authenticated={onAuthenticated} />
 
 <style>
   div { text-align: center }

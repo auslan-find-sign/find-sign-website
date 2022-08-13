@@ -11,8 +11,8 @@ export async function GET ({ url }) {
 
 /** endpoint for manually rebuilding search index, e.g. after authoring an index override */
 export async function POST ({ locals, params, url }) {
-  if (!locals.userID) return LoginRedirect
-  if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
+  if (!locals.username) return LoginRedirect
+  if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
   const fast = !!url.searchParams.has('fast')
 
   const progress = createProgressLog(async ({ log, progress }) => {
