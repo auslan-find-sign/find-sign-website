@@ -1,12 +1,13 @@
 <script lang=ts>
   import Icon from '$lib/Icon.svelte'
+
   export let length = 1
   export let selected = 0
   export let toURL = (pagenum) => `?page=${pagenum}`
-  export let toAriaLabel = (pagenum) => `Go to page ${pagenum + 1}`
+  export let toAriaLabel = (pagenum) => `Page ${pagenum + 1}`
 </script>
 
-<nav>
+<nav aria-label="Pagination links">
   {#each { length } as _, page}
     <a sveltekit:prefetch href={toURL ? toURL(page) : '#'} aria-label={toAriaLabel(page)} aria-current={page === selected ? 'page' : false} on:click={() => selected = page}>
       <slot page>
