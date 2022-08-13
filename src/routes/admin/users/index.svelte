@@ -1,13 +1,8 @@
 <script lang=ts>
-  type UserInfo = {
-    id: string,
-    username: string
-  }
-
-  export let users: UserInfo[]
+  export let usernames: string[]
 </script>
 <ul>
-  {#each users as user}
-    <li><a href="/admin/users/{user.id}" title={user.id}>{user.username}</a></li>
+  {#each usernames as user}
+    <li><a href="/admin/users/{user}">{user}</a></li>
   {/each}
 </ul>

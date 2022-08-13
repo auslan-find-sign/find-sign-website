@@ -5,8 +5,8 @@ import { readEncodedSearchData } from '$lib/orthagonal/write'
 import { LoginRedirect } from '../login'
 
 export async function GET ({ locals, params }) {
-  if (!locals.userID) return LoginRedirect
-  if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
+  if (!locals.username) return LoginRedirect
+  if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 
   const [provider, id] = [params.provider, params.id].map(decodeFilename)
   const searchDataURL = import.meta.env.VITE_ENCODED_SEARCH_DATAS + fn`/${provider}.json`
@@ -21,8 +21,8 @@ export async function GET ({ locals, params }) {
 }
 
 export async function POST ({ locals, params, request }) {
-  if (!locals.userID) return LoginRedirect
-  if (!await userHasPower(locals.userID, 'edit-index')) throw new Error('You don’t have the right to edit search index')
+  if (!locals.username) return LoginRedirect
+  if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
   const [provider, id] = [params.provider, params.id].map(decodeFilename)
   const json = await request.json()
   setOverrideFor(provider, id, json)
