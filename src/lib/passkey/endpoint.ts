@@ -49,16 +49,19 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
     keypair = sign_keyPair()
   }
 
+  // how long in seconds should the login cookie remain valid for
+  const cookieMaxAge = endpointOptions.loginMaxAge || 60 * 60 * 24
+
   function loginSuccessResponse (username: string, event: RequestEvent): RequestHandlerOutput {
     const verified = true
     const session = endpointOptions.newSession
       ? endpointOptions.newSession(username, event)
-      : { username }
+      : { username, ts: Date.now() / 1000 }
     return {
       headers: {
         'Set-Cookie': cookieSerialize('token', generateToken(session), {
           path: '/',
-          maxAge: endpointOptions.loginMaxAge || 60 * 60 * 24,
+          maxAge: cookieMaxAge,
           httpOnly: true
         })
       },
@@ -205,10 +208,17 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
       if (sessionData) {
         if (endpointOptions.verifySession) {
           if (!endpointOptions.verifySession(sessionData)) return {}
+        } else {
+          if (typeof sessionData !== 'object' || !('username' in sessionData) || !('ts' in sessionData)) {
+            return {}
+          }
+          if (sessionData.ts < (Date.now() / 1000) - cookieMaxAge) {
+            return {}
+          }
         }
         return sessionData
       } else {
-        console.info('token cookie invalid')
+        console.info('Invalid Token Cookie recieved from ' + event.clientAddress, event.request.headers.get('cookie'), 'accessing', event.url.toString())
       }
     }
 
