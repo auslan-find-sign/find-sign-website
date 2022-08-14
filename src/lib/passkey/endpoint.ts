@@ -4,8 +4,7 @@ import {
   verifyRegistrationResponse, verifyAuthenticationResponse, type GenerateAuthenticationOptionsOpts
 } from "@simplewebauthn/server"
 import { parse as cookieParse, serialize as cookieSerialize } from 'cookie'
-import { randomBytes, encodeHex, decodeHex, encodeUTF8, decodeUTF8, sign_open, sign_keyPair_fromSecretKey, sign_keyPair, sign, decodeBase64 } from "tweetnacl-ts"
-import type { JSONObject } from "@sveltejs/kit/types/private"
+import { encodeHex, decodeHex, encodeUTF8, decodeUTF8, sign_open, sign_keyPair_fromSecretKey, sign_keyPair, sign, decodeBase64 } from "tweetnacl-ts"
 
 type MaybePromise<T> = Promise<T> | T
 
@@ -58,6 +57,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
     return {
       headers: {
         'Set-Cookie': cookieSerialize('token', generateToken(session), {
+          path: '/',
           maxAge: endpointOptions.loginMaxAge || 60 * 60 * 24,
           httpOnly: true
         })
@@ -66,6 +66,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
     }
   }
 
+  // @ts-ignore-error
   const POST: RequestHandler = async function POST (event) {
     const { url, request } = event
     const rpID = endpointOptions.rpID || url.hostname
