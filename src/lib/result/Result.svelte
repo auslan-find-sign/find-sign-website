@@ -57,7 +57,7 @@
           {:else if data.link}
             <a href={data.link} referrerpolicy=origin rel=external sveltekit:reload>{data.link}</a>
           {:else if permalink}
-          <a href={permalink}>{permalink}</a>
+            <a href={permalink}>{permalink}</a>
           {/if}
         </cite>
 

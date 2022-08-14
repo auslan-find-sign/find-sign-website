@@ -7,6 +7,7 @@
 
     <a href="/admin/login">Login</a>
     <a href="/admin/logout">Logout</a>
+    <a href="/admin/audit-log">Audit Log</a>
     {#if $session.username}
       <a href="/admin">Admin Home</a>
       <a href="/admin/users">User Management</a>
