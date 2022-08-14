@@ -25,6 +25,13 @@ export default async function buildSearchIndex (provider: string, opts: { log?: 
   const searchData = await readEncodedSearchData(`${import.meta.env.VITE_ENCODED_SEARCH_DATAS}/${provider}.json`)
   progress(0.01)
 
+  // remove unpublished entries
+  for (const id in searchData) {
+    if (searchData[id].published === false) {
+      delete searchData[id]
+    }
+  }
+
   log(`Reading overrides...`)
   const overridesList = (await listOverrides()).filter(x => x.provider === provider && x.id in searchData)
   log(`Loading ${overridesList.length} override files...`)
