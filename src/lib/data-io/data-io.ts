@@ -110,15 +110,31 @@ export async function exists (path: string): Promise<boolean> {
 }
 
 export async function listFiles (path: string): Promise<FileInfoJSON[]> {
-  const response = await request(path, {})
-  const { files } = await response.json() as { files: FileInfoJSON[] }
-  return files
+  try {
+    const response = await request(path, {})
+    const { files } = await response.json() as { files: FileInfoJSON[] }
+    return files
+  } catch (err) {
+    if (err.message.startsWith('404:')) {
+      return []
+    } else {
+      throw err
+    }
+  }
 }
 
 export async function listFilenames (path: string): Promise<string[]> {
-  const response = await request(path, { headers: { 'Accept': 'text/plain' } })
-  const files = (await response.text()).split('\n')
-  return files
+  try {
+    const response = await request(path, { headers: { 'Accept': 'text/plain' } })
+    const files = (await response.text()).split('\n')
+    return files
+  } catch (err) {
+    if (err.message.startsWith('404:')) {
+      return []
+    } else {
+      throw err
+    }
+  }
 }
 
 export async function deletePath (path: string): Promise<void> {
