@@ -35,7 +35,7 @@
         {/if}
       </div>
     {/if}
-    <p><time>{humane(entry.time)} {entry.time.toLocaleTimeString()}</time></p>
+    <p><time>{humane(entry.time)} {(new Date(entry.time)).toLocaleTimeString()}</time></p>
   </MainBlock>
 {/each}
 
