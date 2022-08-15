@@ -67,6 +67,10 @@ export async function readAuditLog (id: AuditLogID): Promise<AuditLogEntry> {
   if (data) {
     const string = bytesToString(data)
     const object = JSON.parse(string)
-    return { ...id, ...object }
+    return {
+      ...id,
+      ...object,
+      time: new Date(object.time)
+    }
   }
 }
