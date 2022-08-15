@@ -4,11 +4,11 @@
   import { availableIndexes } from '$lib/search/search'
 
   export async function load ({ params }) {
-    const provider = decodeFilename(params.provider)
+    const index = decodeFilename(params.index)
     const id = decodeFilename(params.id)
-    if (availableIndexes.includes(provider)) {
-      const library = await getSearchLibrary([provider], ['id'])
-      const entry = library[provider].entries.find(x => x.id === id)
+    if (availableIndexes.includes(index)) {
+      const library = await getSearchLibrary([index], ['id'])
+      const entry = library[index].entries.find(x => x.id === id)
       if (entry) {
         const result = await entry.load()
         return { props: { result } }
