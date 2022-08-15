@@ -126,7 +126,9 @@ export async function listFiles (path: string): Promise<FileInfoJSON[]> {
 export async function listFilenames (path: string): Promise<string[]> {
   try {
     const response = await request(path, { headers: { 'Accept': 'text/plain' } })
-    const files = (await response.text()).split('\n')
+    const responseText = await response.text()
+    if (responseText === '') return []
+    const files = responseText.split('\n')
     return files
   } catch (err) {
     if (err.message.startsWith('404:')) {
