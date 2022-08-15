@@ -1,13 +1,11 @@
 <script lang=ts>
   import { goto } from '$app/navigation'
-
   import PasskeyForm from '$lib/passkey/PasskeyForm.svelte'
-
-  export let username = ""
+  import usernameStore from '$lib/models/username-store'
 
   function onAuthenticated (...args) {
     console.log('onAuthenticated', ...args)
-    // window.location.href = '/admin'
+    goto('/admin')
   }
 </script>
 <p>
@@ -21,7 +19,7 @@
   results, and create and manage other kinds of data used by the website to
   create educational games and other future content.
 </p>
-<PasskeyForm on:authenticated={onAuthenticated} />
+<PasskeyForm on:authenticated={onAuthenticated} bind:username={$usernameStore} />
 
 <style>
   div { text-align: center }
