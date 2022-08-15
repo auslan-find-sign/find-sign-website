@@ -9,6 +9,7 @@ export const GET: RequestHandler = async function GET ({ url }) {
   const totalPages = Math.ceil(totalLogs / EntriesPerPage)
   const currentPage = parseInt(url.searchParams.get('page') || '0')
   const pageEntries = await Promise.all(auditLogs
+    .reverse()
     .slice(currentPage * EntriesPerPage, (currentPage + 1) * EntriesPerPage)
     .map(readAuditLog)
   )
