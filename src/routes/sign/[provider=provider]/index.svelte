@@ -12,11 +12,16 @@
   }
 </script>
 <script lang="ts">
+  import { fn } from '$lib/models/filename-codec'
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
 
   export let provider
   export let results
+
+  function getURL (index, id) {
+    return fn`/sign/${index}/${id}`
+  }
 </script>
 <svelte:head>
 	<title>Find Sign, List of “{provider}” entries</title>
@@ -28,7 +33,7 @@
   <h1>List of “{provider}” entries</h1>
   <ul>
     {#each results as { id, title }}
-      <li><a href={`/sign/${provider}/${id}`}>{title}</a> <span>({id})</span></li>
+      <li><a href={getURL(provider, id)}>{title}</a> <span>({id})</span></li>
     {/each}
   </ul>
 </MainBlock>
