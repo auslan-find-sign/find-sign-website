@@ -23,7 +23,7 @@
       {#if entry.extra.index && entry.extra.entryID}Entry ID: <a href={`/sign/${encodeFilename(entry.extra.index)}/${encodeFilename(entry.extra.entryID)}`}>{entry.extra.entryID}</a>{/if}
       {#if entry.extra.object}<pre><code>{JSON.stringify(entry.extra.object, null, 2)}</code></pre>{/if}
     {/if}
-    <p><time>{humane(entry.time)}</time></p>
+    <p><time>{humane(entry.time)} {entry.time.toLocaleTimeString()}</time></p>
   </MainBlock>
 {/each}
 
