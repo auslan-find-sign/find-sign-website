@@ -28,7 +28,17 @@
   <h1>List of “{provider}” entries</h1>
   <ul>
     {#each results as { id, title }}
-      <li><a href={`/sign/${provider}/${id}`}>{id}: {title}</a></li>
+      <li><a href={`/sign/${provider}/${id}`}>{title} <span>({id})</span></a></li>
     {/each}
   </ul>
 </MainBlock>
+
+<style>
+  ul li a span {
+    opacity: 0;
+    font-size: 0.9em;
+  }
+  ul li a:hover span {
+    opacity: 0.5;
+  }
+</style>
