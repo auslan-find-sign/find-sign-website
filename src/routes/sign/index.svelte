@@ -2,8 +2,11 @@
   import { availableIndexes } from '$lib/search/search'
 
   export async function load () {
-    const providers = availableIndexes
-    return { props: { providers } }
+    return {
+      props: {
+        indexes: availableIndexes
+      }
+    }
   }
 </script>
 <script lang="ts">
@@ -12,7 +15,7 @@
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
 
-  export let providers
+  export let indexes
 </script>
 <svelte:head>
 	<title>Find Sign, list of data sources</title>
@@ -23,8 +26,8 @@
 <MainBlock wide>
   <h1>List of Data Sources</h1>
   <ul>
-    {#each providers as provider}
-      <li><a href="/sign/{encodeFilename(provider)}">{provider}</a></li>
+    {#each indexes as index}
+      <li><a href="/sign/{encodeFilename(index)}">{index}</a></li>
     {/each}
   </ul>
 </MainBlock>
