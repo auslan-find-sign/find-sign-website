@@ -1,6 +1,6 @@
 import { bytesToString } from '$lib/functions/string-encode'
 import { nanoid } from 'nanoid'
-import { listFilenames, readFile, writeFile } from './data-io'
+import { listFilenames, readFile, writeFile } from '../data-io/data-io'
 
 export type AuditLogID = {
   time: Date, // timestamp when the action happened
@@ -27,6 +27,10 @@ export type AuditActionType =
 export type AuditExtraData = {
   publicURL?: string,
   adminURL?: string,
+  index?: string, // search index this relates to
+  entryID?: string, // entry ID this relates to
+  subjectUser?: string, // username the action affected
+  object?: any, // json object relevent to the action
 }
 
 export async function writeAuditLog (actor: string, actionType: AuditActionType, message: string, extra?: AuditExtraData) {

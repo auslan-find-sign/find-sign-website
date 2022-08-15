@@ -1,4 +1,4 @@
-import { listAuditLogs, readAuditLog } from "$lib/data-io/audit-log"
+import { listAuditLogs, readAuditLog } from "$lib/models/audit-log"
 import type { RequestHandler } from "@sveltejs/kit"
 
 const FeedEntries = 50
