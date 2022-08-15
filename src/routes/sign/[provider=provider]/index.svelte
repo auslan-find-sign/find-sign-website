@@ -34,11 +34,11 @@
 </MainBlock>
 
 <style>
-  ul li a span {
+  ul li span {
     opacity: 0;
     font-size: 0.9em;
   }
-  ul li:hover a span {
+  ul li:hover span {
     opacity: 0.5;
   }
 </style>
