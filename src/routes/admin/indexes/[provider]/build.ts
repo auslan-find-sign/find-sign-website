@@ -1,4 +1,5 @@
-import { writeAuditLog } from '$lib/models/audit-log'
+import { writeAuditLog, type AuditExtraData } from '$lib/models/audit-log'
+import { fn } from '$lib/models/filename-codec'
 import { userHasPower } from '$lib/models/user'
 import buildSearchIndex from '$lib/orthagonal/build'
 import { createProgressLog, nextUpdate } from '$lib/progress/progress-log'
@@ -16,10 +17,15 @@ export async function POST ({ locals, params, url }) {
   if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
   const fast = !!url.searchParams.has('fast')
 
+  const auditExtra: AuditExtraData = {
+    publicURL: fn`/sign/${params.provider}`,
+    adminURL: `/admin/indexes/${encodeURIComponent(params.provider)}`,
+    index: params.provider,
+  }
   if (fast) {
-    await writeAuditLog(locals.username, 'update-index', `Quick updated ${params.provider} index`, { index: params.provider })
+    await writeAuditLog(locals.username, 'update-index', `Quick rebuilt "${params.provider}" index, reusing word vectors from last build`, auditExtra)
   } else {
-    await writeAuditLog(locals.username, 'rebuild-index', `Deep rebuilt ${params.provider} index`, { index: params.provider })
+    await writeAuditLog(locals.username, 'rebuild-index', `Deep rebuilt "${params.provider}" index`, auditExtra)
   }
 
   const progress = createProgressLog(async ({ log, progress }) => {
