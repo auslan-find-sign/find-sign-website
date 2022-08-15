@@ -3,12 +3,12 @@
   import { getSearchLibrary } from '$lib/search/search'
 
   export async function load ({ params }) {
-    const provider = decodeFilename(params.provider)
-    const library = await getSearchLibrary([provider], ['id', 'title'], true)
+    const index = decodeFilename(params.index)
+    const library = await getSearchLibrary([index], ['id', 'title'], true)
 
-    const results = library[provider].entries
+    const results = library[index].entries
 
-    return { props: { provider, results } }
+    return { props: { index, results } }
   }
 </script>
 <script lang="ts">
@@ -16,7 +16,7 @@
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
 
-  export let provider
+  export let index
   export let results
 
   function getURL (index, id) {
@@ -24,16 +24,16 @@
   }
 </script>
 <svelte:head>
-	<title>Find Sign, List of “{provider}” entries</title>
+	<title>Find Sign, List of “{index}” entries</title>
 </svelte:head>
 
 <Header />
 
 <MainBlock wide>
-  <h1>List of “{provider}” entries</h1>
+  <h1>List of “{index}” entries</h1>
   <ul>
     {#each results as { id, title }}
-      <li><a href={getURL(provider, id)}>{title}</a> <span>({id})</span></li>
+      <li><a href={getURL(index, id)}>{title}</a> <span>({id})</span></li>
     {/each}
   </ul>
 </MainBlock>
