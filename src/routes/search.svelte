@@ -123,6 +123,10 @@
   <div class="hint">Have you considered: growing up?</div>
 {/if}
 
+{#if query === 'nerds'}
+  <div class="hint">Welcome to the club</div>
+{/if}
+
 {#if region}
   {@const everythingURL = (() => {
     const p = new URLSearchParams($pageStore.url.searchParams)
