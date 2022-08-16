@@ -119,6 +119,10 @@
   <div class="hint">Would you like to <a href="/admin">Login to Site Admin</a> area?</div>
 {/if}
 
+{#if query === 'farts'}
+  <div class="hint">Have you considered: growing up?</div>
+{/if}
+
 {#if region}
   {@const everythingURL = (() => {
     const p = new URLSearchParams($pageStore.url.searchParams)
