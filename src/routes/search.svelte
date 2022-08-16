@@ -107,7 +107,7 @@
 </script>
 
 <svelte:head>
-	<title>“{query}” - Find Sign</title>
+	<title>“{query}” - Farts Sign</title>
   {#each preconnectOrigin as origin}
   <link rel="preconnect" href={origin}>
   {/each}
