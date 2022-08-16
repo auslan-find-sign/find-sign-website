@@ -23,7 +23,7 @@ export async function POST ({ locals, params, url }) {
     index: params.provider,
   }
   if (fast) {
-    await writeAuditLog(locals.username, 'update-index', `Quick rebuilt "${params.provider}" index, reusing word vectors from last build`, auditExtra)
+    await writeAuditLog(locals.username, 'update-index', `Quick rebuilt "${params.provider}" index`, auditExtra)
   } else {
     await writeAuditLog(locals.username, 'rebuild-index', `Deep rebuilt "${params.provider}" index`, auditExtra)
   }
