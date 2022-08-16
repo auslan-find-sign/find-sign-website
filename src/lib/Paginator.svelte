@@ -10,7 +10,7 @@
 <nav aria-label="Pagination links">
   {#each { length } as _, page}
     <a sveltekit:prefetch href={toURL ? toURL(page) : '#'} aria-label={toAriaLabel(page)} aria-current={page === selected ? 'page' : false} on:click={() => selected = page}>
-      <slot page>
+      <slot page={page}>
         <Icon name={`${page + 1}`}/>
       </slot>
     </a>
