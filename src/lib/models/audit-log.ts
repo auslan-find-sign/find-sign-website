@@ -11,6 +11,7 @@ export type AuditLogID = {
 
 export type AuditLogEntry = {
   time: Date, // timestamp when the action happened
+  timeMs: number, // timestamp in milliseconds
   actionType: AuditActionType, // one of the possible action types
   actor: string, // person who did the action, their username in the search/users accounts
   message: string
@@ -70,7 +71,8 @@ export async function readAuditLog (id: AuditLogID): Promise<AuditLogEntry> {
     return {
       ...id,
       ...object,
-      time: new Date(object.time)
+      time: new Date(object.time),
+      timeMs: object.time
     }
   }
 }
