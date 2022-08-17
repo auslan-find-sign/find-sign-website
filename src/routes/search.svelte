@@ -146,7 +146,7 @@
 
 {#if results && results.length > 0}
   <div class="results">
-    {#each results as entry, idx (`${entry.provider.id}/${entry.id}`)}
+    {#each results as entry, idx (`${entry.index}/${entry.id}`)}
       <Result
         data={entry}
         key={idx}
