@@ -155,12 +155,8 @@
     font-weight: inherit;
     font-family: inherit;
     color: inherit;
-    /* background-color: hsla(var(--hue), var(--module-bg-sat), var(--module-bg-lum), 40%); */
-    /* backdrop-filter: blur(2px); */
     -webkit-backdrop-filter: brightness(80%) saturate(80%);
     backdrop-filter: brightness(80%) saturate(80%);
-    /* center the label */
-    /* padding-top: calc((140px - 1em) / 2); */
     align-items: center;
     justify-items: center;
     text-decoration: none;
