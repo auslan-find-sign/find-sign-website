@@ -36,24 +36,23 @@
     return `?${params}`
   }
 
-  function buttonClick (event: MouseEvent) {
-    event.preventDefault()
-    /* @ts-ignore */
-    const link: HTMLAnchorElement = event.target
-    goto(link.href, { replaceState: true, noscroll: true })
-  }
-
   $: prevLink = (selected > 0) && buttonHref($page.url.searchParams, selected - 1)
   $: nextLink = (selected < medias.length - 1) && buttonHref($page.url.searchParams, selected + 1)
 
   function prevClick (event: MouseEvent) {
     event.preventDefault()
     selected -= 1
+    /* @ts-ignore */
+    const link: HTMLAnchorElement = event.target
+    goto(link.href, { replaceState: true, noscroll: true })
   }
 
   function nextClick (event: MouseEvent) {
     event.preventDefault()
     selected += 1
+    /* @ts-ignore */
+    const link: HTMLAnchorElement = event.target
+    goto(link.href, { replaceState: true, noscroll: true })
   }
 </script>
 
@@ -61,7 +60,7 @@
 <!-- these videos have no audio to caption -->
 <div class={$$props.class} use:inview={{}} on:change={intersectionChange} style={`--backdrop: url("${thumbnail}")`}>
   <a href={link} referrerpolicy="origin" rel="external" title="video {selected + 1}">
-    {#key media}
+    {#key thumbnail || media}
       {#if type === 'video'}
         {#if isInView}
           <video muted preload="auto" autoplay loop playsinline poster={thumbnail}>
