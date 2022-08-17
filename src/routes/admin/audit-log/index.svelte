@@ -31,6 +31,9 @@
 <h1>Audit Log</h1>
 
 <MainBlock>
+  {#if pageEntries.length === 0}
+    <p>No Audit Log entries found</p>
+  {/if}
   {#each dateGrouped(pageEntries) as { timeString, entries } }
     <h4>{timeString}</h4>
     {#each entries as entry}
