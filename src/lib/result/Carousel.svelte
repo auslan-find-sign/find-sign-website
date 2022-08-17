@@ -79,10 +79,10 @@
   </a>
 
   {#if prevLink}
-    <a role="button" href={prevLink} class="prev" aria-label="Previous Video" on:click={prevClick}>❮</a>
+    <a role="button" href={prevLink} class="prev" aria-label="Previous Video" on:click={prevClick}><span>❮</span></a>
   {/if}
   {#if nextLink}
-    <a role="button" href={nextLink} class="next" aria-label="Next Video" on:click={nextClick}>❯</a>
+    <a role="button" href={nextLink} class="next" aria-label="Next Video" on:click={nextClick}><span>❯</span></a>
   {/if}
 </div>
 
@@ -146,7 +146,7 @@
   }
 
   a[role=button] {
-    display: block;
+    display: flex;
     grid-row: 1;
     z-index: 10;
     border: 0 none;
@@ -160,9 +160,15 @@
     -webkit-backdrop-filter: brightness(80%) saturate(80%);
     backdrop-filter: brightness(80%) saturate(80%);
     /* center the label */
-    padding-top: calc((140px - 1em) / 2);
-    text-align: center;
+    /* padding-top: calc((140px - 1em) / 2); */
+    align-items: center;
+    justify-items: center;
     text-decoration: none;
+  }
+
+  a[role=button] span {
+    text-align: center;
+    flex-grow: 1;
   }
 
   a[role=button].prev {
