@@ -5,16 +5,21 @@
 
   import type { Load } from './__types/random'
   export const load: Load = async function load ({ url }) {
-    const sign = url.searchParams.get('sign')
+    const index = url.searchParams.get('index')
+    const id = url.searchParams.get('id')
     let randoms = await getRandomSigns(2)
 
-    if (sign) {
-      const [index, id] = sign.split('*')
+    if (index && id) {
       randoms[0] = { index, id }
+    } else {
+      return {
+        status: 307,
+        redirect: `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`
+      }
     }
     const library = await getSearchLibrary([randoms[0].index], ['id'])
     const result = await library[randoms[0].index].entries.find(x => x.id === randoms[0].id).load()
-    const next = `/random?${new URLSearchParams([['sign', `${randoms[1].index}*${randoms[1].id}`]])}`
+    const next = `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`
     const permalink = fn`/sign/${randoms[0].index}/${randoms[0].id}`
     return { props: { result, permalink, next } }
   }
