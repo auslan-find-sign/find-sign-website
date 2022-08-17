@@ -158,7 +158,7 @@
   <MainBlock>
     <h1>No results found</h1>
     {#if didYouMean}
-      <p>Did you mean: <a href="?query={encodeURIComponent(didYouMean)}&page=0">{didYouMean}</a>?</p>
+      <p>Did you mean: <a href="?{new URLSearchParams([['query', didYouMean], ['page', '0'], ['vp', viewport === 'mobile' ? 'm' : 'd']])}">{didYouMean}</a>?</p>
     {:else}
       <p>This could be because of a misspelled word</p>
     {/if}
