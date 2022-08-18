@@ -50,15 +50,18 @@
     margin-left: auto;
     margin-right: auto;
     padding-bottom: 1.5rem;
+    position: relative;
   }
 
   header > a > span.version-label {
     display: block;
     position: absolute;
-    color: red;
+    color: hsla(122, 100%, 38%, 0.785);
     font-weight: bold;
     font-size: 1.5rem;
-    transform: translate(27rem, -1rem) rotate(-5deg);
+    transform: rotate(-5deg);
+    right: 0;
+    bottom: 0;
   }
 
   @media (max-width: 500px) {
