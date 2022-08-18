@@ -1,0 +1,22 @@
+import { listAuditLogs, readAuditLog } from "$lib/models/audit-log"
+import type { PageServerLoad } from "@sveltejs/kit"
+
+const EntriesPerPage = 50
+
+export const load: PageServerLoad = async function GET ({ url }) {
+  const auditLogs = (await listAuditLogs()) || []
+  const totalLogs = auditLogs.length
+  const totalPages = Math.ceil(totalLogs / EntriesPerPage)
+  const currentPage = parseInt(url.searchParams.get('page') || '0')
+  const pageEntries = await Promise.all(auditLogs
+    .reverse()
+    .slice(currentPage * EntriesPerPage, (currentPage + 1) * EntriesPerPage)
+    .map(readAuditLog)
+  )
+
+  return {
+  pageEntries,
+  currentPage,
+  totalPages
+}
+}

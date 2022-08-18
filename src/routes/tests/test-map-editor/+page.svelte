@@ -1,0 +1,14 @@
+<script>
+  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
+  import RegionMap from '$lib/RegionMap.svelte'
+
+  export let tags = []
+</script>
+
+<div>
+  <RegionMap editable bind:tags width=250 height=250 />
+
+  <h2>tags:</h2>
+  <p>{JSON.stringify(tags)}</p>
+</div>
