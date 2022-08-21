@@ -10,45 +10,22 @@ export async function GET ({ url, params }) {
   const provider = decodeFilename(params.provider)
 
   // stream the response back with realtime logging and progress updates as a chunked response
-  throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
-  // Suggestion (check for correctness before using):
-  // return new Response(new ReadableStream({
-  // async start (controller) {
-  //   let lastProgress = 0.0
-  //   const progress = (num) => {
-  //     if (num > lastProgress + 0.05 || num === 1.0) {
-  //       controller.enqueue(`Progress: ${Math.round(num * 100)}%\n`)
-  //       lastProgress = Math.round(num * 100) / 100
-  //     }
-  //   }
-  //   const log = (...args) => {
-  //     controller.enqueue(args.join(' ') + '\n')
-  //   }
-
-  //   await buildSearchIndex(provider, { log, progress, fast: true })
-
-  //   controller.close()
-  // }
-}), { headers: { 'Content-Type': 'text/plain' } });
-  return {
-    headers: { 'Content-Type': 'text/plain' },
-    body: new ReadableStream({
-      async start (controller) {
-        let lastProgress = 0.0
-        const progress = (num) => {
-          if (num > lastProgress + 0.05 || num === 1.0) {
-            controller.enqueue(`Progress: ${Math.round(num * 100)}%\n`)
-            lastProgress = Math.round(num * 100) / 100
-          }
+  return new Response(new ReadableStream({
+    async start (controller) {
+      let lastProgress = 0.0
+      const progress = (num) => {
+        if (num > lastProgress + 0.05 || num === 1.0) {
+          controller.enqueue(`Progress: ${Math.round(num * 100)}%\n`)
+          lastProgress = Math.round(num * 100) / 100
         }
-        const log = (...args) => {
-          controller.enqueue(args.join(' ') + '\n')
-        }
-
-        await buildSearchIndex(provider, { log, progress, fast: true })
-
-        controller.close()
       }
-    })
-  }
+      const log = (...args) => {
+        controller.enqueue(args.join(' ') + '\n')
+      }
+
+      await buildSearchIndex(provider, { log, progress, fast: true })
+
+      controller.close()
+    }
+  }), { headers: { 'Content-Type': 'text/plain' } })
 }

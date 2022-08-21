@@ -1,15 +1,13 @@
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
   import type { AuditLogEntry } from "$lib/models/audit-log"
   import { humane } from "$lib/functions/date"
   import MainBlock from "$lib/MainBlock.svelte"
   import Paginator from "$lib/Paginator.svelte"
   import { encodeFilename } from "$lib/models/filename-codec"
+  import type { PageData } from "./$types"
 
-  export let pageEntries: AuditLogEntry[]
-  export let currentPage: number
-  export let totalPages: number
+  export let data: PageData
+  $: ({ pageEntries, currentPage, totalPages } = data)
 
   // group entries by day, with humane headings
   function dateGrouped (entries: AuditLogEntry[]) {

@@ -1,7 +1,7 @@
 import { decodeFilename } from '$lib/models/filename-codec'
 import { availableIndexes } from '$lib/search/search'
+import type { ParamMatcher } from '@sveltejs/kit'
 
-/** @type {import('@sveltejs/kit').ParamMatcher} */
-export function match(param): boolean {
+export const match: ParamMatcher = (param) => {
   return availableIndexes.includes(decodeFilename(param))
 }

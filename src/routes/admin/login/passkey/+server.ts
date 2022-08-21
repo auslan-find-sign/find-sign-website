@@ -1,9 +1,7 @@
-throw new Error("@migration task: Update +page.server.js (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-
 import { readFile, writeFile } from "$lib/data-io/data-io"
 import { bytesToString } from "$lib/functions/string-encode"
 import createAuthEndpoint from "$lib/passkey/endpoint"
-import type { Action } from "@sveltejs/kit"
+import { redirect, type RequestHandler } from "@sveltejs/kit"
 
 const RelyingPartyName = 'Find Sign'
 
@@ -37,9 +35,4 @@ const authEndpoint = createAuthEndpoint({
 
 export const POST: RequestHandler = authEndpoint.POST
 export const getSession = authEndpoint.getSession
-export const LoginRedirect = {
-  status: 307,
-  headers: {
-    'Location': '/admin/login'
-  }
-}
+export const LoginRedirect = redirect(307, '/admin/login')

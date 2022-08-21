@@ -1,13 +1,9 @@
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
-  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
-  import type { IndexOverride } from '$lib/models/index-override'
+  import type { PageData } from './$types'
   import OverrideEditor from '$lib/admin/ui/OverrideEditor.svelte'
 
-  export let entry: EncodedSearchDataEntry
-  export let override: IndexOverride
+  export let data: PageData
 
-  $: console.log(override)
+  $: console.log(data.override)
 </script>
-<OverrideEditor {entry} bind:override/>
+<OverrideEditor entry={data.entry} bind:override={data.override} />

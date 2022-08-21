@@ -1,4 +1,4 @@
-import { json as json$1 } from '@sveltejs/kit';
+import type { RequestHandler } from './$types'
 import { DiscordAppID, TestGuildID } from '../_setup.js'
 import { discordRequest } from '../_discord_request.js'
 import commands from '../_commands.js'
@@ -44,7 +44,7 @@ export async function installCommand(command, endpoint) {
   }
 }
 
-export async function GET ({ url }) {
+export const GET: RequestHandler = async ({ url }) => {
   if (url.searchParams.get('key') !== import.meta.env.VITE_AUTOMATION_KEY) return new Response('needs automation key query string param', { status: 400 })
   const isDev = url.searchParams.has('dev')
 
@@ -53,8 +53,5 @@ export async function GET ({ url }) {
     const result = await hasCommand(command, isDev)
     output.push({ command, result })
   }
-  throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
-  // Suggestion (check for correctness before using):
-  // return json$1(output);
-  return { body: output }
+  return new Response(JSON.stringify(output), { headers: { 'Content-Type': 'application/json' } })
 }

@@ -1,12 +1,9 @@
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+  import { fn } from "$lib/models/filename-codec"
+  import type { PageData } from "./$types"
 
-import { fn } from "$lib/models/filename-codec";
-
-
-  export let meta
-  export let entries
-  export let provider
+  export let data: PageData
+  $: ({ meta, entries, provider } = data)
 
   function url (provider, id) {
     return fn`/admin/indexes/${provider}/entries/${id}`

@@ -1,12 +1,10 @@
 <script lang=ts>
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
   import type { UserAccount } from "$lib/models/user"
   import { chunk } from "$lib/functions/iters"
+  import type { PageData } from "./$types"
 
-  export let user: UserAccount
-  export let username: string
-  export let canEdit: boolean
+  export let data: PageData
+  $: ({ user, username, canEdit } = data)
 
   let newPower = ''
 

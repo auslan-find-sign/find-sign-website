@@ -1,43 +1,12 @@
-<script lang="ts" context="module">
-  throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
-
-  // import { getSearchLibrary } from '$lib/search/search'
-  // import { getRandomSigns } from '$lib/search/random'
-  // import { fn } from '$lib/models/filename-codec'
-
-  // import type { Load } from '../$types'
-  // export const load: Load = async function load ({ url }) {
-  //   const index = url.searchParams.get('index')
-  //   const id = url.searchParams.get('id')
-  //   let randoms = await getRandomSigns(2)
-
-  //   if (index && id) {
-  //     randoms[0] = { index, id }
-  //   } else {
-  //     return {
-  //       status: 307,
-  //       redirect: `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`
-  //     }
-  //   }
-  //   const library = await getSearchLibrary([randoms[0].index], ['id'])
-  //   const result = await library[randoms[0].index].entries.find(x => x.id === randoms[0].id).load()
-  //   const next = `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`
-  //   const permalink = fn`/sign/${randoms[0].index}/${randoms[0].id}`
-  //   return { props: { result, permalink, next } }
-  // }
-</script>
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
   import Header from '$lib/header/Header.svelte'
   import Result from '$lib/result/Result.svelte'
   import { onMount } from 'svelte'
   import { prefetch } from '$app/navigation'
-  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
+  import type { PageData } from './$types'
 
-  export let result: EncodedSearchDataEntry
-  export let permalink: string
-  export let next: string // next url
+  export let data: PageData
+  $: ({ result, permalink, next } = data)
 
   onMount(() => {
     prefetch(next)

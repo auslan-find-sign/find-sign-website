@@ -4,7 +4,7 @@ import { fn } from '$lib/models/filename-codec'
 import { userHasPower } from '$lib/models/user'
 import buildSearchIndex from '$lib/orthagonal/build'
 import { createProgressLog, nextUpdate } from '$lib/progress/progress-log'
-import { LoginRedirect } from '../../../login'
+import { LoginRedirect } from '../../../login/passkey/+server'
 
 /** long polling endpoint for progress and log streaming from the post endpoints long running output */
 export async function GET ({ url }) {

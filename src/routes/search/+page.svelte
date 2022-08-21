@@ -1,42 +1,7 @@
-<script lang="ts" context="module">
-  throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
-
-  // import { getSearchLibrary, search, type SearchResult } from '$lib/search/search'
-
-  // const resultsPerPage = 10
-  // const maxPages = 9
-
-  // const uri = encodeURIComponent
-
-	/** @type {import('./search').Load} */
-  // export async function load ({ url }) {
-  //   const query = url.searchParams.get('query') || ''
-  //   const page = parseInt(url.searchParams.get('page') || '0')
-  //   const region = url.searchParams.get('r')
-
-  //   // empty queries go home!
-  //   if (query.trim() === '') return { status: 301, redirect: '/' }
-
-  //   let actualQuery = region ? `#${region} (${query})` : query
-  //   const { results, totalResults } = await search(actualQuery, page * resultsPerPage, resultsPerPage)
-  //   const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
-
-  //   return { props: {
-  //     query,
-  //     page,
-  //     results,
-  //     totalPages,
-  //     region: region || false,
-  //     viewport: url.searchParams.get('vp') === 'm' ? 'mobile' : 'desktop'
-  //   } }
-  // }
-</script>
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
+  import type { PageData } from './$types'
   import { page as pageStore } from '$app/stores'
   import regionStore from '$lib/models/region-store'
-
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   import Paginator from '$lib/Paginator.svelte'
@@ -46,14 +11,11 @@
   import { tokenize } from '$lib/search/text'
   import { browser } from '$app/env'
   import { fn } from '$lib/models/filename-codec'
-  import { goto } from '$app/navigation';
+  import { goto } from '$app/navigation'
+  import { getSearchLibrary } from '$lib/search/search'
 
-	export let query: string = ''
-  export let page: number = 0
-  export let totalPages: number = 0
-  export let results: SearchResult[] = []
-  export let viewport: 'mobile' | 'desktop' = 'desktop'
-  export let region
+  export let data: PageData
+  $: ({ query, page, totalPages, results, viewport, region } = data)
 
   let didYouMean = undefined
   $: (results.length === 0) && autocorrect(query)
@@ -121,6 +83,10 @@
 
 {#if query === 'admin'}
   <div class="hint">Would you like to <a href="/admin">Login to Site Admin</a> area?</div>
+{/if}
+
+{#if query === 'analytics'}
+  <div class="hint">Would you like to <a href="/analytics">view this website’s usage data</a>?</div>
 {/if}
 
 {#if query === 'farts'}

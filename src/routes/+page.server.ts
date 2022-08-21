@@ -1,3 +1,4 @@
+import type { PageServerLoad } from './$types'
 import { getUpdatesFeed } from './feeds/_read-discovery-feed'
 import cache from '$lib/functions/cache'
 import readFeed from '$lib/data-io/rss'
@@ -10,7 +11,7 @@ const feedEntries = 20
 // stores old feed output for homepage feed
 const cachedFeed = cache(maxAge)
 
-export async function load ({ url }) {
+export const load: PageServerLoad = async ({ url, setHeaders }) => {
   let body = cachedFeed.get()
   if (!body) {
     const [searchFeed, rssFeed] = await Promise.all([
@@ -41,12 +42,6 @@ export async function load ({ url }) {
     body = cachedFeed.set(response)
   }
 
-  throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-  return {
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Cache-Control': `max-age=${maxAge}`
-    },
-    body: { feed: body }
-  }
+  setHeaders({ 'Cache-Control': `max-age=${maxAge}` })
+  return { feed: body }
 }

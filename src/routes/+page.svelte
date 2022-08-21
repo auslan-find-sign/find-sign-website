@@ -1,6 +1,5 @@
 <script lang="ts">
-	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
+	import type { PageData, Errors } from './$types'
 	import Header from '$lib/header/Header.svelte'
 	import DiscoveryFeed from '$lib/DiscoveryFeed.svelte'
 	import { onMount } from 'svelte'
@@ -8,7 +7,7 @@
 	import openGraphImage from '$lib/assets/open-graph-image@3x.png'
 	import { page } from '$app/stores'
 
-	export let feed
+	export let data: PageData
 
 	const openGraphImageFullURL = (new URL(openGraphImage, $page.url)).toString()
 
@@ -27,4 +26,4 @@
 
 <Header/>
 
-<DiscoveryFeed {feed} />
+<DiscoveryFeed feed={data.feed} />

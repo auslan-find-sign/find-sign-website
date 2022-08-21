@@ -1,11 +1,10 @@
 <script lang=ts>
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
+  import type { PageData } from './$types'
   import ProgressLogViewer from '$lib/progress/ProgressLogViewer.svelte'
   import { fn } from '$lib/models/filename-codec'
   import delay from '$lib/functions/delay'
 
-  export let availableIndexes: string[]
+  export let data: PageData
 
   let rebuilding = {}
 
@@ -36,7 +35,7 @@
   }
 </script>
 <ul>
-  {#each availableIndexes as index}
+  {#each data.availableIndexes as index}
     <li>
       <a href={indexURL(index)}>{index}</a>
       <div>

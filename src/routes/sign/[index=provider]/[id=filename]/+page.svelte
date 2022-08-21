@@ -1,33 +1,11 @@
-<script lang="ts" context="module">
-  throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
-
-  // import { getSearchLibrary } from '$lib/search/search'
-  // import { decodeFilename } from '$lib/models/filename-codec'
-  // import { availableIndexes } from '$lib/search/search'
-
-  // export async function load ({ params }) {
-  //   const index = decodeFilename(params.index)
-  //   const id = decodeFilename(params.id)
-  //   if (availableIndexes.includes(index)) {
-  //     const library = await getSearchLibrary([index], ['id'])
-  //     const entry = library[index].entries.find(x => x.id === id)
-  //     if (entry) {
-  //       const result = await entry.load()
-  //       return { props: { result } }
-  //     }
-  //   }
-  //   return { status: 404 }
-  // }
-</script>
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
+  import type { PageData } from './$types'
   import Header from '$lib/header/Header.svelte'
   import Result from '$lib/result/Result.svelte'
   import { page } from '$app/stores'
-  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
 
-  export let result: EncodedSearchDataEntry
+  export let data: PageData
+  $: result = data.result
 
   const ogVideoTypePreference = ['video/mp4', 'video/webm']
 

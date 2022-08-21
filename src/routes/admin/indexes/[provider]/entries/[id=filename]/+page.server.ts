@@ -1,11 +1,12 @@
+import type { PageServerLoad } from './$types'
 import { userHasPower } from '$lib/models/user'
-import { LoginRedirect } from '../../../../login'
+import { LoginRedirect } from '../../../../login/passkey/+server'
 import { getSearchLibrary } from '$lib/search/search'
 import { decodeFilename } from '$lib/models/filename-codec'
+import { error } from '@sveltejs/kit'
 
-export async function load ({ locals, params }) {
-  if (!locals.username) throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-  return LoginRedirect
+export const load: PageServerLoad = async ({ locals, params }) => {
+  if (!locals.username) return LoginRedirect
   if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 
   const provider = decodeFilename(params.provider)
@@ -17,7 +18,6 @@ export async function load ({ locals, params }) {
   if (entry) {
     return { provider, id, entry: await entry.load() }
   } else {
-    throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-    return { status: 404 }
+    return error(404)
   }
 }

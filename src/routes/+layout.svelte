@@ -9,7 +9,7 @@
 	$: query = browser ? $page.url.searchParams.get('query') : ''
 
 	// is the page load towards a search results page?
-	$: isSearchLoad = $navigating && $navigating.to.pathname === '/search'
+	$: isSearchLoad = $navigating && $navigating.to && $navigating.to.pathname === '/search'
 
 	let showSpinner = false
 	let timer = undefined

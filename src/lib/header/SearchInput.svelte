@@ -26,7 +26,7 @@
   const media = watchMedia({ phone: '(max-width: 600px)' })
 
   // is the page load towards a search results page?
-	$: isSearchLoad = $navigating && $navigating.to.pathname === '/search'
+	$: isSearchLoad = $navigating && $navigating.to && $navigating.to.pathname === '/search'
 
   onMount(() => {
     if (queryHandler === undefined) {

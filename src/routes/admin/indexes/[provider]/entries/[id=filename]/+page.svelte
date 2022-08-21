@@ -1,12 +1,9 @@
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
-  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
+  import type { PageData } from './$types'
   import SearchEntryViewer from '$lib/admin/ui/SearchEntryViewer.svelte'
 
-  export let provider: string
-  export let id: string
-  export let entry: EncodedSearchDataEntry
+  export let data: PageData
+  $: ({ provider, id, entry } = data)
 </script>
 <h1>{provider}: {id}</h1>
 

@@ -44,9 +44,7 @@ async function signToMessage ({ sign, request, message = '', components = [], bo
 }
 
 function placeholderMessage () {
-  return { body: {
-    type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-  }}
+  return { type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE }
 }
 
 async function runSearch (query: string, request, page = 0, bodyOverride?: any) {
@@ -104,8 +102,7 @@ export async function POST ({ request }: { request: Request}) {
         })
       })
 
-      throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
-      return placeholderMessage()
+      return new Response(JSON.stringify(placeholderMessage()), { headers: { 'Content-Type': 'application/json' } })
     } else if (name === 'random-auslan') {
       const [random] = await getRandomSigns(1)
       const library = await getSearchLibrary([random.index], ['id'])
@@ -117,15 +114,13 @@ export async function POST ({ request }: { request: Request}) {
         signToMessage({ sign, request, message: `<@${userId}> 🎲 rolled the dice…`}).then(message => {
           discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
         })
-        throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
-        return placeholderMessage()
+        return new Response(JSON.stringify(placeholderMessage()), { headers: { 'Content-Type': 'application/json' } })
       } else {
         // it's a DM
         signToMessage({ sign, request, message: `You rolled the dice 🎲`}).then(message => {
           discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
         })
-        throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
-        return placeholderMessage()
+        return new Response(JSON.stringify(placeholderMessage()), { headers: { 'Content-Type': 'application/json' } })
       }
     }
   } else if (type === InteractionType.MESSAGE_COMPONENT) {

@@ -3,11 +3,10 @@ import { decodeFilename, fn } from '$lib/models/filename-codec'
 import { getOverrideFor, setOverrideFor, deleteOverrideFor } from '$lib/models/index-override'
 import { userHasPower } from '$lib/models/user'
 import { readEncodedSearchData } from '$lib/orthagonal/write'
-import { LoginRedirect } from '../../login'
+import { LoginRedirect } from '../../login/passkey/+server'
 
 export async function load ({ locals, params }) {
-  if (!locals.username) throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-  return LoginRedirect
+  if (!locals.username) return LoginRedirect
   if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 
   const [provider, id] = [params.provider, params.id].map(decodeFilename)
@@ -23,8 +22,7 @@ export async function load ({ locals, params }) {
 }
 
 export async function POST ({ locals, params, request, url }) {
-  if (!locals.username) throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-  return LoginRedirect
+  if (!locals.username) return LoginRedirect
   if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
   const [provider, id] = [params.provider, params.id].map(decodeFilename)
   const json = await request.json()
@@ -39,8 +37,7 @@ export async function POST ({ locals, params, request, url }) {
 }
 
 export async function DELETE ({ locals, params, request, url }) {
-  if (!locals.username) throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-  return LoginRedirect
+  if (!locals.username) return LoginRedirect
   if (!await userHasPower(locals.username, 'edit-index')) throw new Error('You don’t have the right to edit search index')
 
   const [provider, id] = [params.provider, params.id].map(decodeFilename)
