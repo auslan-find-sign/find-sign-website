@@ -1,6 +1,7 @@
 import { createLicense } from '$lib/data-io/auth'
 import { stringToBytes } from '$lib/functions/string-encode'
 import { encodeBase64 } from 'tweetnacl-ts'
+// import fetch, { FormData, type RequestInit, type Response } from 'node-fetch'
 const identity = import.meta.env.VITE_SEARCH_WRITE_IDENTITY
 const collectionPath = import.meta.env.VITE_SEARCH_DATA
 
@@ -18,6 +19,13 @@ export type FileInfoJSON = {
 
 export type BulkWriteFiles = {
   [filePath: string]: string | Uint8Array
+}
+
+export type MathFormat = 'u8' | 's8' | 'u16' | 's16' | 'u32' | 's32' | 'f32' | 'f64'
+export type MathOperation = {
+  address: number,
+  operator: 'add' | 'subtract' | 'multiply' | 'divide' | 'set',
+  operand: number
 }
 
 async function request (path: string, init: RequestInit, ignoreError = false): Promise<Response> {
@@ -88,6 +96,19 @@ export async function bulkWrite (path: string, files: BulkWriteFiles): Promise<v
   // await Promise.all(Object.entries(files).map(async ([subPath, data]) => {
   //   await writeFile(`${path}/${subPath}`, data)
   // }))
+}
+
+export async function mathWrite (path: string, length: number, format: MathFormat, operations: MathOperation[]): Promise<void> {
+  await request(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'math',
+      format,
+      length,
+      operations
+    })
+  })
 }
 
 export async function readFile (path: string): Promise<Uint8Array> {
