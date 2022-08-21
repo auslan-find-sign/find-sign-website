@@ -1,20 +1,19 @@
-<svelte:head>
-  <title>Find Sign - About</title>
-</svelte:head>
-
-<script>
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
+<script lang="ts">
+  import type { PageData } from './$types'
   import Header from '$lib/header/Header.svelte'
   import HiddenEmail from '$lib/HiddenEmail.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
-  export let hashtags = []
-  export let usernames = []
+
+  export let data: PageData
 
   function searchURL (query) {
     return `/search?${new URLSearchParams(Object.entries({ query, page: 0 }))}`
   }
 </script>
+
+<svelte:head>
+  <title>Find Sign - About</title>
+</svelte:head>
 
 <Header/>
 
@@ -79,7 +78,7 @@
   </p>
   <h1>What are all the #hashtags?</h1>
   <ul>
-    {#each hashtags as { hashtag, count }}
+    {#each data.hashtags as { hashtag, count }}
       {#if count > 1}
         <li><a href={searchURL(`#${hashtag}`)}>#{hashtag}</a> <span>({count} videos)</span></li>
       {/if}
@@ -87,7 +86,7 @@
   </ul>
   <h1>And all the @usernames?</h1>
   <ul>
-    {#each usernames as { username, count }}
+    {#each data.usernames as { username, count }}
       {#if count > 0}
         <li><a href={searchURL(`@${username}`)}>@{username}</a> <span>({count} videos)</span></li>
       {/if}

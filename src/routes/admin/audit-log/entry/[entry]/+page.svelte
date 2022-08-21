@@ -1,37 +1,35 @@
 <script lang="ts">
-  throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
-  import type { AuditLogEntry } from "$lib/models/audit-log"
   import { humane } from "$lib/functions/date"
   import MainBlock from "$lib/MainBlock.svelte"
   import { encodeFilename } from "$lib/models/filename-codec"
+  import type { PageData } from "./$types"
 
-  export let entry: AuditLogEntry
+  export let data: PageData
 </script>
 
-<h1>Audit Log Entry</h1>
+<h1>Audit Log data</h1>
 
 <MainBlock>
-  <h1><a href="/admin/users/{encodeURIComponent(entry.actor)}">{entry.actor}</a> performed <code>{entry.actionType}</code></h1>
-  <p><code>{entry.message}</code></p>
-  {#if entry.extra}
+  <h1><a href="/admin/users/{encodeURIComponent(data.actor)}">{data.actor}</a> performed <code>{data.actionType}</code></h1>
+  <p><code>{data.message}</code></p>
+  {#if data.extra}
     <div>
-      {#if entry.extra.publicURL}
-        <div>Public URL: <a href={entry.extra.publicURL}>{entry.extra.publicURL}</a></div>
+      {#if data.extra.publicURL}
+        <div>Public URL: <a href={data.extra.publicURL}>{data.extra.publicURL}</a></div>
       {/if}
-      {#if entry.extra.adminURL}
-        <div>Admin URL: <a href={entry.extra.adminURL}>{entry.extra.adminURL}</a></div>
+      {#if data.extra.adminURL}
+        <div>Admin URL: <a href={data.extra.adminURL}>{data.extra.adminURL}</a></div>
       {/if}
-      {#if entry.extra.index}
-        <div>Index: <a href={`/sign/${encodeFilename(entry.extra.index)}`}>{entry.extra.index}</a></div>
+      {#if data.extra.index}
+        <div>Index: <a href={`/sign/${encodeFilename(data.extra.index)}`}>{data.extra.index}</a></div>
       {/if}
-      {#if entry.extra.index && entry.extra.entryID}
-        <div>Entry ID: <a href={`/sign/${encodeFilename(entry.extra.index)}/${encodeFilename(entry.extra.entryID)}`}>{entry.extra.entryID}</a></div>
+      {#if data.extra.index && data.extra.dataID}
+        <div>data ID: <a href={`/sign/${encodeFilename(data.extra.index)}/${encodeFilename(data.extra.dataID)}`}>{data.extra.dataID}</a></div>
       {/if}
-      {#if entry.extra.object}
-        <pre><code>{JSON.stringify(entry.extra.object, null, 2)}</code></pre>
+      {#if data.extra.object}
+        <pre><code>{JSON.stringify(data.extra.object, null, 2)}</code></pre>
       {/if}
     </div>
   {/if}
-  <p><time>{humane(entry.time)} {(new Date(entry.time)).toLocaleTimeString()}</time></p>
+  <p><time>{humane(data.time)} {(new Date(data.time)).toLocaleTimeString()}</time></p>
 </MainBlock>

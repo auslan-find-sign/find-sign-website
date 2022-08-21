@@ -20,21 +20,3 @@
   create educational games and other future content.
 </p>
 <PasskeyForm on:authenticated={onAuthenticated} bind:username={$usernameStore} />
-
-<style>
-  div { text-align: center }
-  .or-rule {
-    font-style: italic;
-    margin: 1em auto;
-  }
-
-  .or-rule::before, .or-rule::after {
-    content: " ";
-    display: inline-block;
-    background-color: currentColor;
-    height: 1px;
-    width: 3em;
-    vertical-align: middle;
-    margin: 0 1em;
-  }
-</style>

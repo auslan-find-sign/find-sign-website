@@ -1,4 +1,4 @@
-import type { RequestEvent, RequestHandler, RequestHandlerOutput } from "@sveltejs/kit"
+import type { RequestEvent, RequestHandler } from "@sveltejs/kit"
 import {
   generateRegistrationOptions, generateAuthenticationOptions,
   verifyRegistrationResponse, verifyAuthenticationResponse, type GenerateAuthenticationOptionsOpts
@@ -52,24 +52,22 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
   // how long in seconds should the login cookie remain valid for
   const cookieMaxAge = endpointOptions.loginMaxAge || 60 * 60 * 24
 
-  function loginSuccessResponse (username: string, event: RequestEvent): RequestHandlerOutput {
+  function loginSuccessResponse (username: string, event: RequestEvent): Response {
     const verified = true
     const session = endpointOptions.newSession
       ? endpointOptions.newSession(username, event)
       : { username, ts: Date.now() / 1000 }
-    return {
+    return new Response(JSON.stringify({ verified, session }), {
       headers: {
         'Set-Cookie': cookieSerialize('token', generateToken(session), {
           path: '/',
           maxAge: cookieMaxAge,
           httpOnly: true
         })
-      },
-      body: { verified, session }
-    }
+      }
+    })
   }
 
-  // @ts-ignore-error
   const POST: RequestHandler = async function POST (event) {
     const { url, request } = event
     const rpID = endpointOptions.rpID || url.hostname
@@ -94,7 +92,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
           userDisplayName: username,
           challenge
         })
-        return { body: { action: 'register', options, challenge } }
+        return new Response(JSON.stringify({ action: 'register', options, challenge }), { headers: { 'Content-Type': 'application/json' } })
       } else {
         // account exists, login flow
         const genOpts: GenerateAuthenticationOptionsOpts = { rpID, challenge }
@@ -104,7 +102,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
           })
         }
         const options = generateAuthenticationOptions(genOpts)
-        return { body: { action: 'login', options, challenge } }
+        return new Response(JSON.stringify({ action: 'login', options, challenge }), { headers: { 'Content-Type': 'application/json' } })
       }
     } else if (req.type === 'login') {
       const { username, autofill, attestation } = req
@@ -142,7 +140,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
 
         return loginSuccessResponse(username, event)
       } else {
-        return { body: { verified: false } }
+        return new Response(JSON.stringify({ verified: false }), { headers: { 'Content-Type': 'application/json' } })
       }
 
     } else if (req.type === 'register') {
@@ -178,7 +176,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
 
     }
 
-    return { status: 500, body: 'unknown request type' }
+    return new Response('unknown request type', { headers: { 'Content-Type': 'text/plain' } })
   }
 
   function generateToken (tokenData: any): string {

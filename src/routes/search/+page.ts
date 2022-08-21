@@ -1,13 +1,12 @@
-import { redirect } from '@sveltejs/kit';
-import { getSearchLibrary, search, type SearchResult } from '$lib/search/search'
+import type { PageLoad } from './$types'
+import { redirect } from '@sveltejs/kit'
+import { search } from '$lib/search/search'
+import clientRecordAnalytics from '$lib/models/client-record-analytics'
 
 const resultsPerPage = 10
 const maxPages = 9
 
-const uri = encodeURIComponent
-
-	/** @type {import('./search').PageLoad} */
-export async function load ({ url }) {
+export const load: PageLoad = async ({ url, fetch }) => {
   const query = url.searchParams.get('query') || ''
   const page = parseInt(url.searchParams.get('page') || '0')
   const region = url.searchParams.get('r')
@@ -19,12 +18,14 @@ export async function load ({ url }) {
   const { results, totalResults } = await search(actualQuery, page * resultsPerPage, resultsPerPage)
   const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
 
+  clientRecordAnalytics('search', fetch)
+
   return {
-  query,
-  page,
-  results,
-  totalPages,
-  region: region || false,
-  viewport: url.searchParams.get('vp') === 'm' ? 'mobile' : 'desktop'
-}
+    query,
+    page,
+    results,
+    totalPages,
+    region: region || false,
+    viewport: url.searchParams.get('vp') === 'm' ? 'mobile' : 'desktop'
+  }
 }

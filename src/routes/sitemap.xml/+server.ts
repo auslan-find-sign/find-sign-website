@@ -12,50 +12,33 @@ const staticPages = [
 ]
 
 export async function GET ({ url }) {
-  const data = []
+  const indexes = [...availableIndexes]
+  return new Response(new ReadableStream({
+    start (controller) {
+      controller.enqueue('<?xml version="1.0" encoding="UTF-8" ?>\n')
+      controller.enqueue('<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">\n')
 
-  data.push('<?xml version="1.0" encoding="UTF-8" ?>')
-  data.push('<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">')
+      for (const path of staticPages) {
+        controller.enqueue(`<url><loc>${new URL(path, url)}</loc></url>\n`)
+      }
 
-  for (const path of staticPages) {
-    data.push('<url>')
-    data.push(`<loc>${new URL(path, url)}</loc>`)
-    data.push('</url>')
-  }
-
-  data.push('<url>')
-  data.push(`<loc>${new URL(fn`/sign/`, url)}</loc>`)
-  data.push('</url>')
-
-  const libraries = await getSearchLibrary(availableIndexes, ['id'])
-
-  for (const index of await availableIndexes) {
-    data.push('<url>')
-    data.push(`<loc>${new URL(fn`/sign/${index}`, url)}</loc>`)
-    data.push('</url>')
-
-    for (const { id } of libraries[index].entries) {
-      // TODO: proper url encoding
-      data.push('<url>')
-      data.push(`<loc>${new URL(fn`/sign/${index}/${id}`, url)}</loc>`)
-      data.push('</url>')
-    }
-  }
-
-  data.push('</urlset>')
-
-
-  throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
-  // Suggestion (check for correctness before using):
-  // return new Response(data.join('\n'), {
-  //   headers: {
-  //     'Content-Type': 'application/xml'
-  //   }
-  // });
-  return {
-    headers: {
-      'Content-Type': 'application/xml'
+      controller.enqueue(`<url><loc>${new URL(fn`/sign/`, url)}</loc></url>\n`)
     },
-    body: data.join('\n')
-  }
+    async pull (controller) {
+      if (indexes.length > 0) {
+        const index = indexes.shift()
+        controller.enqueue(`<url><loc>${new URL(fn`/sign/${index}`, url)}</loc></url>\n`)
+
+        const libraries = await getSearchLibrary([index], ['id'])
+        const lib = libraries[index]
+
+        for (const { id } of lib.entries) {
+          controller.enqueue(`<url><loc>${new URL(fn`/sign/${index}/${id}`, url)}</loc></url>\n`)
+        }
+      } else {
+        controller.enqueue('</urlset>\n')
+        controller.close()
+      }
+    }
+  }), { headers: { 'Content-Type': 'application/xml' } })
 }

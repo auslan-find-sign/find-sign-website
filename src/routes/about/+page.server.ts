@@ -1,12 +1,14 @@
+import type { PageServerLoad } from './$types'
 import cache from '$lib/functions/cache'
 import { getSearchLibrary } from '$lib/search/search'
 
 const maxAge = 60 * 60 // 1 hour
 const cached = cache(maxAge)
 
-export async function load () {
+export const load: PageServerLoad = async ({ setHeaders }) => {
+  setHeaders({ 'Cache-Control': `max-age=${maxAge}` })
+
   if (cached.get()) {
-    throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
     return cached.get()
   } else {
     const tagAccumulator = {}
@@ -35,13 +37,6 @@ export async function load () {
       .map(([username, count]: [string, number]) => ({ username, count }))
       .sort((left, right) => right.count - left.count)
 
-    throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292699)");
-    return cached.set({
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Cache-Control': `max-age=${maxAge}`
-      },
-      body: { hashtags, usernames }
-    })
+    return cached.set({ hashtags, usernames })
   }
 }
