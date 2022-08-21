@@ -3,17 +3,30 @@
 	import Header from '$lib/header/Header.svelte'
 	import DiscoveryFeed from '$lib/DiscoveryFeed.svelte'
 	import { onMount } from 'svelte'
-	import { prefetchRoutes } from '$app/navigation'
+	import { goto, prefetchRoutes } from '$app/navigation'
+	import watchMedia from 'svelte-media'
 	import openGraphImage from '$lib/assets/open-graph-image@3x.png'
 	import { page } from '$app/stores'
 
 	export let data: PageData
 
 	const openGraphImageFullURL = (new URL(openGraphImage, $page.url)).toString()
+	const media = watchMedia({ phone: '(max-width: 600px)' })
 
 	onMount(() => {
 		// preload the search results interface
 		prefetchRoutes(['/search'])
+
+		const hash = window.location.hash
+		if (typeof hash === 'string' && hash.startsWith('#') && hash.endsWith('/0')) {
+			// legacy find sign search url, redirect
+			const query = decodeURIComponent(hash.slice(1).split('/')[0])
+			goto(`/search?${new URLSearchParams([
+				['query', query],
+				['page', '0'],
+				['vp', $media.phone ? 'm' : 'd']
+			])}`)
+		}
 	})
 </script>
 
