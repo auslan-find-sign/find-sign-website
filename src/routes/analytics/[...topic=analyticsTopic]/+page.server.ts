@@ -1,5 +1,6 @@
 import { chunk } from '$lib/functions/iters'
 import { isValidAnalyticsTopic, readAnalyticsYear, type Topic } from '$lib/models/analytics'
+import { decodeFilename } from '$lib/models/filename-codec'
 import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 

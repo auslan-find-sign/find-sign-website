@@ -3,6 +3,8 @@
   import Header from '$lib/header/Header.svelte'
   import Result from '$lib/result/Result.svelte'
   import { page } from '$app/stores'
+  import { onMount } from 'svelte'
+  import clientRecordAnalytics from '$lib/models/client-record-analytics'
 
   export let data: PageData
   $: result = data.result
@@ -12,6 +14,10 @@
   $: selectedVideoOffset = parseInt($page.url.searchParams.get('carousel0') || '0')
   $: selectedVideo = result.media[selectedVideoOffset]
   $: selectedVideoOG = selectedVideo.encodes.sort((a, b) => ogVideoTypePreference.indexOf(a.type) - ogVideoTypePreference.indexOf(b.type))[0]
+
+  onMount(() => {
+    clientRecordAnalytics('permalink', fetch)
+  })
 </script>
 <svelte:head>
 	<title>{result.provider.name || result.provider.id}’s “{result.title || result.words.join(' ')}”</title>
