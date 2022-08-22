@@ -1,5 +1,6 @@
 import { writeAuditLog } from '$lib/models/audit-log'
 import { deleteUser, getUser, setUser, userHasPower } from '$lib/models/user'
+import { redirect } from '@sveltejs/kit'
 import { LoginRedirect } from '../../login/passkey/+server'
 
 export async function load ({ locals, params }) {
@@ -27,4 +28,5 @@ export async function DELETE ({ locals, params }) {
   if (!await userHasPower(locals.username, 'edit-users')) throw new Error('You don’t have the right to edit users')
   await writeAuditLog(locals.username, 'delete-user', `Deleted account for user "${params.user}"`, { subjectUser: params.user })
   await deleteUser(params.user)
+  return redirect(307, '/admin/users')
 }

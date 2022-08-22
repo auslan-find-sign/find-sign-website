@@ -1,9 +1,9 @@
 import { listAuditLogs, readAuditLog } from "$lib/models/audit-log"
-import type { PageServerLoad } from "@sveltejs/kit"
+import type { PageServerLoad } from "./$types"
 
 const EntriesPerPage = 50
 
-export const load: PageServerLoad = async function GET ({ url }) {
+export const load: PageServerLoad = async ({ url }) => {
   const auditLogs = (await listAuditLogs()) || []
   const totalLogs = auditLogs.length
   const totalPages = Math.ceil(totalLogs / EntriesPerPage)
@@ -16,8 +16,8 @@ export const load: PageServerLoad = async function GET ({ url }) {
   )
 
   return {
-  pageEntries,
-  currentPage,
-  totalPages
-}
+    pageEntries,
+    currentPage,
+    totalPages
+  }
 }
