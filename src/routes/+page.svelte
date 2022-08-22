@@ -8,6 +8,7 @@
 	import openGraphImage from '$lib/assets/open-graph-image@3x.png'
 	import { page } from '$app/stores'
 	import clientRecordAnalytics from '$lib/models/client-record-analytics'
+	import { browser } from '$app/env'
 
 	export let data: PageData
 
@@ -29,7 +30,9 @@
 			])}`)
 		}
 
-		clientRecordAnalytics('homepage', fetch)
+		if (browser && !data.automated) {
+			clientRecordAnalytics('homepage', fetch)
+		}
 	})
 </script>
 

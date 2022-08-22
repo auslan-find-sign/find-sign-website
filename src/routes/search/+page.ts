@@ -19,7 +19,7 @@ export const load: PageLoad = async ({ url, fetch }) => {
   const { results, totalResults } = await search(actualQuery, page * resultsPerPage, resultsPerPage)
   const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
 
-  if (browser) {
+  if (browser && !url.searchParams.has('automated')) {
     clientRecordAnalytics('search', fetch)
   }
 
