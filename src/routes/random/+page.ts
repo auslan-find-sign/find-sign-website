@@ -4,6 +4,7 @@ import { getSearchLibrary } from '$lib/search/search'
 import { getRandomSigns } from '$lib/search/random'
 import { fn } from '$lib/models/filename-codec'
 import clientRecordAnalytics from '$lib/models/client-record-analytics'
+import { browser } from '$app/env'
 
 export const load: PageLoad = async function load ({ url, fetch }) {
   const index = url.searchParams.get('index')
@@ -20,7 +21,9 @@ export const load: PageLoad = async function load ({ url, fetch }) {
   const next = `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`
   const permalink = fn`/sign/${randoms[0].index}/${randoms[0].id}`
 
-  clientRecordAnalytics('search', fetch)
+  if (browser) {
+    clientRecordAnalytics('random', fetch)
+  }
 
   return { result, permalink, next }
 }

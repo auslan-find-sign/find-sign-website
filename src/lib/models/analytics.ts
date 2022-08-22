@@ -1,10 +1,21 @@
-import { mathWrite, readFile } from "$lib/data-io/data-io"
+import { mathWrite, readFile, type MathOperation } from "$lib/data-io/data-io"
+import { times } from "$lib/functions/iters"
 
 export type Topic = 'homepage' | 'search' | 'permalink' | 'random' | 'about' | 'technology'
 
 export function isValidAnalyticsTopic (topic: string): topic is Topic {
   return ['homepage', 'search', 'permalink', 'random', 'about', 'technology'].includes(topic)
 }
+
+type AnalyticJob = {
+  filename: string,
+  bucketLength: number,
+  operations: MathOperation[]
+}
+
+const AnalyticsJobs: { [key: string]: AnalyticJob } = {}
+
+const AnalyticsWriteInterval = 5000
 
 // log a hit to one of the analytics stores
 export async function recordAnalytics (topic: Topic, value = 1) {
@@ -16,41 +27,50 @@ export async function recordAnalytics (topic: Topic, value = 1) {
   const minutesSinceYearStart = Math.floor((now.getTime() - yearStart) / 60_000)
   const bucketLength = Math.floor((nextYearStart - yearStart) / 60_000)
 
-  await mathWrite(filename, bucketLength, 'u16', [
-    {
-      address: minutesSinceYearStart,
-      operator: 'add',
-      operand: value
+  const jobName = `${topic}#${year}`
+  const operation: MathOperation = {
+    address: minutesSinceYearStart,
+    operator: 'add',
+    operand: value
+  }
+
+  if (AnalyticsJobs[jobName]) {
+    const job = AnalyticsJobs[jobName]
+    const compatibleOp = job.operations.find(x => x.operator === operation.operator && x.address === operation.address)
+    if (compatibleOp) {
+      compatibleOp.operand += operation.operand
+    } else {
+      AnalyticsJobs[jobName].operations.push(operation)
     }
-  ])
+  } else {
+    const job = AnalyticsJobs[jobName] = {
+      filename,
+      bucketLength,
+      operations: [operation]
+    }
+
+    setTimeout(async () => {
+      delete AnalyticsJobs[jobName]
+      await mathWrite(job.filename, job.bucketLength, 'u16', job.operations)
+      console.log(`Wrote analytics for ${JSON.stringify(topic)}`)
+    }, AnalyticsWriteInterval)
+  }
 }
 
-export async function readAnalytics (topic: Topic, startDate: Date, endDate: Date): Promise<Uint16Array> {
-  const minutesInRange = Math.ceil((endDate.getTime() - startDate.getTime()) / 60_000)
-  const results = new Uint16Array(minutesInRange)
+export async function readAnalyticsYear (topic: Topic, year: number): Promise<Uint16Array> {
   const valueSize = 2
-
-  const requests = []
-  for (let year = startDate.getUTCFullYear(); year <= endDate.getUTCFullYear(); year++) {
-    const startYearMs = Date.UTC(year, 0, 1, 0, 0, 0, 0)
-    const endYearMs = Date.UTC(year + 1, 0, 1, 0, 0, 0, 0) - 1
-    requests.push((async () => {
-      const filename = `analytics/${year}/${topic}.u16`
-      const startFileDate = new Date(Math.max(startDate.getTime(), startYearMs))
-      const endFileDate = new Date(Math.min(endDate.getTime(), endYearMs))
-      const fileData = await readFile(filename)
-      if (fileData) {
-        const dataView = new DataView(fileData.buffer, fileData.byteOffset, fileData.byteLength)
-        for (let minuteInYear = startFileDate.getTime() - (startYearMs * 60_000); minuteInYear < endFileDate.getTime() - (endYearMs * 60_000); minuteInYear++) {
-          const value = dataView.getUint16(minuteInYear * valueSize, false)
-          const date = startFileDate.getTime() + (minuteInYear * 60_000)
-          const resultsOffset = Math.round((date - startDate.getTime()) / 60_000)
-          results[resultsOffset] = value
-        }
-      }
-    })())
+  const filename = `analytics/${year}/${topic}.u16`
+  const fileData = await readFile(filename)
+  if (!fileData) {
+    const yearStart = Date.UTC(year, 0, 1, 0, 0, 0, 0)
+    const yearEnd = Date.UTC(year + 1, 0, 1, 0, 0, 0, 0) - 1
+    const minutes = new Uint16Array(Math.round((yearEnd - yearStart) / 60_000))
+    return minutes
   }
-  await Promise.all(requests)
+  const dataView = new DataView(fileData.buffer, fileData.byteOffset, fileData.byteLength)
+  const values = Uint16Array.from(times(fileData.byteLength / valueSize, index => {
+    return dataView.getUint16(index * valueSize, false)
+  }))
 
-  return results
+  return values
 }

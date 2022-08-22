@@ -2,6 +2,7 @@ import type { PageLoad } from './$types'
 import { redirect } from '@sveltejs/kit'
 import { search } from '$lib/search/search'
 import clientRecordAnalytics from '$lib/models/client-record-analytics'
+import { browser } from '$app/env'
 
 const resultsPerPage = 10
 const maxPages = 9
@@ -18,7 +19,9 @@ export const load: PageLoad = async ({ url, fetch }) => {
   const { results, totalResults } = await search(actualQuery, page * resultsPerPage, resultsPerPage)
   const totalPages = Math.min(maxPages, Math.ceil(totalResults / resultsPerPage))
 
-  clientRecordAnalytics('search', fetch)
+  if (browser) {
+    clientRecordAnalytics('search', fetch)
+  }
 
   return {
     query,
