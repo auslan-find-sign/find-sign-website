@@ -12,6 +12,7 @@ export const load: PageServerLoad = async function GET ({ url }) {
     .reverse()
     .slice(currentPage * EntriesPerPage, (currentPage + 1) * EntriesPerPage)
     .map(readAuditLog)
+    .reverse()
   )
 
   return {
