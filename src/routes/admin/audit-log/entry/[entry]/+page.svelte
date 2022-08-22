@@ -9,7 +9,7 @@
 
 <h1>Audit Log data</h1>
 
-<MainBlock>
+<MainBlock wide>
   <h1><a href="/admin/users/{encodeURIComponent(data.actor)}">{data.actor}</a> performed <code>{data.actionType}</code></h1>
   <p><code>{data.message}</code></p>
   {#if data.extra}

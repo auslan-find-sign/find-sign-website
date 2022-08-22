@@ -30,7 +30,7 @@
 
 <h1>Audit Log</h1>
 
-<MainBlock>
+<MainBlock wide>
   {#if pageEntries.length === 0}
     <p>No Audit Log entries found</p>
   {/if}
