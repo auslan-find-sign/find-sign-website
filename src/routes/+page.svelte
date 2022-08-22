@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PageData, Errors } from './$types'
+	import type { PageData } from './$types'
 	import Header from '$lib/header/Header.svelte'
 	import DiscoveryFeed from '$lib/DiscoveryFeed.svelte'
 	import { onMount } from 'svelte'
@@ -7,6 +7,7 @@
 	import watchMedia from 'svelte-media'
 	import openGraphImage from '$lib/assets/open-graph-image@3x.png'
 	import { page } from '$app/stores'
+	import clientRecordAnalytics from '$lib/models/client-record-analytics'
 
 	export let data: PageData
 
@@ -27,6 +28,8 @@
 				['vp', $media.phone ? 'm' : 'd']
 			])}`)
 		}
+
+		clientRecordAnalytics('homepage', fetch)
 	})
 </script>
 

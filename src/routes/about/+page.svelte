@@ -3,12 +3,18 @@
   import Header from '$lib/header/Header.svelte'
   import HiddenEmail from '$lib/HiddenEmail.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
+  import { onMount } from 'svelte'
+  import clientRecordAnalytics from '$lib/models/client-record-analytics'
 
   export let data: PageData
 
   function searchURL (query) {
     return `/search?${new URLSearchParams(Object.entries({ query, page: 0 }))}`
   }
+
+  onMount(() => {
+    clientRecordAnalytics('about', fetch)
+  })
 </script>
 
 <svelte:head>
