@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { session } from '$app/stores'
+  import type { LayoutData } from "./$types"
+
+  export let data: LayoutData
+  $: ({ session } = data)
 </script>
 <div class="layout">
   <nav class="sidebar">
@@ -9,7 +12,7 @@
     <a href="/admin/logout">Logout</a>
     <a href="/admin/audit-log">Audit Log</a>
 
-    {#if $session.username}
+    {#if session.username}
       <a href="/admin">Admin Home</a>
       <a href="/admin/indexes">Search Indexes</a>
       <a href="/admin/users">User Management</a>

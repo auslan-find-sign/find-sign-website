@@ -1,7 +1,7 @@
 <script lang=ts>
   import { createEventDispatcher } from 'svelte'
   import { onMount } from 'svelte'
-  import { session as sessionStore } from '$app/stores'
+
   import {
     browserSupportsWebauthn, browserSupportsWebAuthnAutofill,
     startAuthentication, startRegistration
@@ -35,14 +35,12 @@
       const attestation = await startAuthentication(options, autofill)
       console.log('attestation', attestation)
       const { verified, session } = await fetchEndpoint({ type: 'login', username, autofill, attestation })
-      if (verified) $sessionStore = session
       console.log({ verified, session })
       return verified
     } else if (action === 'register') {
       const attestation = await startRegistration(options)
       console.log('attestation', attestation)
       const { verified, session } = await fetchEndpoint({ type: 'register', username, autofill, attestation })
-      if (verified) $sessionStore = session
       console.log({ verified, session })
       return verified
     }
@@ -51,6 +49,7 @@
 
   async function click (event: CustomEvent) {
     event.preventDefault()
+    console.log('click')
 
     const result = await doAuthFlow(false)
     fireEvent('authenticated', result)
