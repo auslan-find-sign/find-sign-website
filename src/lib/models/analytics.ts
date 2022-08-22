@@ -1,10 +1,10 @@
 import { mathWrite, readFile, type MathOperation } from "$lib/data-io/data-io"
 import { times } from "$lib/functions/iters"
 
-export type Topic = 'homepage' | 'search' | 'permalink' | 'random' | 'about' | 'technology'
+export type Topic = 'homepage' | 'search' | 'permalink' | 'random' | 'about' | 'technology' | 'discord/search' | 'discord/random'
 
 export function isValidAnalyticsTopic (topic: string): topic is Topic {
-  return ['homepage', 'search', 'permalink', 'random', 'about', 'technology'].includes(topic)
+  return ['homepage', 'search', 'permalink', 'random', 'about', 'technology', 'discord/search', 'discord/random'].includes(topic)
 }
 
 type AnalyticJob = {
