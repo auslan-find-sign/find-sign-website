@@ -1,12 +1,12 @@
 <script lang="ts">
+	import type { LayoutData } from './$types'
 	import Spinner from '$lib/Spinner.svelte'
-	import { navigating, page } from '$app/stores'
-	import { browser } from '$app/env'
+	import { navigating } from '$app/stores'
 	import '../app.css'
 
-	$: loading = $navigating !== null
+	export let data: LayoutData
 
-	$: query = browser ? $page.url.searchParams.get('query') : ''
+	$: loading = $navigating !== null
 
 	// is the page load towards a search results page?
 	$: isSearchLoad = $navigating && $navigating.to && $navigating.to.pathname === '/search'
