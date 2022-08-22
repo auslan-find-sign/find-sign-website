@@ -42,6 +42,8 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
     body = cachedFeed.set(response)
   }
 
+  const automated = url.searchParams.has('automated')
+
   setHeaders({ 'Cache-Control': `max-age=${maxAge}` })
-  return { feed: body }
+  return { feed: body, automated }
 }
