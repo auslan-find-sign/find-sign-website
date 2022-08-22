@@ -1,6 +1,12 @@
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
+  import clientRecordAnalytics from '$lib/models/client-record-analytics'
+  import { onMount } from 'svelte'
+
+  onMount(() => {
+    clientRecordAnalytics('technology', fetch)
+  })
 </script>
 
 <svelte:head>
