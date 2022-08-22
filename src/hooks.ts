@@ -6,6 +6,3 @@ export const handle: Handle = async function ({ event, resolve }) {
 
 	return await resolve(event)
 }
-
-// expose username in the session object client side
-export { getSession } from './routes/admin/login/passkey/+server'

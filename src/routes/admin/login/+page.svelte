@@ -19,4 +19,4 @@
   results, and create and manage other kinds of data used by the website to
   create educational games and other future content.
 </p>
-<PasskeyForm on:authenticated={onAuthenticated} bind:username={$usernameStore} />
+<PasskeyForm endpoint={'/admin/login/passkey'} on:authenticated={onAuthenticated} bind:username={$usernameStore} />
