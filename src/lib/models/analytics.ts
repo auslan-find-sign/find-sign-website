@@ -15,7 +15,7 @@ type AnalyticJob = {
 
 const AnalyticsJobs: { [key: string]: AnalyticJob } = {}
 
-const AnalyticsWriteInterval = 5000
+const AnalyticsWriteInterval = 30_000
 
 // log a hit to one of the analytics stores
 export async function recordAnalytics (topic: Topic, value = 1) {
