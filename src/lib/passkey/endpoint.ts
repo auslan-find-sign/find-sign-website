@@ -196,7 +196,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
     }
   }
 
-  function getSession (event: { request: { headers: Headers } }) {
+  function getSession (event: RequestEvent) {
     const cookies = cookieParse(event.request.headers.get('cookie') || '')
 
     // verify and parse login cookie tokens if user is passkey logged in
@@ -215,6 +215,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
         }
         return sessionData
       } else {
+        console.info('Invalid Token Cookie recieved from ' + event.clientAddress, event.request.headers.get('cookie'), 'accessing', event.url.toString())
       }
     }
 
