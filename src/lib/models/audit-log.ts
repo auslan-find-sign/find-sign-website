@@ -14,8 +14,9 @@ export type AuditLogEntry = {
   timeMs: number, // timestamp in milliseconds
   actionType: AuditActionType, // one of the possible action types
   actor: string, // person who did the action, their username in the search/users accounts
-  message: string
-  extra?: AuditExtraData
+  message: string,
+  extra?: AuditExtraData,
+  filename?: string,
 }
 
 

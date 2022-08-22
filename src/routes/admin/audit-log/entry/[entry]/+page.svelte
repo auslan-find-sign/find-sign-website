@@ -23,8 +23,8 @@
       {#if data.extra.index}
         <div>Index: <a href={`/sign/${encodeFilename(data.extra.index)}`}>{data.extra.index}</a></div>
       {/if}
-      {#if data.extra.index && data.extra.dataID}
-        <div>data ID: <a href={`/sign/${encodeFilename(data.extra.index)}/${encodeFilename(data.extra.dataID)}`}>{data.extra.dataID}</a></div>
+      {#if data.extra.index && data.extra.entryID}
+        <div>data ID: <a href={`/sign/${encodeFilename(data.extra.index)}/${encodeFilename(data.extra.entryID)}`}>{data.extra.entryID}</a></div>
       {/if}
       {#if data.extra.object}
         <pre><code>{JSON.stringify(data.extra.object, null, 2)}</code></pre>
