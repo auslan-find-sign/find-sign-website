@@ -1,4 +1,4 @@
-import { json } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 import { InteractionType, InteractionResponseType, MessageComponentTypes, ButtonStyleTypes } from 'discord-interactions'
 import { search } from '$lib/search/search.js'
 import { getSearchLibrary } from '$lib/search/search.js'
@@ -9,6 +9,7 @@ import { times } from '$lib/functions/iters.js'
 import { DiscordAppID } from '../_setup.js'
 // import { sha256, arrayToHex } from '$lib/search/hash.js'
 import type { EncodedSearchDataEntry, SearchDataEncodedMedia } from '$lib/orthagonal/types.js'
+import { recordAnalytics } from '$lib/models/analytics.js'
 
 const MaxPages = 3
 
@@ -84,7 +85,7 @@ async function runSearch (query: string, request, page = 0, bodyOverride?: any) 
 
 export async function POST ({ request }: { request: Request}) {
   const bodyText = await request.text()
-  if (!isValidReq(request, bodyText)) return new Response('Bad request signature', { status: 401 })
+  if (!isValidReq(request, bodyText)) return error(401, 'Bad request signature')
 
   const { type, id, data, token, member, message } = JSON.parse(bodyText)
 
@@ -102,11 +103,15 @@ export async function POST ({ request }: { request: Request}) {
         })
       })
 
-      return new Response(JSON.stringify(placeholderMessage()), { headers: { 'Content-Type': 'application/json' } })
+      recordAnalytics('discord/search', 1)
+
+      return json(placeholderMessage())
     } else if (name === 'random-auslan') {
       const [random] = await getRandomSigns(1)
       const library = await getSearchLibrary([random.index], ['id'])
       const sign = await library[random.index].entries.find(x => x.id === random.id).load()
+
+      recordAnalytics('discord/random', 1)
 
       if (member) {
         // it's a guild request
@@ -114,13 +119,13 @@ export async function POST ({ request }: { request: Request}) {
         signToMessage({ sign, request, message: `<@${userId}> 🎲 rolled the dice…`}).then(message => {
           discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
         })
-        return new Response(JSON.stringify(placeholderMessage()), { headers: { 'Content-Type': 'application/json' } })
+        return json(placeholderMessage())
       } else {
         // it's a DM
         signToMessage({ sign, request, message: `You rolled the dice 🎲`}).then(message => {
           discordRequest(`webhooks/${DiscordAppID}/${token}/messages/@original`, { method: 'PATCH', body: message })
         })
-        return new Response(JSON.stringify(placeholderMessage()), { headers: { 'Content-Type': 'application/json' } })
+        return json(placeholderMessage())
       }
     }
   } else if (type === InteractionType.MESSAGE_COMPONENT) {
@@ -128,13 +133,13 @@ export async function POST ({ request }: { request: Request}) {
     const [command, ...opts] = custom_id.split(':')
     if (command === 'del') {
       return json({
-  type: InteractionResponseType.UPDATE_MESSAGE,
-  data: {
-    content: '[ Search Result Removed ]',
-    components: [],
-    attachments: [],
-  }
-})
+        type: InteractionResponseType.UPDATE_MESSAGE,
+        data: {
+          content: '[ Search Result Removed ]',
+          components: [],
+          attachments: [],
+        }
+      })
     } else if (command === 'page') {
       const [query, page] = opts.map(x => decodeURIComponent(x))
       runSearch(query, request, parseInt(page)).then(result =>
@@ -150,11 +155,9 @@ export async function POST ({ request }: { request: Request}) {
         })
       )
 
-      return json({
-  type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE
-})
+      return json({ type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE })
     }
   }
 
-  return new Response('why u do??', { status: 500 })
+  return error(500, 'why u do??')
 }
