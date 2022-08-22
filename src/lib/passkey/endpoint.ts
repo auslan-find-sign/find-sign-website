@@ -56,7 +56,7 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
     const verified = true
     const session = endpointOptions.newSession
       ? endpointOptions.newSession(username, event)
-      : { username, ts: Date.now() / 1000 }
+      : { username, ts: Math.round(Date.now() / 1000) }
     return new Response(JSON.stringify({ verified, session }), {
       headers: {
         'Set-Cookie': cookieSerialize('token', generateToken(session), {
@@ -76,7 +76,6 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
 
     if (req.type === 'start') {
       const { autofill, username } = req
-      if (autofill && username) throw new Error('Autofill and username cannot both be specified')
       // get user object if user already exists and is specified
       const userObj = !autofill && username ? await endpointOptions.getUser(username) : undefined
 
