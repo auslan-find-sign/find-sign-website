@@ -3,6 +3,7 @@
 // to respond with a progress ID, and then subsequent requests can ask for the next update until
 // the process is complete.
 // notably used in /admin/indexes/.../build
+import { json, type RequestEvent } from '@sveltejs/kit'
 import { nanoid } from 'nanoid'
 
 type ProgressReport = {
@@ -96,5 +97,64 @@ export async function nextUpdate (id: string, index: number): Promise<ProgressRe
     return sliceUpdates(id, index)
   } else {
     return { id, progress: 1, logs: [], finished: true }
+  }
+}
+
+// supports both Event Stream and long polling response types
+export async function nextUpdateResponse (event: RequestEvent): Promise<Response> {
+  const id = event.url.searchParams.get('id')
+
+  const accept = event.request.headers.get('Accept') || ''
+  if (accept === 'text/event-stream') {
+    const lastEventID = event.request.headers.get('Last-Event-ID')
+    let lastIndex = lastEventID ? parseInt(lastEventID) : -1
+    return new Response(new ReadableStream({
+      start (controller) {
+        if (!inProgress[id]) {
+          // send back an immediate finished response
+          controller.enqueue('event: finished\n data: true\n\n')
+          controller.close()
+        }
+      },
+      async pull (controller) {
+        const updates = inProgress[id]
+        if (updates) {
+          const catchup = updates.slice(lastIndex + 1)
+          for (const update of catchup) {
+            lastIndex += 1
+
+            if (update.progress) {
+              controller.enqueue(`event:progress\ndata:${JSON.stringify(Math.round(update.progress * 10000) / 10000)}\nid:${JSON.stringify(lastIndex)}\n\n`)
+            }
+            if (update.log) {
+              controller.enqueue(`event:log\ndata:${JSON.stringify(update.log)}\nid:${JSON.stringify(lastIndex)}\n\n`)
+            }
+            if (update.finished) {
+              controller.enqueue(`event:finished\ndata:${JSON.stringify(update.finished)}\nid:${JSON.stringify(lastIndex)}\n\n`)
+              controller.close()
+              delete inProgress[id]
+              delete subscribers[id]
+              return
+            }
+          }
+
+          // wait for next update
+          await new Promise(resolve => {
+            if (subscribers[id]) {
+              subscribers[id].push(() => resolve(undefined))
+            } else {
+              resolve(undefined)
+            }
+          })
+        } else {
+          // send back an immediate finished response
+          controller.enqueue('event:finished\ndata: true\n\n')
+          controller.close()
+        }
+      }
+    }), { headers: { 'Content-Type': 'text/event-stream' } })
+  } else {
+    const index = event.url.searchParams.get('index')
+    return json(await nextUpdate(id, parseInt(index)))
   }
 }
