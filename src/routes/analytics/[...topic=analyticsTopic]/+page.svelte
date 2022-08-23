@@ -122,6 +122,27 @@
 	</div>
 
 	<p>Total hits in {data.year}: {total}</p>
+
+	<p>p/d refers to hits per day, p/h refers to hits per hour, p/5m refers to hits per 5 minute block.</p>
+
+	{#if data.year < 2022}
+		<p>
+			Note: Prior to 2022, data was collected using Fathom Analytics, which only records hits per hour. That's why the Average Day graph looks weirdly regular.
+		</p>
+	{:else if data.year === 2022}
+		<p>
+			Note: Up to 22nd of July 2022, data was collected using Fathom Analytics, which only records hits per hour. This is why Average Day graph has unusual spikes
+			at the start of each hour in this year. Data was not collected again until August 24th this year, as no analytics solution was implemented until then, after
+			the SvelteKit site rewrite, due to privacy concerns. After this point, data is collected with minute by minute accuracy.
+		</p>
+	{/if}
+
+	{#if data.topic === 'search' && data.year <= 2022}
+		<p>
+			Note: Due to a quirk in how Find Sign used to work, individual search hits were not able to be recorded before August 24th 2022. Usage before this point can be
+			somewhat inferred by hits in the <a href="/analytics/homepage">homepage</a> dataset.
+		</p>
+	{/if}
 </MainBlock>
 
 <style>
