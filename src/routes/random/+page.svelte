@@ -1,10 +1,12 @@
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
   import Result from '$lib/result/Result.svelte'
+  import { goto } from '$app/navigation'
   import type { PageData } from './$types'
 
   export let data: PageData
   $: ({ result, permalink, next } = data)
+  $: if (data.redirect) goto(data.redirect)
 </script>
 
 <svelte:head>
@@ -19,7 +21,7 @@
   <h2><a href={next} role="button" class="button" sveltekit:noscroll sveltekit:prefetch>🎲 Reroll</a></h2>
   <div class="result-box">
     {#key permalink}
-      <Result data={result} {permalink} expand prefer="quality" carouselSelected={0} />
+      <Result data={result} {permalink} expand prefer="quality" />
     {/key}
   </div>
   <div style="height: 20em"></div>
