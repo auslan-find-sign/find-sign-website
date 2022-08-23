@@ -82,14 +82,16 @@
 	}
 
 	.tick line {
-		stroke: #aaa;
+		stroke: currentColor;;
 	}
 	.tick .gridline {
 		stroke-dasharray: 2;
+		stroke: currentColor;
+		opacity: 0.2;
 	}
 
 	.tick text {
-		fill: #666;
+		fill: currentColor;
 	}
 
 	.tick.tick-0 line {

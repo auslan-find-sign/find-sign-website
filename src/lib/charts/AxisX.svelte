@@ -82,12 +82,13 @@
 
 	line,
 	.tick line {
-		stroke: #aaa;
+		stroke: currentColor;
+		opacity: 0.2;
 		stroke-dasharray: 2;
 	}
 
 	.tick text {
-		fill: #666;
+		fill: currentColor;
 	}
 
 	.tick .tick-mark,
