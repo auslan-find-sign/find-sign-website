@@ -84,8 +84,8 @@
 			<Svg>
 				<AxisX ticks={yearMonthTicks} formatTick={yearMonthFormat} />
 				<AxisY ticks={8} formatTick={t => `${t} p/d`}/>
-				<Line stroke='currentColor' />
 				<Area/>
+				<Line stroke='currentColor'/>
 			</Svg>
 		</LayerCake>
 	</div>
@@ -102,8 +102,8 @@
 					][t]
 				}/>
 				<AxisY ticks={8} formatTick={t => `${t} p/5m`} />
-				<Line stroke='currentColor' />
-				<Area />
+				<Area/>
+				<Line stroke='currentColor'/>
 			</Svg>
 		</LayerCake>
 	</div>
@@ -115,8 +115,8 @@
 			<Svg>
 				<AxisX ticks={7} formatTick={t => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][t]} />
 				<AxisY ticks={8} formatTick={t => `${t} p/h` }/>
-				<Line  stroke='currentColor' />
 				<Area/>
+				<Line stroke='currentColor'/>
 			</Svg>
 		</LayerCake>
 	</div>
