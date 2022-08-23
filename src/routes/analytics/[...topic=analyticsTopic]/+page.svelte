@@ -80,10 +80,10 @@
 	</div>
 
 	<div class="chart">
-		<LayerCake padding={{ right: 10, bottom: 20, left: 25 }} x='x' y='y' data={points}>
+		<LayerCake padding={{ right: 10, bottom: 20, left: 50 }} x='x' y='y' data={points}>
 			<Svg>
 				<AxisX ticks={yearMonthTicks} formatTick={yearMonthFormat} />
-				<AxisY ticks={8} />
+				<AxisY ticks={8} formatTick={t => `${t} p/d`}/>
 				<Line stroke='currentColor' />
 				<Area/>
 			</Svg>
@@ -93,7 +93,7 @@
 	<h1>Average Day in {data.year}</h1>
 
 	<div class="chart">
-		<LayerCake padding={{ right: 10, bottom: 20, left: 40 }} x='x' y='y' data={avgDayPoints}>
+		<LayerCake padding={{ right: 10, bottom: 20, left: 50 }} x='x' y='y' data={avgDayPoints}>
 			<Svg>
 				<AxisX ticks={24} formatTick={t =>
 					[
@@ -101,7 +101,7 @@
 						'12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'
 					][t]
 				}/>
-				<AxisY ticks={8} />
+				<AxisY ticks={8} formatTick={t => `${t} p/5m`} />
 				<Line stroke='currentColor' />
 				<Area />
 			</Svg>
@@ -111,10 +111,10 @@
 	<h1>Average Week in {data.year}</h1>
 
 	<div class="chart">
-		<LayerCake padding={{ right: 10, bottom: 20, left: 25 }} x='x' y='y' data={avgWeekPoints}>
+		<LayerCake padding={{ right: 10, bottom: 20, left: 50 }} x='x' y='y' data={avgWeekPoints}>
 			<Svg>
 				<AxisX ticks={7} formatTick={t => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][t]} />
-				<AxisY ticks={8} />
+				<AxisY ticks={8} formatTick={t => `${t} p/h` }/>
 				<Line  stroke='currentColor' />
 				<Area/>
 			</Svg>
