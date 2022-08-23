@@ -17,8 +17,6 @@
 		return (monthStartMs - yearStartMs) / (24 * 60 * 60 * 1000)
 	})]
 
-	$: console.log(yearMonthTicks)
-
 	const yearMonthFormat = (dayOfYear) => {
 		const tickDate = new Date(yearStartMs + (dayOfYear * 24 * 60 * 60 * 1000))
 		const utcMonth = tickDate.getUTCMonth()
@@ -54,7 +52,7 @@
 			<Svg>
 				<AxisX ticks={yearMonthTicks} formatTick={yearMonthFormat} />
 				<AxisY ticks={8} />
-				<Line/>
+				<Line stroke='currentColor' />
 				<Area/>
 			</Svg>
 		</LayerCake>
@@ -63,7 +61,7 @@
 	<h1>Average Day in {data.year}</h1>
 
 	<div class="chart">
-		<LayerCake padding={{ right: 10, bottom: 20, left: 25 }} x='x' y='y' data={avgDayPoints}>
+		<LayerCake padding={{ right: 10, bottom: 20, left: 40 }} x='x' y='y' data={avgDayPoints}>
 			<Svg>
 				<AxisX ticks={24} formatTick={t =>
 					[
@@ -72,8 +70,8 @@
 					][t]
 				}/>
 				<AxisY ticks={8} />
-				<Line/>
-				<Area/>
+				<Line stroke='currentColor' />
+				<Area />
 			</Svg>
 		</LayerCake>
 	</div>
@@ -85,7 +83,7 @@
 			<Svg>
 				<AxisX ticks={7} formatTick={t => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][t]} />
 				<AxisY ticks={8} />
-				<Line/>
+				<Line  stroke='currentColor' />
 				<Area/>
 			</Svg>
 		</LayerCake>
