@@ -1,5 +1,6 @@
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
+  import HiddenEmail from '$lib/HiddenEmail.svelte'
   import MainBlock from '$lib/MainBlock.svelte'
   import clientRecordAnalytics from '$lib/models/client-record-analytics'
   import { onMount } from 'svelte'
@@ -42,29 +43,38 @@
   </ol>
   <h1>Privacy and Tracking</h1>
   <p>
-    We use a program called Fathom to see how many people use this website, and to find out what website they
-    came from if they clicked a link to come here. When you do a search, we don’t find out what words you typed
-    in to the search box. We might be able to guess what kind of thing you were looking at, by seeing which search
-    results your computer downloaded, but we don’t know exactly what you wrote. We don’t send your information to
-    Google or Facebook at all, but if you come here using one of their apps like Google Chrome or Facebook App, they
-    might be able to track you while you use their app.
+    Find Sign never records what you search for, or who you are. Your usage of Find Sign is not transmitted
+    to any privacy invading businesses like Google or Facebook. We do record how often the site is used,
+    and you can view this information on our <a href="/analytics">analytics page</a>, but this data never
+    records any information about the computers or people accessing the website, just the number of searches
+    and other types of queries run. If you’re concerned about privacy, we recommend you never access Find Sign
+    using a web browser built in to an app run by a privacy invading company. Always use apps like Safari or
+    Firefox, instead of apps like Facebook, Instagram, Tiktok, or Chrome to run private searches. For more information
+    about this risk, read the excellent article
+    “<a href="https://krausefx.com/blog/ios-privacy-instagram-and-facebook-can-track-anything-you-do-on-any-website-in-their-in-app-browser">
+    iOS Privacy: Instagram and Facebook can track anything you do on any website in their in-app browser”
+    </a>” by Felix Krause.
   </p>
   <h1>Open Source and Dataset</h1>
   <p>
     Find Sign is open source (mostly with Unlicense software license). You can get the source code at
-    <a href="https://github.com/Bluebie/sign-search">GitHub</a>.
+    <a href="https://github.com/auslan-find-sign/find-sign-website">GitHub</a>.
   </p>
   <p>
     Find Sign indexes copyright data, so the dataset is not open source, but it is intended to be open access for
-    non-commercial culturally appropriate use. For now, BitTorrent and Hypercore access has been disabled due to
-    performance issues and barely any usage. Slow progress is being made refactoring the site to use simple yaml
-    files to store all the interesting data. A service is planned to also offer JSON, XML, and CBOR translations
-    of these YAML files. When this is finished, the data will be available over a simple http interface. For now,
-    if you want access send me (@Bluebie on Github or Twitter) a message. Maybe we can sort something temporary out.
+    non-commercial culturally appropriate use. You can explore the data Find Sign uses on our
+    <a href="https://data.auslan.fyi/collections/search-data" sveltekit:reload>dataset website</a>.
   </p>
   <p>
     If you want to apply this searching technology to another sign language, you'll need to capture the data for your
-    search index, by building some kind of spider program. The easiest way to make this work is to output either YAML
-    or JSON in the <a href="https://github.com/Bluebie/sign-search/blob/master/docs/search-data.md">search-data format</a>.
+    search index, by building some kind of spider program. If you can output the data in the same search-data json format
+    this Find Sign instance uses, it'll be easy to setup your own version.
+  </p>
+  <p>
+    If you have quality Auslan vocab or phrase examples, that you would like to see featured in Find Sign, you can
+    reach out to us for help getting your data in to Find Sign via
+    <HiddenEmail user=find domain=auslan.fyi>email</HiddenEmail>,
+    <HiddenEmail user=find domain=auslan.fyi proto="imessage">iMessage</HiddenEmail>,
+    or <HiddenEmail user=find domain=auslan.fyi proto="facetime">Facetime</HiddenEmail>.
   </p>
 </MainBlock>
