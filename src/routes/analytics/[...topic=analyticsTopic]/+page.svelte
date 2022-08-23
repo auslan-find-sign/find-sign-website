@@ -9,7 +9,23 @@
 	import Area from "$lib/charts/Area.svelte"
 	import Header from "$lib/header/Header.svelte"
 
-  export let data: PageData
+  export let data: PageData // server sent data is all in UTC zone
+
+	let tzOffsetHrs = (Date.UTC(data.year, 0) - (new Date(data.year, 0)).getTime()) / 1000 / 60 / 60
+
+	const TzRotateMinutes = 60
+	const TzRotateHours = 1
+	// rotate an array of data to account for local client timezone
+	function tzRotate (data: number[], offsetHrs: number, multiplier: number): number[] {
+		const arrayOffset = Math.round(offsetHrs * multiplier)
+		if (tzOffsetHrs > 0) {
+			return [...data.slice(-arrayOffset), ...data.slice(0, data.length - arrayOffset)]
+		} else if (tzOffsetHrs < 0) {
+			return [...data.slice(-arrayOffset), ...data.slice(0, -arrayOffset)]
+		} else {
+			return [...data]
+		}
+	}
 
 	$: yearStartMs = Date.UTC(data.year, 0)
 	$: yearMonthTicks = [...times(12, month => {
@@ -27,11 +43,11 @@
   $: points = data.days.map((y, x) => ({ x, y }))
 	$: total = data.days.reduce((x, y) => x + y, 0)
 
-	$: avgDayPoints = data.avgDay.map((y, x) => ({ x: x / 60, y }))
+	$: avgDayPoints = tzRotate(data.avgDay, tzOffsetHrs, TzRotateMinutes).map((y, x) => ({ x: x / 60, y }))
 
-	$: avgWeekPoints = data.avgWeek.map((y, x) => ({ x: x / 24, y }))
+	$: avgWeekPoints = tzRotate(data.avgWeek, tzOffsetHrs, TzRotateHours).map((y, x) => ({ x: x / 24, y }))
 
-	$: console.log(avgWeekPoints)
+	// $: console.log(avgWeekPoints)
 </script>
 
 <svelte:head>
@@ -42,6 +58,8 @@
 
 <MainBlock wide>
   <h1>“{data.topic}” requests in {data.year}</h1>
+
+	<p>Display Timezone: <input type="range" min="-12" max="12" step="0.5" bind:value={tzOffsetHrs}> UTC {tzOffsetHrs < 0 ? '-' : '+'} {Math.abs(tzOffsetHrs)} hours </p>
 
 	<div class="year-links">
 		<a href="?year={data.year - 1}">⋖ {data.year - 1}</a>
