@@ -1,19 +1,28 @@
 <script lang="ts">
+  export let proto: string = 'mailto'
   export let user: string
   export let domain: string
 
+  let href = '#send-email'
+
   function doMailto (event) {
     event.preventDefault()
-    location.href = `mailto:${user}@${domain}`
+    location.href = `${proto}:${user}@${domain}`
+  }
+
+  function setHref (event) {
+    href = `${proto}:${user}@${domain}`
   }
 </script>
 <!-- svelte-ignore a11y-invalid-attribute -->
-<a href="#" on:click={doMailto} data-u={user} data-d={domain}>@</a>
+<a href={href} on:focus={setHref} on:mouseover={setHref} on:click={doMailto}
+><slot><span data-u={user} data-d={domain}>@</span></slot
+></a>
 <style>
-  a::before {
+  span::before {
     content: attr(data-u);
   }
-  a::after {
+  span::after {
       content: attr(data-d);
   }
 </style>
