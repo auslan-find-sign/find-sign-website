@@ -62,6 +62,11 @@
   <a href={link} referrerpolicy="origin" rel="external" title="video {selected + 1}">
     {#key thumbnail || media}
       {#if type === 'video'}
+        <noscript>
+          <video class="nojs" muted preload="auto" autoplay loop playsinline poster={thumbnail}>
+            {#each media as source}<source src={source.url} type={source.type} data-width={`${source.width}`} data-height={`${source.height}`}>{/each}
+          </video>
+        </noscript>
         {#if isInView}
           <video muted preload="auto" autoplay loop playsinline poster={thumbnail}>
             {#each media as source}<source src={source.url} type={source.type} data-width={`${source.width}`} data-height={`${source.height}`}>{/each}
@@ -183,5 +188,9 @@
       -webkit-backdrop-filter: brightness(140%) saturate(60%);
       backdrop-filter: brightness(140%) saturate(60%);
     }
+  }
+
+  video.nojs::-webkit-media-controls {
+    display: none;
   }
 </style>
