@@ -30,6 +30,8 @@
 	$: avgDayPoints = data.avgDay.map((y, x) => ({ x: x / 60, y }))
 
 	$: avgWeekPoints = data.avgWeek.map((y, x) => ({ x: x / 24, y }))
+
+	$: console.log(avgWeekPoints)
 </script>
 
 <svelte:head>

@@ -19,7 +19,7 @@ export const load: PageServerLoad<{ topic: Topic, year: number, minutes: number[
     )
 
     const avgWeekMinutes = chunk(data, 60 * 24 * 7).reduce((prev, curr) =>
-      prev.map((val, index) => val + curr[index])
+      prev.map((val, index) => val + (curr[index] || 0))
     ).map(value =>
       value / (data.length / (60 * 24 * 7))
     )
@@ -27,6 +27,8 @@ export const load: PageServerLoad<{ topic: Topic, year: number, minutes: number[
     const avgWeek = chunk(avgWeekMinutes, 60).map(hourMins =>
       hourMins.reduce((prev, curr) => prev + curr)
     )
+
+    console.log(avgWeek, JSON.stringify(avgWeek))//
 
     // rotate week until starts on Sunday
     const firstMomentInYear = new Date(Date.UTC(year, 0))
