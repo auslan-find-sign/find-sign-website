@@ -14,7 +14,9 @@ export const load: PageLoad = async function load ({ url, fetch }) {
   if (index && id) {
     randoms[0] = { index, id }
   } else {
-    throw redirect(307, `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`)
+    const redirectURL = `/random?${new URLSearchParams([['index', randoms[1].index], ['id', randoms[1].id]])}`
+    if (!browser) throw redirect(307, redirectURL)
+    return { redirect: redirectURL }
   }
   const library = await getSearchLibrary([randoms[0].index], ['id'])
   const result = await library[randoms[0].index].entries.find(x => x.id === randoms[0].id).load()
