@@ -11,7 +11,7 @@
 
   export let data: PageData // server sent data is all in UTC zone
 
-	let tzOffsetHrs = (Date.UTC(data.year, 0) - (new Date(data.year, 0)).getTime()) / 1000 / 60 / 60
+	let tzOffsetHrs = (new Date()).getTimezoneOffset() / -60
 
 	const TzRotateMinutes = 60
 	const TzRotateHours = 1
@@ -43,7 +43,7 @@
   $: points = data.days.map((y, x) => ({ x, y }))
 	$: total = data.days.reduce((x, y) => x + y, 0)
 
-	$: avgDayPoints = tzRotate(data.avgDay, tzOffsetHrs, TzRotateMinutes).map((y, x) => ({ x: x / 60, y }))
+	$: avgDayPoints = tzRotate(data.avgDay, tzOffsetHrs, TzRotateMinutes / 5).map((y, x) => ({ x: x / (60 / 5), y }))
 
 	$: avgWeekPoints = tzRotate(data.avgWeek, tzOffsetHrs, TzRotateHours).map((y, x) => ({ x: x / 24, y }))
 

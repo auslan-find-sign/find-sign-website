@@ -12,10 +12,15 @@ export const load: PageServerLoad<{ topic: Topic, year: number, minutes: number[
       return values.reduce((prev, curr) => prev + curr, 0)
     })
 
-    const avgDay = chunk(data, 60 * 24).reduce((prev, curr) =>
+    const avgDayMinutes = chunk(data, 60 * 24).reduce((prev, curr) =>
       prev.map((val, index) => val + curr[index])
     ).map(value =>
       value / (data.length / (60 * 24))
+    )
+
+    // in 5 min blocks
+    const avgDay = chunk(avgDayMinutes, 5).map(block =>
+      block.reduce((prev, curr) => prev + curr, 0) / block.length
     )
 
     const avgWeekMinutes = chunk(data, 60 * 24 * 7).reduce((prev, curr) =>
