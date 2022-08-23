@@ -129,7 +129,7 @@
 		<p>
 			Note: Prior to 2022, data was collected using Fathom Analytics, which only records hits per hour. That's why the Average Day graph looks weirdly regular.
 		</p>
-	{:else if data.year === 2022}
+	{:else if data.topic !== 'search' && data.year === 2022}
 		<p>
 			Note: Up to 22nd of July 2022, data was collected using Fathom Analytics, which only records hits per hour. This is why Average Day graph has unusual spikes
 			at the start of each hour in this year. Data was not collected again until August 24th this year, as no analytics solution was implemented until then, after
