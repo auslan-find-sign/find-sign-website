@@ -42,7 +42,7 @@ export const load: PageServerLoad<{ topic: Topic, year: number, minutes: number[
       avgWeek.push(...avgWeek.splice(0, firstDay * 24))
     }
 
-    return { topic, year, days, avgDay, avgWeek }
+    return { topic, year, days, avgDay, avgWeek, maxAge: 60000 }
   } else {
     return error(500, 'invalid topic')
   }

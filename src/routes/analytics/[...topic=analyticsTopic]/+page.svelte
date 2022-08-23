@@ -1,13 +1,16 @@
 <script lang="ts">
   import type { PageData } from "./$types"
   import MainBlock from "$lib/MainBlock.svelte"
-  import { LayerCake, Svg, Html, Canvas } from "layercake"
-  import { chunk, times } from "$lib/functions/iters"
+  import { LayerCake, Svg } from "layercake"
+  import { times } from "$lib/functions/iters"
 	import AxisX from "$lib/charts/AxisX.svelte"
 	import AxisY from "$lib/charts/AxisY.svelte"
 	import Line from "$lib/charts/Line.svelte"
 	import Area from "$lib/charts/Area.svelte"
 	import Header from "$lib/header/Header.svelte"
+	import { invalidate } from "$app/navigation"
+	import { page } from "$app/stores"
+	import { browser } from "$app/env"
 
   export let data: PageData // server sent data is all in UTC zone
 
@@ -46,6 +49,15 @@
 	$: avgDayPoints = tzRotate(data.avgDay, tzOffsetHrs, TzRotateMinutes / 5).map((y, x) => ({ x: x / (60 / 5), y }))
 
 	$: avgWeekPoints = tzRotate(data.avgWeek, tzOffsetHrs, TzRotateHours).map((y, x) => ({ x: x / 24, y }))
+
+	// polling for updates mechanism
+	let refreshTimer
+	$: if (browser && data && data.maxAge) {
+		if (refreshTimer) clearTimeout(refreshTimer)
+		refreshTimer = setTimeout(() =>
+			invalidate($page.url.pathname)
+		, data.maxAge)
+	}
 
 	// $: console.log(avgWeekPoints)
 </script>
