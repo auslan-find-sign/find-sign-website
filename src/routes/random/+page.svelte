@@ -1,16 +1,10 @@
 <script lang="ts">
   import Header from '$lib/header/Header.svelte'
   import Result from '$lib/result/Result.svelte'
-  import { onMount } from 'svelte'
-  import { prefetch } from '$app/navigation'
   import type { PageData } from './$types'
 
   export let data: PageData
   $: ({ result, permalink, next } = data)
-
-  onMount(() => {
-    prefetch(next)
-  })
 </script>
 
 <svelte:head>
@@ -22,7 +16,7 @@
 <main>
   <h1>Random Sign Generator</h1>
 
-  <h2><a href={next} role="button" class="button" sveltekit:noscroll>🎲 Reroll</a></h2>
+  <h2><a href={next} role="button" class="button" sveltekit:noscroll sveltekit:prefetch>🎲 Reroll</a></h2>
   <div class="result-box">
     {#key permalink}
       <Result data={result} {permalink} expand prefer="quality" carouselSelected={0} />
