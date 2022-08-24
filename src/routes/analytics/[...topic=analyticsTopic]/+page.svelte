@@ -129,7 +129,7 @@
 		</LayerCake>
 	</div>
 
-	<p>Total hits in {data.year}: {total}</p>
+	<p>Total hits in {data.year}: {total}, a daily average of {total / data.days.length} each day</p>
 
 	<p>p/d refers to hits per day, p/h refers to hits per hour.</p>
 
