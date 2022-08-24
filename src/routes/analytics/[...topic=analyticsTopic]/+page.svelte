@@ -50,9 +50,9 @@
 
 	$: avgWeekPoints = tzRotate(data.avgWeek, tzOffsetHrs, TzRotateHours).map((y, x) => ({ x: x / 24, y }))
 
-	// polling for updates mechanism
+	// polling for updates mechanism, only if year is current
 	let refreshTimer
-	$: if (browser && data && data.maxAge) {
+	$: if (browser && data && data.maxAge && data.year === (new Date()).getUTCFullYear()) {
 		if (refreshTimer) clearTimeout(refreshTimer)
 		refreshTimer = setTimeout(() =>
 			invalidate($page.url.pathname)
