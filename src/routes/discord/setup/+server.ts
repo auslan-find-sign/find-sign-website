@@ -2,6 +2,7 @@ import type { RequestHandler } from './$types'
 import { DiscordAppID, TestGuildID } from '../_setup.js'
 import { discordRequest } from '../_discord_request.js'
 import commands from '../_commands.js'
+import { json } from '@sveltejs/kit'
 
 // Checks for a command
 export async function hasCommand(command, isDev) {
@@ -53,5 +54,5 @@ export const GET: RequestHandler = async ({ url }) => {
     const result = await hasCommand(command, isDev)
     output.push({ command, result })
   }
-  return new Response(JSON.stringify(output), { headers: { 'Content-Type': 'application/json' } })
+  return json(output)
 }

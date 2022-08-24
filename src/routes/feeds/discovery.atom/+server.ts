@@ -1,4 +1,3 @@
-import { json as json$1 } from '@sveltejs/kit';
 import { getUpdatesFeed } from '../_read-discovery-feed'
 import encode from 'pigeonmark-xml/library/encode.js'
 

@@ -1,5 +1,6 @@
+import { json } from '@sveltejs/kit'
 import { getUpdatesFeed } from '../_read-discovery-feed'
-import type { RequestHandler } from '../$types'
+import type { RequestHandler } from './$types'
 
 export const prerender = false
 
@@ -9,5 +10,5 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const body = await getUpdatesFeed({ url, page, length })
 
-  return new Response(JSON.stringify(body), { headers: { 'content-type': 'application/feed+json; charset=UTF-8' } })
+  return json(body)
 }
