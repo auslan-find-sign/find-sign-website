@@ -8,6 +8,7 @@
 	import Line from "$lib/charts/Line.svelte"
 	import Area from "$lib/charts/Area.svelte"
 	import Header from "$lib/header/Header.svelte"
+	import watchMedia from 'svelte-media'
 	import { invalidate } from "$app/navigation"
 	import { page } from "$app/stores"
 	import { browser } from "$app/env"
@@ -15,6 +16,8 @@
   export let data: PageData // server sent data is all in UTC zone
 
 	let tzOffsetHrs = (new Date()).getTimezoneOffset() / -60
+
+	const media = watchMedia({ phone: '(max-width: 600px)' })
 
 	const TzRotateMinutes = 60
 	const TzRotateHours = 1
@@ -96,12 +99,17 @@
 		<LayerCake padding={{ right: 10, bottom: 20, left: 50 }} x='x' y='y' data={avgDayPoints}>
 			<Svg>
 				<AxisX ticks={24} formatTick={t =>
-					[
-						'12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am',
-						'12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'
-					][t]
+					(!browser || !$media.phone)
+					?	[
+							'12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am',
+							'12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm'
+						][t]
+					: [
+							'12am', '', '2am', '', '4am', '', '6am', '', '8am', '', '10am', '',
+							'12pm', '', '2pm', '', '4pm', '', '6pm', '', '8pm', '', '10pm', ''
+						][t]
 				}/>
-				<AxisY ticks={8} formatTick={t => `${t} p/5m`} />
+				<AxisY ticks={8} formatTick={t => `${t * 12} p/h`} />
 				<Area/>
 				<Line stroke='currentColor'/>
 			</Svg>
@@ -123,7 +131,7 @@
 
 	<p>Total hits in {data.year}: {total}</p>
 
-	<p>p/d refers to hits per day, p/h refers to hits per hour, p/5m refers to hits per 5 minute block.</p>
+	<p>p/d refers to hits per day, p/h refers to hits per hour.</p>
 
 	{#if data.year < 2022}
 		<p>
