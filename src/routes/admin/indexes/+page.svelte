@@ -21,6 +21,20 @@
     }
   }
 
+  async function validate (event, index) {
+    event.preventDefault()
+
+    if (rebuilding[index]) {
+      console.log('already running...')
+    } else {
+      const endpoint = fn`/admin/indexes/${index}/validate`
+      const response = await fetch(endpoint, { method: 'POST', body: '' })
+      const json = await response.json()
+      rebuilding[index] = { endpoint, id: json.progress.id, finished: false }
+      rebuilding = rebuilding
+    }
+  }
+
   function indexURL (index) {
     return fn`/admin/indexes/${index}`
   }
@@ -44,7 +58,8 @@
             [building...]
           {:else}
             [<a href="#update-{index}" on:click={(event) => rebuild(event, index, { fast: true })}>update</a>,
-            <a href="#rebuild-{index}" on:click={(event) => rebuild(event, index, { fast: false })}>rebuild</a>]
+            <a href="#rebuild-{index}" on:click={(event) => rebuild(event, index, { fast: false })}>rebuild</a>,
+            <a href="#validate-{index}" on:click={(event) => validate(event, index)}>validate</a>]
           {/if}
         </span>
 
