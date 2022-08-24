@@ -10,17 +10,29 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
   const json: EncodedSearchData = await response.json()
   for (const id in json) {
     const entry = json[id] = {
-      title: id,
+      id: id,
       published: true,
       ...json[id]
     }
     if (!entry.title && entry.words) {
       entry.title = entry.words.join(', ')
     }
-    if (!entry.words && entry.title) {
+    if (!entry.title) {
+      entry.title = id
+    }
+    if (!entry.words) {
       /** @ts-ignore */
       const seg = new Intl.Segmenter(import.meta.env.VITE_LOCALE, { granularity: 'word' }) // node 16.x
       entry.words = [...seg.segment(entry.title)].filter(x => x.isWordLike).map(x => x.segment)
+    }
+    if (!entry.body) {
+      entry.body = ''
+    }
+    if (!entry.tags) {
+      entry.tags = []
+    }
+    if (!entry.media) {
+      entry.media = []
     }
     // make all the links absolute
     if (entry.link) entry.link = (new URL(entry.link, url)).toString()
@@ -34,12 +46,10 @@ export async function readEncodedSearchData (url: string): Promise<EncodedSearch
     if (entry.provider && entry.provider.link) {
       entry.provider.link = (new URL(entry.provider.link, url)).toString()
     }
-    if (entry.media) {
-      for (const mediaItem of entry.media) {
-        mediaItem.thumbnail = (new URL(mediaItem.thumbnail, url)).toString()
-        for (const encode of mediaItem.encodes) {
-          encode.url = (new URL(encode.url, url)).toString()
-        }
+    for (const mediaItem of entry.media) {
+      mediaItem.thumbnail = (new URL(mediaItem.thumbnail, url)).toString()
+      for (const encode of mediaItem.encodes) {
+        encode.url = (new URL(encode.url, url)).toString()
       }
     }
   }
