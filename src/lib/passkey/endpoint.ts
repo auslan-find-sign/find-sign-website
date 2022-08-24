@@ -185,7 +185,6 @@ export default function createAuthEndpoint (endpointOptions: AuthEndpointOptions
   }
 
   function verifyToken (token: string) {
-    console.log('verifyToken', token)
     const buffer = decodeHex(token)
     const opened = sign_open(buffer, keypair.publicKey)
     if (opened) {

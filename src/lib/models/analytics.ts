@@ -54,7 +54,6 @@ export async function recordAnalytics (topic: Topic, value = 1) {
     setTimeout(async () => {
       delete AnalyticsJobs[jobName]
       await mathWrite(job.filename, job.bucketLength, 'u16', job.operations)
-      console.log(`Wrote analytics for ${JSON.stringify(topic)}`)
     }, AnalyticsWriteInterval)
   }
 }
