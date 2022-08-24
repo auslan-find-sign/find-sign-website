@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EncodedSearchDataEntry } from '$lib/orthagonal/types'
+  import { isEncodedSearchDataEntry, type EncodedSearchDataEntry } from '$lib/orthagonal/types'
   import watchMedia from 'svelte-media'
   import Carousel from '$lib/result/Carousel.svelte'
   import RegionMap from '$lib/RegionMap.svelte'
@@ -15,6 +15,8 @@
 
   $: warnings = data ? [...getWarnings(data.tags)] : []
 
+  $: isCorrupt = !isEncodedSearchDataEntry(data)
+
   const media = watchMedia({ phone: '(max-width: 600px)' })
   $: implicitExpand = expand || $media.phone
 
@@ -24,8 +26,11 @@
   }
 </script>
 
-<div class={$$props.class} class:result={true} class:placeholder={!data} class:expand={implicitExpand}>
-  {#if data}
+<div class={$$props.class} class:result={true} class:placeholder={!data || isCorrupt} class:expand={implicitExpand}>
+  {#if isCorrupt}
+    <p>An error exists in <a href={permalink}>{permalink}</a>, search result could not be shown</p>
+  {/if}
+  {#if data && !isCorrupt}
     <Carousel
       bind:selected={carouselSelected}
       medias={data.media}
