@@ -24,4 +24,4 @@ jobs:
           git pull
           npm i
           npm run build
-          pm2 restart find-sign-website
+          pm2 reload find-sign-website
