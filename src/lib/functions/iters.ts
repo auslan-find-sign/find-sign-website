@@ -34,15 +34,33 @@ export function * timesIterable (times, callback) {
   }
 }
 
+type Sliceable<T> = {
+  length: number,
+  slice: (start: number, end: number) => T
+}
+
 // given a sliceable object like an Array, Buffer, or String, returns an array of slices, chunkSize large, up to maxChunks or the whole thing
 // the last chunk may not be full size
-export function chunk<Type> (sliceable: Iterable<Type>, chunkSize: number, maxChunks = Infinity): Type[][] {
-  return [...chunkIterable(sliceable, chunkSize, maxChunks)]
+export function chunk<Type> (sliceable: Sliceable<Type>, chunkSize: number, maxChunks = Infinity): Type[] {
+  return [...chunkIterSliceable(sliceable, chunkSize, maxChunks)]
+}
+
+// takes a sliceable and chunks it in to arrays and yields those arrays
+export function * chunkIterSliceable<T> (sliceable: Sliceable<T>, chunkSize: number, maxChunks: number = Infinity): Generator<T> {
+  if (sliceable.length === 0) {
+    yield sliceable.slice(0, 0)
+    return
+  }
+  for (let cursor = 0; cursor < sliceable.length && maxChunks > 0; cursor += chunkSize) {
+    const slice = sliceable.slice(cursor, cursor + chunkSize)
+    yield slice
+    maxChunks -= 1
+  }
 }
 
 // iterable version, takes an iterable as input, and provides an iterable as output with entries grouped in to arrays
-export function * chunkIterable<Type> (sliceable: Iterable<Type>, chunkSize: number, maxChunks: number = Infinity): Generator<Type[]> {
-  const input = sliceable[Symbol.iterator]()
+export function * chunkIterable<Type> (iterable: Iterable<Type>, chunkSize: number, maxChunks: number = Infinity): Generator<Type[]> {
+  const input = iterable[Symbol.iterator]()
   while (maxChunks > 0) {
     const chunk = []
     while (chunk.length < chunkSize) {
