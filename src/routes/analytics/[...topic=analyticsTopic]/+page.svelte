@@ -74,19 +74,21 @@
 <MainBlock wide>
   <h1>“{data.topic}” requests in {data.year}</h1>
 
-	<p>Display Timezone: <input type="range" min="-12" max="12" step="0.5" bind:value={tzOffsetHrs}> UTC {tzOffsetHrs < 0 ? '-' : '+'} {Math.abs(tzOffsetHrs)} hours </p>
+	<p><a href="/analytics" sveltekit:noscroll sveltekit:prefetch>Back to Analytics Topics List</a></p>
 
 	<div class="year-links">
-		<a href="?year={data.year - 1}">⋖ {data.year - 1}</a>
+		<a href="?year={data.year - 1}" sveltekit:noscroll sveltekit:prefetch>⋖ {data.year - 1}</a>
 		<span>{data.year}</span>
-		<a href="?year={data.year + 1}">{data.year + 1} ⋗</a>
+		<a href="?year={data.year + 1}" sveltekit:noscroll sveltekit:prefetch>{data.year + 1} ⋗</a>
 	</div>
+
+	<p>Display Timezone: <input type="range" min="-12" max="12" step="0.5" bind:value={tzOffsetHrs}> UTC {tzOffsetHrs < 0 ? '-' : '+'} {Math.abs(tzOffsetHrs)} hours </p>
 
 	<div class="chart">
 		<LayerCake padding={{ right: 10, bottom: 20, left: 50 }} x='x' y='y' data={points}>
 			<Svg>
 				<AxisX ticks={yearMonthTicks} formatTick={yearMonthFormat} />
-				<AxisY ticks={8} formatTick={t => `${t} p/d`}/>
+				<AxisY ticks={8} formatTick={t => `${t} p/d`} textAnchor="end" dxTick={40} />
 				<Area/>
 				<Line stroke='currentColor'/>
 			</Svg>
@@ -109,7 +111,7 @@
 							'12pm', '', '', '3pm', '', '', '6pm', '', '', '9pm', '', ''
 						][t]
 				}/>
-				<AxisY ticks={8} formatTick={t => `${t * 12} p/h`} />
+				<AxisY ticks={8} formatTick={t => `${Math.round(t * 12 * 10) / 10} p/h`} textAnchor="end" dxTick={40} />
 				<Area/>
 				<Line stroke='currentColor'/>
 			</Svg>
@@ -122,7 +124,7 @@
 		<LayerCake padding={{ right: 10, bottom: 20, left: 50 }} x='x' y='y' data={avgWeekPoints}>
 			<Svg>
 				<AxisX ticks={7} formatTick={t => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][t]} />
-				<AxisY ticks={8} formatTick={t => `${t} p/h` }/>
+				<AxisY ticks={8} formatTick={t => `${t} p/h` } textAnchor="end" dxTick={40} />
 				<Area/>
 				<Line stroke='currentColor'/>
 			</Svg>
@@ -148,7 +150,7 @@
 	{#if data.topic === 'search' && data.year <= 2022}
 		<p>
 			Note: Due to a quirk in how Find Sign used to work, individual search hits were not able to be recorded before August 24th 2022. Usage before this point can be
-			somewhat inferred by hits in the <a href="/analytics/homepage">homepage</a> dataset.
+			somewhat inferred by hits in the <a href="/analytics/homepage" sveltekit:prefetch>homepage</a> dataset.
 		</p>
 	{/if}
 </MainBlock>
