@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest'
 import { delay } from '../src/lib/functions/delay.js'
-import cache from '../src/lib/functions/cache.js'
+import cache, { immediateResponseCache } from '../src/lib/functions/cache.js'
 
 describe('/src/lib/functions/cache.ts', () => {
   it('retrieves', async () => {
@@ -24,5 +24,27 @@ describe('/src/lib/functions/cache.ts', () => {
     c.set('value')
     await delay(75)
     expect(c.get()).to.equal('value')
+  })
+
+  it('immediateResponseCache behaves as expected', async () => {
+    let x = 0
+    const c = immediateResponseCache(async () => {
+      await delay(20)
+      x += 1
+      return x
+    })
+
+    expect(await c()).to.equal(1)
+    await delay(25)
+    expect(await c()).to.equal(2)
+    expect(await c()).to.equal(2)
+    expect(await c()).to.equal(2)
+    await delay(25)
+    expect(await c()).to.equal(3)
+    await delay(50)
+    const start = Date.now()
+    expect(await c()).to.equal(4)
+    const end = Date.now()
+    expect(end - start).to.be.lessThan(5)
   })
 })
