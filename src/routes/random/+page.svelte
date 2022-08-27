@@ -11,6 +11,7 @@
 
 <svelte:head>
   <title>Random Sign</title>
+  <meta name="robots" content="noindex">
 </svelte:head>
 
 <Header/>
