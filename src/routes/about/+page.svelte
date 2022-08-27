@@ -86,7 +86,7 @@
   <ul>
     {#each data.hashtags as { hashtag, count }}
       {#if count > 1}
-        <li><a href={searchURL(`#${hashtag}`)}>#{hashtag}</a> <span>({count} videos)</span></li>
+        <li><a href={searchURL(`#${hashtag}`)} rel="nofollow">#{hashtag}</a> <span>({count} videos)</span></li>
       {/if}
     {/each}
   </ul>
@@ -94,7 +94,7 @@
   <ul>
     {#each data.usernames as { username, count }}
       {#if count > 0}
-        <li><a href={searchURL(`@${username}`)}>@{username}</a> <span>({count} videos)</span></li>
+        <li><a href={searchURL(`@${username}`)} rel="nofollow">@{username}</a> <span>({count} videos)</span></li>
       {/if}
     {/each}
   </ul>
