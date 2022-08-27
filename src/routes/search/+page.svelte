@@ -23,11 +23,6 @@
   const media = watchMedia({ phone: '(max-width: 600px)' })
   $: if (browser) viewport = $media.phone ? 'mobile' : 'desktop'
 
-  export let preconnectOrigin = [...new Set([
-    import.meta.env.VITE_VECTOR_INDEX,
-    import.meta.env.VITE_SEARCH_DATA
-  ].map(x => (new URL(x)).origin))]
-
   // attempt to offer autocorrection
   async function autocorrect(query) {
     didYouMean = undefined
@@ -74,9 +69,6 @@
 
 <svelte:head>
 	<title>“{query}” - Find Sign</title>
-  {#each preconnectOrigin as origin}
-  <link rel="preconnect" href={origin}>
-  {/each}
   <meta name="robots" content="noindex">
 </svelte:head>
 

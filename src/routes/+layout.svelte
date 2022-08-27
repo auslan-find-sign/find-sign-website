@@ -6,6 +6,11 @@
 
 	export let data: LayoutData
 
+	const preconnectOrigin = [...new Set([
+    import.meta.env.VITE_VECTOR_INDEX,
+    import.meta.env.VITE_SEARCH_DATA
+  ].map(x => (new URL(x)).origin))]
+
 	$: loading = $navigating !== null
 
 	// is the page load towards a search results page?
@@ -25,6 +30,9 @@
 
 <svelte:head>
   <meta name=viewport content="width=device-width">
+	{#each preconnectOrigin as origin}
+  <link rel="preconnect" href={origin}>
+  {/each}
 </svelte:head>
 
 <slot></slot>
