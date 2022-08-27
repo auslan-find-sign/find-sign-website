@@ -77,6 +77,7 @@
   {#each preconnectOrigin as origin}
   <link rel="preconnect" href={origin}>
   {/each}
+  <meta name="robots" content="noindex">
 </svelte:head>
 
 <Header {query} showNavigation={false} on:regionChange={regionChangeHandler} />
