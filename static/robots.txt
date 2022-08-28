@@ -1,5 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /search
+Disallow: /random
+Disallow: /admin
+Disallow: /automation
+Disallow: /discord
 
 Sitemap: /sitemap.xml
