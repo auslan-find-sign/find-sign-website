@@ -30,16 +30,15 @@ export function immediateResponseCache<Ret, Args extends any[]> (loadNewValue: (
       if (initialized) {
         next.then(x => {
           updating = false
-          initialized = true
           nextPromise = Promise.resolve(x)
         }).catch(err => {
           updating = false
-          initialized = true
           nextPromise = Promise.reject(err)
         })
       } else {
+        initialized = true
         nextPromise = next
-        return next
+        nextPromise.finally(() => updating = false)
       }
     }
 
