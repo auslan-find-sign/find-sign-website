@@ -16,9 +16,9 @@ export const load: PageServerLoad<{ topic: Topic, year: number, minutes: number[
       block.some(x => x !== 0)
     )
 
-    const avgDayMinutes = daysWithData.reduce((prev, curr) =>
+    const avgDayMinutes = [...daysWithData.reduce((prev, curr) =>
       prev.map((val, index) => val + curr[index])
-    ).map(value =>
+    )].map(value =>
       value / daysWithData.length
     )
 
@@ -32,9 +32,9 @@ export const load: PageServerLoad<{ topic: Topic, year: number, minutes: number[
     const weeksWithData = chunk(data.slice(mondayOffset), 60 * 24 * 7).filter(block =>
       block.some(x => x !== 0)
     )
-    const avgWeekMinutes = weeksWithData.reduce((prev, curr) =>
+    const avgWeekMinutes = [...weeksWithData.reduce((prev, curr) =>
       prev.map((val, index) => val + curr[index])
-    ).map(value =>
+    )].map(value =>
       value / weeksWithData.length
     )
 
