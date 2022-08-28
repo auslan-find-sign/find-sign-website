@@ -4,6 +4,7 @@
   import { page } from '$app/stores'
   import { goto } from '$app/navigation'
   import { inview } from 'svelte-inview' // intersection observer
+  import { browser } from '$app/env'
 
   export let key: number|string = 0 // unique index of carousel, for search params state transmission
   export let medias: SearchDataEncodedMedia[] = []
@@ -62,11 +63,13 @@
   <a href={link} referrerpolicy="origin" rel="external" title="video {selected + 1}">
     {#key thumbnail || media}
       {#if type === 'video'}
-        <noscript>
-          <video class="nojs" muted preload="auto" autoplay loop playsinline poster={thumbnail}>
-            {#each media as source}<source src={source.url} type={source.type} data-width={`${source.width}`} data-height={`${source.height}`}>{/each}
-          </video>
-        </noscript>
+        {#if !browser}
+          <noscript>
+            <video class="nojs" muted preload="auto" autoplay loop playsinline poster={thumbnail}>
+              {#each media as source}<source src={source.url} type={source.type} data-width={`${source.width}`} data-height={`${source.height}`}>{/each}
+            </video>
+          </noscript>
+        {/if}
         {#if isInView}
           <video muted preload="auto" autoplay loop playsinline poster={thumbnail}>
             {#each media as source}<source src={source.url} type={source.type} data-width={`${source.width}`} data-height={`${source.height}`}>{/each}
