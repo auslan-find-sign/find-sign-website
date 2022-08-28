@@ -29,17 +29,19 @@ describe('/src/lib/functions/cache.ts', () => {
   it('immediateResponseCache behaves as expected', async () => {
     let x = 0
     const c = immediateResponseCache(async () => {
-      await delay(20)
+      await delay(10)
       x += 1
       return x
     })
 
     expect(await c()).to.equal(1)
-    await delay(25)
+    expect(await c()).to.equal(1)
+    expect(await c()).to.equal(1)
+    await delay(15)
     expect(await c()).to.equal(2)
     expect(await c()).to.equal(2)
     expect(await c()).to.equal(2)
-    await delay(25)
+    await delay(15)
     expect(await c()).to.equal(3)
     await delay(50)
     const start = Date.now()
