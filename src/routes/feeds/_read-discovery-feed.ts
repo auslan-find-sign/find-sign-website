@@ -1,4 +1,5 @@
 import { base } from '$app/paths'
+import { encodeFilename } from '$lib/models/filename-codec'
 import { getSearchLibrary } from '$lib/search/search'
 
 export const prerender = false
@@ -26,7 +27,7 @@ export async function getUpdatesFeed ({ page = 0, length = 30, url, extended = f
     items: loaded.map(entry => ({
       id: `${entry.provider.id}:${entry.id}`,
       title: `${entry.provider.name} ${entry.provider.verb || 'shared'}: ${entry.title}`,
-      url: (new URL(`/sign/${encodeURIComponent(entry.provider.id)}/${encodeURIComponent(entry.id)}`, url)).toString(),
+      url: (new URL(`/sign/${encodeFilename(entry.provider.id)}/${encodeFilename(entry.id)}`, url)).toString(),
       external_url: entry.link,
       authors: entry.author
         ? [{
