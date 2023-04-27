@@ -14,8 +14,8 @@ export default function rank (library: SearchLibrary, filterFn): RankedLibrary {
       if (typeof rank === 'number' && rank < Infinity) {
         const rankedEntry = Object.create(entry)
         if (entry.vectors) {
-          const diversity = Math.max(...vectorDiversity(...entry.vectors.filter(x => Array.isArray(x))))
-          rankedEntry.rank = rank + (diversity * 0.05)
+          const diversity = Math.max(...vectorDiversity(...entry.vectors.filter(x => x instanceof Float32Array)))
+          rankedEntry.rank = rank + (diversity * 0.1)
         } else {
           rankedEntry.rank = rank
         }
